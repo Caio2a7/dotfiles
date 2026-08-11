@@ -1,0 +1,917 @@
+* {
+  font-family: "JetBrainsMono Nerd Font", "Symbols Nerd Font", monospace;
+  font-size: 13px;
+  color: #f0f2f5;
+}
+
+.hub-inner {
+  background: rgba(8, 10, 15, 0.90);
+  backdrop-filter: blur(32px) saturate(1.4);
+  -webkit-backdrop-filter: blur(32px) saturate(1.4);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  min-width: 180px;
+  margin: 5px;
+  padding: 10px;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.60),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.40),
+    0 12px 40px rgba(0, 0, 0, 0.70),
+    0 4px 12px rgba(0, 0, 0, 0.50);
+}
+
+.hub-section {
+  padding: 14px 10px;
+}
+
+.hub-section-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: #a8b4c8;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.hub-divider {
+  background: rgba(255, 255, 255, 0.06);
+  min-height: 1px;
+  margin: 0 10px;
+}
+
+.hub-clock {
+  padding: 2px 0;
+}
+
+.hub-clock-time {
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.hub-clock-dot {
+  font-size: 10px;
+  color: #8a94a8;
+}
+
+.hub-clock-date {
+  font-size: 12px;
+  font-weight: bold;
+  color: #a8b4c8;
+  text-transform: capitalize;
+}
+
+.ws-btn {
+  background: rgba(20, 24, 32, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  min-width: 30px;
+  min-height: 30px;
+  padding: 2px 6px;
+  color: #5a6070;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.40);
+  transition: all 200ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.ws-btn:hover {
+  background: rgba(35, 42, 58, 0.85);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #c8cdd6;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.ws-btn.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 2px 8px rgba(0, 0, 0, 0.40);
+}
+
+.hub-window-single {
+  padding-top: 2px;
+}
+
+.window-icon {
+  font-size: 14px;
+  color: #38bdf8;
+}
+
+.window-single-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: #a8b4c8;
+}
+
+.hub-sysgrid {
+  padding: 2px 0;
+}
+
+.hub-syscard {
+  background: rgba(14, 18, 26, 0.78);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  padding: 6px 8px;
+  min-width: 58px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.10),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 4px 14px rgba(0, 0, 0, 0.40);
+  transition: all 200ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.hub-syscard:hover {
+  background: rgba(18, 23, 33, 0.88);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.syscard-icon {
+  font-size: 18px;
+  min-width: 24px;
+}
+
+.syscard-value {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.syscard-name {
+  font-size: 10px;
+  font-weight: bold;
+  color: #8a9fc0;
+  letter-spacing: 0.5px;
+}
+
+/* Levelbar Vertical Trough & Filled Block */
+.hub-syscard levelbar,
+.hub-syscard levelbar trough {
+  background-color: rgba(18, 22, 30, 0.90);
+  border-radius: 4px;
+  min-width: 8px;
+  width: 8px;
+  min-height: 88px;
+  height: 88px;
+  max-height: 88px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hub-syscard levelbar block.filled {
+  border-radius: 4px;
+  min-width: 8px;
+  width: 8px;
+}
+
+/* CPU */
+.hub-syscard.cpu .syscard-icon,
+.hub-syscard.cpu .syscard-value {
+  color: #6a8fc0;
+}
+.hub-syscard.cpu levelbar block.filled {
+  background: linear-gradient(0deg, #1e3a5f, #6a8fc0);
+}
+
+/* RAM */
+.hub-syscard.ram .syscard-icon,
+.hub-syscard.ram .syscard-value {
+  color: #5a9eb0;
+}
+.hub-syscard.ram levelbar block.filled {
+  background: linear-gradient(0deg, #164e63, #5a9eb0);
+}
+
+/* DISK */
+.hub-syscard.disk .syscard-icon,
+.hub-syscard.disk .syscard-value {
+  color: #8894a8;
+}
+.hub-syscard.disk levelbar block.filled {
+  background: linear-gradient(0deg, #27272a, #8894a8);
+}
+
+/* GPU (Roxa) */
+.hub-syscard.gpu .syscard-icon,
+.hub-syscard.gpu .syscard-value {
+  color: #c084fc;
+}
+.hub-syscard.gpu levelbar block.filled {
+  background: linear-gradient(0deg, #581c87, #c084fc);
+}
+
+/* REDE (Verde Esmeralda) */
+.hub-syscard.net .syscard-icon,
+.hub-syscard.net .syscard-value {
+  color: #10b981;
+}
+.hub-syscard.net levelbar block.filled {
+  background: linear-gradient(0deg, #047857, #10b981);
+}
+
+/* Temperatura Inteligente */
+.hub-syscard.temp-ideal .syscard-icon,
+.hub-syscard.temp-ideal .syscard-value {
+  color: #e0f7fa;
+}
+.hub-syscard.temp-ideal levelbar block.filled {
+  background: linear-gradient(0deg, #006064, #e0f7fa);
+}
+
+.hub-syscard.temp-low .syscard-icon,
+.hub-syscard.temp-low .syscard-value {
+  color: #38bdf8;
+}
+.hub-syscard.temp-low levelbar block.filled {
+  background: linear-gradient(0deg, #0284c7, #38bdf8);
+}
+
+.hub-syscard.temp-mid .syscard-icon,
+.hub-syscard.temp-mid .syscard-value {
+  color: #facc15;
+}
+.hub-syscard.temp-mid levelbar block.filled {
+  background: linear-gradient(0deg, #ca8a04, #facc15);
+}
+
+.hub-syscard.temp-high .syscard-icon,
+.hub-syscard.temp-high .syscard-value {
+  color: #fb923c;
+}
+.hub-syscard.temp-high levelbar block.filled {
+  background: linear-gradient(0deg, #ea580c, #fb923c);
+}
+
+.hub-syscard.temp-crit .syscard-icon,
+.hub-syscard.temp-crit .syscard-value {
+  color: #ef4444;
+}
+.hub-syscard.temp-crit levelbar block.filled {
+  background: linear-gradient(0deg, #dc2626, #ef4444);
+}
+
+.hub-stat {
+  background: rgba(12, 15, 22, 0.82);
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 8px 10px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 4px 16px rgba(0, 0, 0, 0.45);
+  transition: all 200ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.stat-icon {
+  font-size: 18px;
+  min-width: 24px;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: bold;
+  color: #8a94a8;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.stat-sub {
+  font-size: 10px;
+  font-weight: bold;
+  color: #7a8aa2;
+}
+
+.battery-text {
+  font-size: 11px;
+  font-weight: 800;
+  color: #5a8c70;
+  letter-spacing: 0.5px;
+}
+
+.battery-val {
+  font-size: 13px;
+  font-weight: 800;
+  color: #5a8c70;
+}
+
+.net-sig {
+  font-size: 12px;
+  font-weight: 800;
+  color: #5a8ea0;
+}
+
+.stat-arrow {
+  font-size: 12px;
+  color: rgba(130, 140, 158, 0.40);
+}
+
+.hub-stat.volume .stat-icon {
+  font-size: 21px;
+  min-width: 26px;
+  color: #7090b8;
+}
+
+.hub-stat.volume .stat-value {
+  color: #7090b8;
+}
+
+.hub-stat.network .stat-icon,
+.hub-stat.network .stat-value {
+  color: #5a8ea0;
+}
+
+.hub-stat.network:hover {
+  background: rgba(18, 22, 32, 0.88);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 4px 16px rgba(0, 0, 0, 0.50);
+}
+
+.hub-stat.battery .stat-icon,
+.hub-stat.battery .battery-text,
+.hub-stat.battery .battery-val {
+  color: #5a8c70;
+}
+
+.hub-stat.battery.low .stat-icon,
+.hub-stat.battery.low .battery-text,
+.hub-stat.battery.low .battery-val {
+  color: #b07040;
+}
+
+.hub-stat.brightness .stat-icon,
+.hub-stat.brightness .stat-value {
+  color: #b8a060;
+}
+
+.mute-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  color: #7090b8;
+  transition: all 150ms ease;
+}
+
+.mute-btn:hover {
+  background: transparent;
+  border: none;
+  color: #a8c8f0;
+  transform: scale(1.12);
+}
+
+scale,
+.vol-slider,
+.brightness-slider {
+  min-width: 115px;
+}
+
+scale trough,
+.vol-slider trough,
+.brightness-slider trough {
+  background-color: rgba(18, 22, 30, 0.90);
+  border-radius: 4px;
+  min-height: 5px;
+  min-width: 115px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+scale highlight,
+.vol-slider highlight {
+  background: linear-gradient(90deg, #2c4a74, #6a8fc0);
+  border-radius: 4px;
+}
+
+scale slider,
+.vol-slider slider {
+  background: radial-gradient(circle at 35% 35%, #a8b8cc, #5a7090);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  min-width: 14px;
+  min-height: 14px;
+  margin: -5px 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.50);
+}
+
+scale slider:hover,
+.vol-slider slider:hover {
+  background: radial-gradient(circle at 35% 35%, #d0dce8, #7090b0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+.brightness-slider trough {
+  background-color: rgba(18, 22, 30, 0.90);
+  border-radius: 4px;
+  min-height: 5px;
+  min-width: 150px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.brightness-slider highlight {
+  background: linear-gradient(90deg, #6b5010, #c8a040);
+  border-radius: 4px;
+}
+
+.brightness-slider slider {
+  background: radial-gradient(circle at 35% 35%, #e0cc88, #a07830);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  min-width: 14px;
+  min-height: 14px;
+  margin: -5px 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.50);
+}
+
+.brightness-slider slider:hover {
+  background: radial-gradient(circle at 35% 35%, #f0e0a0, #c09840);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+/* ------------------------------------------------------------------ */
+/* PILL FLUTUANTE LATERAL                                               */
+/* ------------------------------------------------------------------ */
+.pill-hover {
+  background: transparent;
+  opacity: 1;
+  transition: opacity 300ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.pill-hover.ghost {
+  opacity: 0;
+}
+
+.WorkPill .pill-hover {
+  padding: 24px 6px 24px 32px;
+}
+
+.pill {
+  border-radius: 999px;
+  background: #080a10;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.07),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.50),
+    0 8px 28px rgba(0, 0, 0, 0.60),
+    0 2px 6px rgba(0, 0, 0, 0.40);
+}
+
+.work-pill {
+  padding: 8px 6px;
+}
+
+/* ------------------------------------------------------------------ */
+/* WORKSPACE SECTION (PILL)                                             */
+/* ------------------------------------------------------------------ */
+.ws-section {
+  margin-left: -14px;
+  margin-right: -14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.30);
+}
+
+.ws-num {
+  min-width: 22px;
+  min-height: 22px;
+  padding: 1px 2px;
+  border-radius: 8px;
+  background: rgba(18, 22, 30, 0.80);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2px 5px rgba(0, 0, 0, 0.35);
+  transition: all 200ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.ws-num:hover {
+  background: rgba(32, 40, 56, 0.90);
+  border-color: rgba(255, 255, 255, 0.24);
+  transform: scale(1.08);
+}
+
+.ws-num.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.35), rgba(168, 85, 247, 0.35));
+  border-color: rgba(56, 189, 248, 0.60);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 0 10px rgba(56, 189, 248, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.40);
+}
+
+.ws-num-label {
+  font-family: "JetBrainsMono Nerd Font", "Outfit", "Inter", sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  color: #7a8aa2;
+}
+
+.ws-num:hover .ws-num-label {
+  color: #e0e8f5;
+}
+
+.ws-num.active .ws-num-label {
+  color: #ffffff;
+}
+
+/* ------------------------------------------------------------------ */
+/* SEPARADORES E CLOCK (PILL)                                           */
+/* ------------------------------------------------------------------ */
+.section-sep {
+  min-height: 6px;
+  background: transparent;
+}
+
+.clock-section {
+  padding: 2px 0;
+}
+
+.clock-hh,
+.clock-mm,
+.clock-dd,
+.clock-mo {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.clock-hh,
+.clock-mm {
+  color: rgba(240, 242, 245, 0.95);
+}
+
+.clock-dd,
+.clock-mo {
+  color: rgba(140, 150, 172, 0.90);
+}
+
+.clock-sep {
+  min-height: 3px;
+  background: transparent;
+}
+
+/* ------------------------------------------------------------------ */
+/* SYS SECTION (PILL)                                                   */
+/* ------------------------------------------------------------------ */
+.sys-section {
+  margin-left: -14px;
+  margin-right: -14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sys-icon {
+  font-family: "Symbols Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 14px;
+  transition: color 400ms cubic-bezier(0.4, 0, 0.2, 1), transform 300ms ease;
+}
+
+/* Bateria: tons escurinhos, sóbrios e sutis em escala de cinza/grafite + alinhamento por estado */
+.bat-icon {
+  margin-right: 0px;
+}
+
+.bat-green {
+  color: #8fa3b8;
+}
+
+.bat-yellow {
+  color: #7a7668;
+}
+
+.bat-orange {
+  color: #785a4a;
+}
+
+.bat-red {
+  color: #784444;
+}
+
+.bat-charging {
+  color: #94a8be;
+  margin-right: 1px;
+}
+
+.bat-full,
+.bat-high,
+.bat-mid,
+.bat-mid-low,
+.bat-low,
+.bat-empty {
+  margin-right: 0px;
+}
+
+/* Rede: cinza azulado metálico escuro (#64748b) e cinza avermelhado escuro (#784444) + alinhamento específico por tipo */
+.net-icon {
+  margin-right: 4px;
+}
+
+.net-wifi {
+  margin-right: 4px;
+}
+
+.net-wired {
+  margin-right: 1px;
+}
+
+.net-off {
+  margin-right: 3px;
+}
+
+.net-ice-blue {
+  color: #64748b;
+}
+
+.net-red {
+  color: #784444;
+}
+
+
+
+
+
+.TodoCards {
+  background: transparent;
+}
+
+.todo-card {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 210px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.todo-card:hover {
+  border-color: rgba(200, 200, 200, 0.45);
+  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.06);
+}
+.todo-card-title {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.todo-divider {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.todo-card-body {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+
+
+/* life-manager.css
+   Importe no seu CSS principal: @import "life-manager.css";
+   ou cole direto no style.css do AGS.
+*/
+
+/* ── Janela ─────────────────────────────────────────────────────── */
+.LifeManager {
+  background: transparent;
+}
+
+/* ── Painel container ───────────────────────────────────────────── */
+.life-panel {
+  background-color: alpha(#0b0b16, 0.93);
+  border-radius: 14px;
+  border: 1px solid alpha(#323258, 0.65);
+  padding: 16px 14px;
+  min-width: 268px;
+  box-shadow: 0 4px 32px alpha(#000000, 0.55);
+}
+
+/* ── Seções ─────────────────────────────────────────────────────── */
+.panel-section {
+  /* espaçamento vem do spacing do <box> */
+}
+
+.section-title {
+  font-size: 11px;
+  font-weight: bold;
+  color: #8899bb;
+  letter-spacing: 0.04em;
+}
+
+.section-badge {
+  font-size: 9px;
+  color: alpha(#8899bb, 0.55);
+}
+
+.section-hint {
+  font-size: 9px;
+  color: alpha(#8899bb, 0.45);
+}
+
+.lm-divider {
+  background-color: alpha(#323258, 0.45);
+  min-height: 1px;
+}
+
+/* ── Toggle rows ────────────────────────────────────────────────── */
+.toggle-row {
+  padding: 3px 2px;
+}
+
+.toggle-label {
+  font-size: 12px;
+  color: #dde4f0;
+}
+
+/* Switch: cores via GTK theme ou override aqui */
+switch {
+  background-color: alpha(#323258, 0.7);
+  border-radius: 99px;
+  min-width: 38px;
+  min-height: 20px;
+}
+
+switch:checked {
+  background-color: alpha(#4ade80, 0.75);
+}
+
+switch slider {
+  background-color: #e2e8f0;
+  border-radius: 99px;
+  min-width: 16px;
+  min-height: 16px;
+}
+
+/* ── Timer rows ─────────────────────────────────────────────────── */
+.tracker-group {
+  padding-left: 2px;
+}
+
+.group-label {
+  font-size: 9px;
+  font-weight: bold;
+  color: alpha(#8899bb, 0.6);
+  letter-spacing: 0.10em;
+}
+
+.timer-row {
+  padding: 2px 2px;
+}
+
+.timer-label {
+  font-size: 12px;
+  color: #dde4f0;
+}
+
+.timer-time {
+  font-family: "JetBrainsMono Nerd Font", "Monospace", monospace;
+  font-size: 11px;
+  color: #7a8aaa;
+  min-width: 52px;
+}
+
+.timer-dot {
+  font-size: 8px;
+  color: #ff6b6b;
+  /* pulso via animation — opcional se o seu compositor suportar */
+}
+
+.timer-btn {
+  min-width: 30px;
+  min-height: 24px;
+  padding: 0 6px;
+  background-color: alpha(#323258, 0.65);
+  border: 1px solid alpha(#525288, 0.5);
+  border-radius: 7px;
+  color: #c8d0e8;
+  font-size: 10px;
+  transition: background-color 120ms ease;
+}
+
+.timer-btn:hover {
+  background-color: alpha(#525288, 0.75);
+  color: #ffffff;
+}
+
+.timer-btn:active {
+  background-color: alpha(#4ade80, 0.25);
+  border-color: alpha(#4ade80, 0.5);
+}
+
+/* Media Player */
+.media-box {
+  padding: 8px 10px;
+}
+
+.media-icon {
+  font-size: 18px;
+  color: #c084fc;
+}
+
+.media-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #f0f2f5;
+}
+
+.media-artist {
+  font-size: 10px;
+  font-weight: bold;
+  color: #8a94a8;
+}
+
+.media-controls {
+  padding-top: 2px;
+}
+
+.media-btn {
+  background: rgba(22, 26, 36, 0.75);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  min-width: 32px;
+  min-height: 26px;
+  padding: 2px 8px;
+  color: #c8cdd6;
+  font-size: 13px;
+  transition: all 150ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.media-btn:hover {
+  background: rgba(35, 42, 60, 0.90);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+.media-btn.play-btn {
+  background: rgba(167, 139, 250, 0.18);
+  border-color: rgba(167, 139, 250, 0.35);
+  color: #c084fc;
+}
+
+.media-btn.play-btn:hover {
+  background: rgba(167, 139, 250, 0.30);
+  border-color: rgba(167, 139, 250, 0.50);
+  color: #ffffff;
+}
+
+/* Power Menu */
+.hub-power-menu {
+  padding: 2px 0;
+}
+
+.power-btn {
+  background: rgba(16, 20, 28, 0.75);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  min-width: 36px;
+  min-height: 30px;
+  padding: 4px;
+  font-size: 14px;
+  color: #8a94a8;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.35);
+  transition: all 180ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.power-btn:hover {
+  transform: translateY(-1px);
+}
+
+.power-btn.lock:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.40);
+  color: #38bdf8;
+}
+
+.power-btn.suspend:hover {
+  background: rgba(250, 204, 21, 0.18);
+  border-color: rgba(250, 204, 21, 0.40);
+  color: #facc15;
+}
+
+.power-btn.reboot:hover {
+  background: rgba(251, 146, 60, 0.18);
+  border-color: rgba(251, 146, 60, 0.40);
+  color: #fb923c;
+}
+
+.power-btn.shutdown:hover {
+  background: rgba(239, 68, 68, 0.20);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #ef4444;
+}

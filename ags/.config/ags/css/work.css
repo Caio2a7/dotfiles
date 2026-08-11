@@ -1,0 +1,168 @@
+..pill-hover {
+  background: transparent;
+  opacity: 1;
+  transition: opacity 300ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.pill-hover.ghost {
+  opacity: 0;
+}
+.WorkPill .pill-hover {
+  padding: 24px 6px 24px 32px;
+}
+.pill {
+  border-radius: 999px;
+  background: rgba(16, 16, 20, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.25),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 8px 24px rgba(0, 0, 0, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+}
+.work-pill {
+  padding: 8px 6px;
+}
+.ws-section {
+  margin-left: -14px;
+  margin-right: -14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+.ws-dot {
+  min-width: 8px;
+  min-height: 8px;
+  padding: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 250ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.ws-dot:hover {
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.3);
+}
+.ws-dot.active {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 1);
+  box-shadow:
+    0 0 8px rgba(255, 255, 255, 0.4),
+    0 2px 6px rgba(0, 0, 0, 0.3);
+}
+.section-sep {
+  min-height: 6px;
+  background: transparent;
+}
+.clock-section {
+  padding: 2px 0;
+}
+.clock-hh,
+.clock-mm,
+.clock-dd,
+.clock-mo {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.clock-hh,
+.clock-mm {
+  color: rgba(255, 255, 255, 0.95);
+}
+.clock-dd,
+.clock-mo {
+  color: rgba(255, 255, 255, 0.45);
+}
+.clock-sep {
+  min-height: 3px;
+  background: transparent;
+}
+.sys-section {
+  margin-left: -14px;
+  margin-right: -14px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.sys-icon {
+  font-family: "Symbols Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 14px;
+  transition: all 250ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.bat-icon {
+  margin-right: 0px;
+}
+.bat-green {
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.bat-yellow {
+  color: rgba(241, 196, 15, 0.95);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.bat-red {
+  color: rgba(231, 76, 60, 0.95);
+  text-shadow: 0 0 8px rgba(231, 76, 60, 0.4), 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.bat-charging {
+  margin-right: 1px;
+}
+.bat-full,
+.bat-high,
+.bat-mid,
+.bat-mid-low,
+.bat-low,
+.bat-empty {
+  margin-right: 0px;
+}
+.net-icon {
+  margin-right: 4px;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.net-wifi {
+  margin-right: 4px;
+}
+.net-wired {
+  margin-right: 1px;
+}
+.net-off {
+  margin-right: 3px;
+}
+
+
+
+
+
+.TodoCards {
+  background: transparent;
+}
+
+.todo-card {
+  background: #0d0d0d;
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 210px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.todo-card-title {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.todo-divider {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.todo-card-body {
+  font-size: 12px;
+  line-height: 1.6;
+}
