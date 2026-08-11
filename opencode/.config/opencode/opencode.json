@@ -1,0 +1,342 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "@mohak34/opencode-notifier@latest",
+    "opencode-antigravity-auth@latest",
+    "opencode-snip@latest",
+    "openslimedit@latest",
+    "opencode-linter-hook@latest"
+  ],
+  "provider": {
+    "google": {
+      "options": {
+        "timeout": 86400000,
+        "chunkTimeout": 86400000,
+        "headerTimeout": 600000
+      },
+      "models": {
+        "antigravity-claude-opus-4-6-thinking": {
+          "name": "Claude Opus 4.6 Thinking (Antigravity)",
+          "limit": {
+            "context": 200000,
+            "output": 64000
+          },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": { "thinkingConfig": { "thinkingBudget": 8192 } },
+            "max": { "thinkingConfig": { "thinkingBudget": 32768 } }
+          }
+        },
+        "antigravity-claude-sonnet-4-6": {
+          "name": "Claude Sonnet 4.6 (Antigravity)",
+          "limit": { "context": 200000, "output": 64000 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "antigravity-claude-sonnet-4-5": {
+          "name": "Claude Sonnet 4.5 (Antigravity)",
+          "limit": { "context": 200000, "output": 64000 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "antigravity-claude-sonnet-4-5-thinking": {
+          "name": "Claude Sonnet 4.5 Thinking (Antigravity)",
+          "limit": { "context": 200000, "output": 64000 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": { "thinkingConfig": { "thinkingBudget": 8192 } },
+            "max": { "thinkingConfig": { "thinkingBudget": 32768 } }
+          }
+        },
+        "antigravity-claude-opus-4-5-thinking": {
+          "name": "Claude Opus 4.5 Thinking (Antigravity)",
+          "limit": { "context": 200000, "output": 64000 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": { "thinkingConfig": { "thinkingBudget": 8192 } },
+            "max": { "thinkingConfig": { "thinkingBudget": 32768 } }
+          }
+        },
+        "antigravity-gemini-3.1-pro": {
+          "name": "Gemini 3.1 Pro (Antigravity)",
+          "limit": { "context": 1048576, "output": 65536 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": { "thinkingLevel": "low" },
+            "high": { "thinkingLevel": "high" }
+          }
+        },
+        "antigravity-gemini-3-flash": {
+          "name": "Gemini 3 Flash (Antigravity)",
+          "limit": { "context": 2097152, "output": 65536 },
+          "modalities": {
+            "input": ["text", "image", "pdf", "video", "audio"],
+            "output": ["text"]
+          },
+          "variants": {
+            "minimal": { "thinkingLevel": "minimal" },
+            "low": { "thinkingLevel": "low" },
+            "medium": { "thinkingLevel": "medium" },
+            "high": { "thinkingLevel": "high" }
+          }
+        },
+        "gemini-2.5-pro": {
+          "name": "Gemini 2.5 Pro",
+          "limit": { "context": 1048576, "output": 65536 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "gemini-2.5-flash": {
+          "name": "Gemini 2.5 Flash",
+          "limit": { "context": 1048576, "output": 65536 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          }
+        },
+        "gemini-3-flash-preview": {
+          "name": "Gemini 3 Flash Preview",
+          "limit": { "context": 2097152, "output": 65536 },
+          "modalities": {
+            "input": ["text", "image", "pdf", "video", "audio"],
+            "output": ["text"]
+          }
+        },
+        "gpt-oss-120b-medium": {
+          "name": "GPT-OSS 120B Medium",
+          "limit": { "context": 131072, "output": 32768 },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        }
+      }
+    },
+    "openrouter-free": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenRouter Free",
+      "options": {
+        "baseURL": "https://openrouter.ai/api/v1",
+        "apiKey": "{env:OPENROUTER_FREE_API_KEY}"
+      },
+      "models": {
+        "minimax/minimax-m2.5:free": {
+          "name": "MiniMax M2.5 Free",
+          "limit": { "context": 262144, "output": 4096 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        },
+        "qwen/qwen3-coder:free": {
+          "name": "Qwen3 Coder Free",
+          "limit": { "context": 262144, "output": 4096 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        },
+        "nousresearch/hermes-3-llama-3.1-405b:free": {
+          "name": "Hermes 3 Llama 405B Free",
+          "limit": { "context": 131072, "output": 4096 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        },
+        "z-ai/glm-4.5-air:free": {
+          "name": "GLM 4.5 Air Free",
+          "limit": { "context": 131072, "output": 4096 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        },
+        "openai/gpt-oss-120b:free": {
+          "name": "GPT OSS 120B Free",
+          "limit": { "context": 131072, "output": 4096 },
+          "modalities": { "input": ["text"], "output": ["text"] }
+        }
+      }
+    }
+  },
+  "permission": {
+    "edit": "ask",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "skill": {
+      "*": "allow"
+    },
+    "bash": {
+      "*": "ask",
+      "rm -rf *": "ask",
+      "git push *": "ask",
+      "git push --force*": "deny",
+      "sudo *": "ask",
+      "curl * | bash": "deny",
+      "wget * | bash": "deny",
+      "ls": "allow",
+      "ls *": "allow",
+      "cat *": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "grep *": "allow",
+      "wc *": "allow",
+      "stat *": "allow",
+      "file *": "allow",
+      "diff *": "allow",
+      "echo *": "allow",
+      "pwd": "allow",
+      "which *": "allow",
+      "type *": "allow",
+      "env": "allow",
+      "printenv *": "allow",
+      "du *": "allow",
+      "df *": "allow",
+      "uname *": "allow",
+      "id": "allow",
+      "whoami": "allow",
+      "date": "allow",
+      "tree *": "allow",
+      "bat *": "allow",
+      "git status": "allow",
+      "git log": "allow",
+      "git diff *": "allow",
+      "git show *": "allow",
+      "git branch": "allow"
+    }
+  },
+  "model": "google/antigravity-claude-sonnet-4-6",
+  "small_model": "google/antigravity-gemini-3-flash",
+  "lsp": true,
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 15000
+  },
+  "snapshot": true,
+  "share": "manual",
+  "autoupdate": true,
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      ".git/**",
+      "dist/**",
+      "build/**",
+      "__pycache__/**",
+      ".next/**",
+      "*.lock",
+      "coverage/**",
+      ".gemini/**",
+      "brain/**"
+    ]
+  },
+  "formatter": {
+    "prettier": {},
+    "custom-black": {
+      "command": ["black", "$FILE"],
+      "extensions": [".py"]
+    },
+    "biome": {
+      "command": ["biome", "format", "--write", "$FILE"],
+      "extensions": [".js", ".ts", ".jsx", ".tsx", ".json"]
+    }
+  },
+  "mcp": {
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "enabled": true
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "enabled": true
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "enabled": true
+    },
+    "ast-grep": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@ast-grep/mcp"],
+      "enabled": true
+    },
+    "brave-search": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "{env:BRAVE_API_KEY}"
+      },
+      "enabled": true
+    }
+  },
+  "command": {
+    "init": {
+      "description": "Initialize .aiflow/ exclusion, project AGENTS.md, docs/decisions and gitignore",
+      "agent": "plan",
+      "template": "0. Garanta o exclude no git local:\nmkdir -p .git/info .aiflow\ngrep -qxF \".aiflow\" .git/info/exclude || echo \".aiflow\" >> .git/info/exclude\n\n1. Analise o repositório atual (stack, linter, test runner, estrutura de pastas):\n- Se AGENTS.md já existir no raiz, NÃO o sobrescreva; apenas analise e proponha refinamentos.\n- Se não existir, crie AGENTS.md adaptado à stack (comandos exatos de test/lint/build, convenções, limites de refatoração: funções >40 linhas, arquivos >300 linhas).\n2. Crie o diretório docs/decisions/ com a estrutura base se ausente.\n3. Sugira as entradas recomendadas para o .gitignore e verifica se há suporte a pre-commit hooks (Lefthook / Husky).\n4. Aguarde confirmação do usuário antes de alterar o .gitignore ou instalar hooks."
+    },
+    "spec": {
+      "description": "Adaptive spec generation with branch detection and archiving check",
+      "agent": "plan",
+      "template": "0. Garanta o exclude do .aiflow/ no git local:\nmkdir -p .git/info .aiflow\ngrep -qxF \".aiflow\" .git/info/exclude || echo \".aiflow\" >> .git/info/exclude\n\n1. Detecte a branch de trabalho:\n- SE o usuário especificou uma branch em $ARGUMENTS (ex: \"em feat/auth\") → use a branch especificada.\n- SENÃO → execute `git branch --show-current` e use o resultado como branch alvo.\n\n2. Verifique se .aiflow/spec.md já existe:\n- Se existir: leia o conteúdo e compare com $ARGUMENTS.\n  * Se for a mesma tarefa → trate como refinamento e atualize o spec existente.\n  * Se for tarefa diferente → execute `date +%Y%m%d`, arquive em .aiflow/archive/spec-[DATA].md e crie o novo .aiflow/spec.md.\n\n3. Leia docs/decisions/*.md (se existirem) como contexto prévio.\n\n4. Classifique a tarefa:\n- TRIVIAL (doc, typo, cor, config, renomear — sem lógica de negócio):\n  → Não crie .aiflow/spec.md. Responda em 1 linha: \"TRIVIAL: [descrição]. Branch: [branch]. Vá para /plan.\"\n- SIMPLES (bug claro, feature pequena seguindo padrão existente, ≤3 arquivos):\n  → Não faça perguntas. Crie .aiflow/spec.md mínimo (Objetivo 1 parágrafo + 1-3 critérios de done). Responda: \"SIMPLES: .aiflow/spec.md criado. Branch: [branch]. Vá para /plan.\"\n- COMPLEXA (comportamento novo, múltiplos arquivos, decisão de arquitetura):\n  → Faça até 5 perguntas clarificadoras, aguarde respostas e crie .aiflow/spec.md completo. Se envolver decisão arquitetural relevante, sugira executar /adr antes do /plan."
+    },
+    "plan": {
+      "description": "Adaptive plan generation with header state persistence",
+      "agent": "plan",
+      "template": "0. Verifique se .aiflow/plan.md já existe:\n- Se existir: leia o conteúdo.\n  * Se houver tarefas [ ] pendentes → NÃO sobrescreva. Avise: \"Existem tarefas pendentes no plano atual. Conclua com /task ou confirme explicitamente para arquivar.\"\n  * Se todas as tarefas estiverem [x] → execute `date +%Y%m%d`, arquive em .aiflow/archive/plan-[DATA].md e crie o novo .aiflow/plan.md.\n\n1. Leia .aiflow/spec.md (ou a classificação do /spec) e grave no cabeçalho do .aiflow/plan.md:\n# Classificação: [TRIVIAL/SIMPLES/COMPLEXA]\n# Branch: [branch-detectada]\n# Base: main\n\n2. Gere a lista de tarefas:\n- TRIVIAL:\n  [ ] 1. [descrição da tarefa trivial]\n     Critério de done: sem regressões nos testes existentes\n  → Responda: \"TRIVIAL: .aiflow/plan.md criado. Execute /task.\"\n- SIMPLES:\n  [ ] 1. Título\n     Critério de done: [teste ou comportamento específico]\n  → Responda: \"SIMPLES: .aiflow/plan.md criado. Execute /task.\"\n- COMPLEXA:\n  e a lista detalhada com critérios de done, complexidade S/M, dependências, risco e flag [P].\n  → Responda: \"COMPLEXA: .aiflow/plan.md criado. Execute /task ou /tasks.\""
+    },
+    "task": {
+      "description": "Execute single pending task or ad-hoc task with atomic task-test.sh",
+      "template": "SE $ARGUMENTS tiver texto (tarefa ad-hoc):\n1. Se .aiflow/plan.md não existir:\n   - Execute `git branch --show-current` para detectar a branch.\n   - Crie .aiflow/plan.md com cabeçalho mínimo:\n     # Classificação: SIMPLES\n     # Branch: [branch-detectada]\n     # Base: main\n2. Leia o cabeçalho do .aiflow/plan.md para herdar a classificação atual.\n3. Classifique a nova tarefa e adicione ao final do .aiflow/plan.md:\n   [ ] N+1. [descrição de $ARGUMENTS]\n      Critério de done: [inferido da descrição]\n      Complexidade: [S/M]\n      Origem: ad-hoc\n4. Execute a tarefa imediatamente seguindo o fluxo TDD normal.\n\nSE $ARGUMENTS estiver vazio:\n1. Leia .aiflow/plan.md e identifique a classificação no cabeçalho e a próxima tarefa [ ].\n\nEXECUÇÃO DA TAREFA:\n- TRIVIAL → Obvious Implementation: implemente diretamente, confirme testes verdes, marque [x] no .aiflow/plan.md. Atualize .aiflow/context.md se houver padrão relevante descoberto. Próxima etapa: /commit.\n- SIMPLES/COMPLEXA → Ciclo TDD:\n  a) Crie sempre e somente .aiflow/task-test.sh com o comando de teste do critério de done (deve falhar agora).\n  b) Implemente o código mínimo.\n  c) Execute: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n  d) SE PASSOU: apague .aiflow/task-test.sh e .aiflow/task-test.log, marque [x] no .aiflow/plan.md, atualize .aiflow/context.md com aprendizados. Recomende /validate (ou /commit se SIMPLES).\n  e) SE FALHOU: mantenha ambos os arquivos, pare e informe: \"Testes falharam. Verifique .aiflow/task-test.log e execute /debug.\""
+    },
+    "tasks": {
+      "description": "Execute all pending tasks from plan.md sequentially with TDD and stop-on-error gate",
+      "template": "Execute todas as tarefas [ ] do .aiflow/plan.md em sequência.\n\nLeia a classificação no cabeçalho do .aiflow/plan.md.\n\nPara cada tarefa [ ]:\n1. Crie sempre e somente .aiflow/task-test.sh com o teste do critério de done (deve falhar agora).\n2. Implemente o código mínimo para o teste passar.\n3. Execute: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n4. SE PASSOU: apague .aiflow/task-test.sh e .aiflow/task-test.log, marque [x] no .aiflow/plan.md, atualize .aiflow/context.md e prossiga para a próxima tarefa.\n5. SE FALHOU: mantenha ambos os arquivos, interrompa o loop imediatamente e informe:\n   'Tarefa N falhou. Verifique .aiflow/task-test.log e execute /debug.'\n   Não avance para a próxima tarefa.\n\nApós concluir todas as tarefas:\n- Recomende executar /validate."
+    },
+    "validate": {
+      "description": "Run full quality gate with advisory routing and debug context capture",
+      "agent": "plan",
+      "template": "Execute o portão de qualidade completo:\n1. Testes: rode a suíte completa e reporte falhas.\n2. Lint: rode o linter configurado e reporte violações.\n3. Type-check: rode o verificador de tipos e reporte erros.\n4. Dependências: verifique vulnerabilidades conhecidas (npm audit / pip-audit).\n5. Cobertura: reporte se a cobertura caiu em relação ao baseline.\n\nSE APROVADO:\n- Consulte a classificação no cabeçalho do .aiflow/plan.md.\n- Se SIMPLES: recomende executar /commit.\n- Se COMPLEXA: recomende executar /review.\n\nSE REPROVADO:\n- Falha de Teste -> Crie ou sobrescreva .aiflow/debug-context.md com timestamp, comando de teste, testes falhos, output completo e stack trace. Recomende executar /debug.\n- Falha de Lint/Types -> Recomende executar /refactor ou sugira a correção no arquivo.\n- Falha de Cobertura -> Recomende executar /task para adicionar testes ausentes.\n- Falha de Segurança -> Indique a vulnerabilidade e recomende a atualização."
+    },
+    "review": {
+      "description": "Full code review against spec acceptance criteria and ADR compliance",
+      "agent": "plan",
+      "template": "Faça code review do diff atual.\n1. Verifique cada critério de aceitação do .aiflow/spec.md — a implementação atende?\n2. Verifique se existe algum ADR em docs/decisions/ relevante para o diff e inclua a seção '## Conformidade com ADRs'.\n3. Segurança: injection, exposição de dados, autenticação.\n4. Performance: N+1, memory leaks, complexidade algorítmica.\n5. Manutenibilidade: duplicação, acoplamento, coesão.\n\nFormato:\n🔴 Crítico (bloqueia merge)\n🟡 Importante (deve ser discutido)\n🟢 Sugestão\n\nResumo final: aprovado/reprovado + motivo.\nSe aprovado: recomende executar /commit."
+    },
+    "commit": {
+      "description": "Stage, commit and push to target branch from plan.md header",
+      "template": "Leia .aiflow/plan.md e extraia Branch e Base do cabeçalho.\n\n0. Execute `git status` e `git diff --staged` para entender o que está staged.\n   Se nada estiver staged, execute `git add .` antes de prosseguir.\n\nChecklist antes de commitar:\n1. Todos os testes passam? (verifique se .aiflow/task-test.sh não existe — se existir há testes falhando)\n2. Lint e type-check limpos?\n3. Nenhum TODO/FIXME não-intencional no diff?\n4. Nenhum segredo ou API key exposto?\n5. .aiflow/ não está no diff (deve estar no .git/info/exclude)\n\nSE TUDO OK:\n`git add .`\n`git commit -m '[mensagem em português no padrão Conventional Commits]'`\n`git push origin [Branch]`\n(se a branch não existir remotamente: `git push -u origin [Branch]`)\n\nSE ALGO FALHOU: reporte o bloqueio antes de executar qualquer git."
+    },
+    "mr": {
+      "description": "Create MR branch, commit, push and generate merge request description in output",
+      "template": "Leia .aiflow/spec.md e .aiflow/plan.md.\n\nDetermine o nome da branch de MR a partir da classificação e da tarefa:\n- TRIVIAL → chore/[descricao-com-hifens]\n- SIMPLES (fix) → fix/[descricao-com-hifens]\n- SIMPLES (feature) → feat/[descricao-com-hifens]\n- COMPLEXA → feat/[descricao-com-hifens]\n\nExecute os comandos git diretamente:\n`git checkout -b [branch-mr]`\n`git add .`\n`git commit -m '[mensagem Conventional Commits em português]'`\n`git push -u origin [branch-mr]`\n\nApós o push, gere no output da conversa a descrição do MR para copiar e colar:\n---\n## Contexto\n[Por que essa mudança é necessária — baseado no spec]\n## O que mudou\n[Lista por área — baseado no git diff]\n## Como testar\n[Passos específicos]\n## Checklist\n- [ ] Critérios de aceitação do spec implementados\n- [ ] Testes adicionados/atualizados\n- [ ] Sem segredos expostos\n- [ ] Breaking changes documentados\n---\n\nNão crie nenhum arquivo com essa descrição. Apenas exiba no output."
+    },
+    "debug": {
+      "description": "Automatic debug from .aiflow/task-test.log, .aiflow/debug-context.md or latest error",
+      "template": "0. Identifique automaticamente a origem da falha sem necessitar de argumentos:\n   - SE .aiflow/task-test.sh e .aiflow/task-test.log existirem → Origem: falha no teste atômico da tarefa isolada.\n   - SE .aiflow/debug-context.md existir → Origem: falha no portão de qualidade /validate.\n   - SENÃO → Analise a última saída do test runner ou logs de erro disponíveis no contexto do terminal.\n\n1. Investigação & Resolução:\n   - Leia o arquivo de log/contexto como ponto de partida (erro exato, comando e stack trace já documentados).\n   - Forme hipóteses e teste-as. Se após 3 hipóteses locais falharem, consulte o Brave Search MCP para pesquisar a mensagem de erro exata e a versão da dependência.\n   - Se a origem foi task-test.sh, execute novamente: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n   - SE PASSOU nos testes: apague .aiflow/task-test.sh, .aiflow/task-test.log e .aiflow/debug-context.md se existirem. Atualize .aiflow/context.md com o aprendizado da sessão. Recomende /commit ou /validate conforme a classificação no .aiflow/plan.md.\n   - SE FALHOU: atualize o log/contexto, informe o erro e tente nova hipótese."
+    },
+    "refactor": {
+      "description": "Automatic refactoring from plan.md, git diff, and AGENTS.md thresholds",
+      "template": "0. Identificação Automática sem necessitar de argumentos:\n   - Leia .aiflow/plan.md, .aiflow/spec.md e analise o diff atual ou arquivos modificados.\n   - Identifique pontos de refatoração conforme os limites do AGENTS.md (funções > 40 linhas, arquivos > 300 linhas, duplicação de código ou avisos de lint/types do /validate).\n\n1. Execução Segura:\n   - Rode TODOS os testes do projeto antes para capturar o snapshot de aprovação.\n   - Refatore o código focando em: coesão, desacoplamento, SOLID e eliminação de duplicação.\n   - Rode os testes novamente — devem ter exatamente o mesmo resultado verde.\n   - Se qualquer teste quebrar, reverta e tente uma abordagem diferente.\n   - Nenhuma mudança de comportamento externo é permitida.\n\n2. Conclusão:\n   - Atualize .aiflow/context.md com aprendizados ou padrões de refatoração aplicados.\n   - Consulte .aiflow/plan.md: se TRIVIAL/SIMPLES recomende /commit; se COMPLEXA recomende /validate."
+    },
+    "adr": {
+      "description": "Create an Architecture Decision Record for a technical decision",
+      "agent": "plan",
+      "template": "Primeiro, execute `date +%Y%m%d` para obter a data atual.\nCrie o arquivo docs/decisions/ADR-[DATA]-[ARGUMENTS-COM-HIFENS].md contendo:\n# ADR: $ARGUMENTS\nData: [DATA]\nStatus: Aceito\n\n## Contexto\nQual problema estamos resolvendo?\n## Decisão\nO que decidimos fazer?\n## Alternativas consideradas\nO que foi descartado e por quê?\n## Consequências\nPositivas, negativas e trade-offs que aceitamos."
+    }
+  }
+}

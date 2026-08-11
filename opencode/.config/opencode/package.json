@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@mohak34/opencode-notifier": "^0.2.3",
+    "@opencode-ai/plugin": "1.17.8",
+    "opencode-gemini-auth": "^1.4.10"
+  }
+}
