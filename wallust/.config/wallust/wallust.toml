@@ -1,0 +1,12 @@
+[config]
+backend       = "colorthief"
+palette       = "light16"
+color_space   = "hsl"
+threshold     = 50
+check_contrast = true
+saturation    = 80
+
+[templates.wal_cache]
+template = "wal/"
+target   = "~/.cache/wal/"
+pywal    = true
