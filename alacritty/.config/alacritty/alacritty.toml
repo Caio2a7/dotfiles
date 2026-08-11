@@ -1,0 +1,365 @@
+# general.import = [ "~/.config/omarchy/current/theme/alacritty.toml" ]
+[env]
+TERM = "xterm-256color"
+# ──────────────────────────────────────────────
+#  Colors  (extraídas do tema Neovim)
+# ──────────────────────────────────────────────
+[colors.primary]
+background = "#16161E"   # fundo escuro neutro
+foreground = "#E0E0E0"   # branco_pont – texto base
+[colors.cursor]
+cursor = "#FFD700"   # dourado
+text   = "#1e1e2e" 
+[colors.vi_mode_cursor]
+text   = "#16161E"
+cursor = "#FFD700"   # dourado
+[colors.selection]
+text       = "#16161E"
+background = "#59A6E6"   # azul_tipo
+[colors.search.matches]
+foreground = "#16161E"
+background = "#D9D9A6"   # amarelo_func
+[colors.search.focused_match]
+foreground = "#16161E"
+background = "#E03B8B"   # rosa_magenta_vibrante
+# ── 8 cores normais ───────────────────────────
+[colors.normal]
+black   = "#2A2A3E"      # sombra do fundo
+red     = "#E03B8B"      # rosa_magenta_vibrante  → erros, diff -
+green   = "#6BA157"      # verde_coment           → sucesso, diff +
+yellow  = "#D9D9A6"      # amarelo_func           → avisos, funções
+blue    = "#59A6E6"      # azul_tipo              → info, tipos
+magenta = "#D986C8"      # rosa_suave             → keywords return/repeat
+cyan    = "#47D1B2"      # verde_struct           → structs, tipos custom
+white   = "#E0E0E0"      # branco_pont            → texto padrão
+# ── 8 cores brilhantes ────────────────────────
+[colors.bright]
+black   = "#555555"      # MatchParen bg          → comentários apagados
+red     = "#FF6BB5"      # rosa_magenta clareado  → erros em destaque
+green   = "#BCE38D"      # limao_num              → números, booleanos
+yellow  = "#E69B7A"      # marrom_str             → strings
+blue    = "#9EE5FF"      # azul_claro_var         → variáveis, campos
+magenta = "#E8A0DC"      # rosa_suave clareado    → keywords destaque
+cyan    = "#7AEBD6"      # verde_struct clareado  → tipos destaque
+white   = "#FFFFFF"      # branco_puro            → títulos, bold text
+# ──────────────────────────────────────────────
+
+
+[font]
+normal  = { family = "CaskaydiaMono Nerd Font", style = "Regular" }
+bold    = { family = "CaskaydiaMono Nerd Font", style = "Bold" }
+italic  = { family = "CaskaydiaMono Nerd Font", style = "Italic" }
+size    = 15
+builtin_box_drawing = true
+
+[font.offset]
+x = 0
+y = -1
+
+[font.glyph_offset]
+x = 0
+y = 0
+
+[terminal.shell]
+program = "/bin/bash"
+args    = ["-c", "tmux new-session"]
+
+[window]
+padding = { x = 2, y = 0 }
+dynamic_padding = true
+decorations = "None"
+
+[[keyboard.bindings]]
+key    = "Insert"
+mods   = "Shift"
+action = "Paste"
+
+[[keyboard.bindings]]
+key    = "Insert"
+mods   = "Control"
+action = "Copy"
+
+[[keyboard.bindings]]
+key   = "Up"
+mods  = "Shift"
+chars = "\u001B[1;2A"
+
+[[keyboard.bindings]]
+key   = "Down"
+mods  = "Shift"
+chars = "\u001B[1;2B"
+
+[[keyboard.bindings]]
+key   = "Right"
+mods  = "Shift"
+chars = "\u001B[1;2C"
+
+[[keyboard.bindings]]
+key   = "Left"
+mods  = "Shift"
+chars = "\u001B[1;2D"
+
+[[keyboard.bindings]]
+key   = "Right"
+mods  = "Control"
+chars = "\u001B[1;5C"
+
+[[keyboard.bindings]]
+key   = "Left"
+mods  = "Control"
+chars = "\u001B[1;5D"
+
+[[keyboard.bindings]]
+key   = "Up"
+mods  = "Control"
+chars = "\u001b[1;5A"
+
+[[keyboard.bindings]]
+key   = "Down"
+mods  = "Control"
+chars = "\u001b[1;5B"
+
+[[keyboard.bindings]]
+key   = "S"
+mods  = "Control"
+chars = "\u0013"
+
+[[keyboard.bindings]]
+key   = "V"
+mods  = "Control"
+chars = "\u0016"
+
+[[keyboard.bindings]]
+key   = "C"
+mods  = "Control|Shift"
+chars = "\u001B[99;6u"
+
+[[keyboard.bindings]]
+key   = "LBracket"
+mods  = "Control"
+chars = "\u001B[1;5H"
+
+[[keyboard.bindings]]
+key   = "Semicolon"
+mods  = "Control"
+chars = "\u001b[59;5u"
+
+[[keyboard.bindings]]
+key   = "Q"
+mods  = "Control"
+chars = "\u0011"
+
+[[keyboard.bindings]]
+key  = "Q"
+mods = "Control|Alt"
+chars = "\u001b\u0011"
+
+[[keyboard.bindings]]
+key  = "Tab"
+mods = "Control"
+chars = "\u001b[9;5u"
+
+[[keyboard.bindings]]
+key  = "Tab"
+mods = "Control|Shift"
+chars = "\u001b[9;6u"
+
+[[keyboard.bindings]]
+key   = "X"
+mods  = "Control|Shift"
+chars = "\u001b[120;6u"
+
+[[keyboard.bindings]]
+key   = "Period"
+mods  = "Control"
+chars = "\u001b[46;5u"
+
+[[keyboard.bindings]]
+key   = "Period"
+mods  = "Control|Shift"
+chars = "\u001b[62;6u"
+
+[[keyboard.bindings]]
+key   = "Comma"
+mods  = "Control"
+chars = "\u001b[44;5u"
+
+[[keyboard.bindings]]
+key   = "Comma"
+mods  = "Control|Shift"
+chars = "\u001b[60;6u"
+
+[[keyboard.bindings]]
+key   = "Key1"
+mods  = "Control"
+chars = "\u001b[49;5u"
+
+[[keyboard.bindings]]
+key   = "Key2"
+mods  = "Control"
+chars = "\u001b[50;5u"
+
+[[keyboard.bindings]]
+key   = "Key3"
+mods  = "Control"
+chars = "\u001b[51;5u"
+
+[[keyboard.bindings]]
+key   = "Key4"
+mods  = "Control"
+chars = "\u001b[52;5u"
+
+[[keyboard.bindings]]
+key   = "Key5"
+mods  = "Control"
+chars = "\u001b[53;5u"
+
+[[keyboard.bindings]]
+key   = "Key6"
+mods  = "Control"
+chars = "\u001b[54;5u"
+
+[[keyboard.bindings]]
+key   = "Key7"
+mods  = "Control"
+chars = "\u001b[55;5u"
+
+[[keyboard.bindings]]
+key   = "Key8"
+mods  = "Control"
+chars = "\u001b[56;5u"
+
+[[keyboard.bindings]]
+key   = "Key9"
+mods  = "Control"
+chars = "\u001b[57;5u"
+
+[[keyboard.bindings]]
+key   = "Backspace"
+mods  = "Control"
+chars = "\u001b[127;5u"
+
+[[keyboard.bindings]]
+key = "AltGraph"
+chars = "\u0001"
+
+[[keyboard.bindings]]
+key = "S"
+mods = "Alt|Shift"
+chars = "\u001bS"
+
+[[keyboard.bindings]]
+key = "s"
+mods = "Alt|Shift"
+chars = "\u001bS"
+
+[[keyboard.bindings]]
+key = "O"
+mods = "Alt|Shift"
+chars = "\u001bO"
+
+[[keyboard.bindings]]
+key = "o"
+mods = "Alt|Shift"
+chars = "\u001bO"
+
+[[keyboard.bindings]]
+key = "P"
+mods = "Alt|Shift"
+chars = "\u001bP"
+
+[[keyboard.bindings]]
+key = "p"
+mods = "Alt|Shift"
+chars = "\u001bP"
+
+[[keyboard.bindings]]
+key = "F"
+mods = "Alt|Shift"
+chars = "\u001bF"
+
+[[keyboard.bindings]]
+key = "f"
+mods = "Alt|Shift"
+chars = "\u001bF"
+
+[[keyboard.bindings]]
+key = "W"
+mods = "Alt|Shift"
+chars = "\u001bW"
+
+[[keyboard.bindings]]
+key = "w"
+mods = "Alt|Shift"
+chars = "\u001bW"
+
+[[keyboard.bindings]]
+key = "z"
+mods = "Alt"
+chars = "\u001bz"
+
+[[keyboard.bindings]]
+key = "Z"
+mods = "Alt|Shift"
+chars = "\u001bZ"
+
+[[keyboard.bindings]]
+key = "z"
+mods = "Alt|Shift"
+chars = "\u001bZ"
+
+[[keyboard.bindings]]
+key = "G"
+mods = "Alt|Shift"
+chars = "\u001bG"
+
+[[keyboard.bindings]]
+key = "g"
+mods = "Alt|Shift"
+chars = "\u001bG"
+
+[[keyboard.bindings]]
+key = "R"
+mods = "Alt|Shift"
+chars = "\u001bR"
+
+[[keyboard.bindings]]
+key = "r"
+mods = "Alt|Shift"
+chars = "\u001bR"
+
+[[keyboard.bindings]]
+key = "g"
+mods = "Alt|Shift"
+chars = "\u001bG"
+
+[[keyboard.bindings]]
+key = "Enter"
+mods = "Control"
+chars = "\u001b[13;5u"
+
+[[keyboard.bindings]]
+key = "J"
+mods = "Alt|Shift"
+chars = "\u001bJ"
+
+[[keyboard.bindings]]
+key = "T"
+mods = "Control|Shift"
+chars = "\u001b[84;6u"
+
+[[keyboard.bindings]]
+key = "t"
+mods = "Control|Shift"
+chars = "\u001b[84;6u"
+
+[[keyboard.bindings]]
+key = "m"
+mods = "Control"
+chars = "\u001b[109;5u"
+
+[[keyboard.bindings]]
+key = "M"
+mods = "Control"
+chars = "\u001b[109;5u"
+
