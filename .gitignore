@@ -1,0 +1,16 @@
+# Segredos e credenciais
+**/antigravity-accounts.json*
+**/secrets/
+
+# Logs e estados temporarios
+**/*.log
+**/antigravity-logs/
+**/nohup.out
+**/*.bak-*
+**/opencode-notifier-state.json
+
+# Dependencias e arquivos gerados
+**/node_modules/
+**/package-lock.json
+**/@girs/
+
