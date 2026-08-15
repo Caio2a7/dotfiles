@@ -85,19 +85,6 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     hl("MatchParen", { fg = branco_puro, bg = "#555555", bold = true })
     hl("Title", { fg = branco_puro, bg = "NONE", bold = true })
 
-    local h_full = { fg = preto, bg = cyan, bold = true, underline = false, nocombine = true }
-    hl("@markup.heading.markdown", h_full)
-    for i = 1, 6 do
-      hl("@markup.heading." .. i .. ".markdown", h_full)
-      hl("RenderMarkdownH" .. i, h_full)
-      hl("RenderMarkdownH" .. i .. "Bg", { bg = cyan, underline = false, nocombine = true })
-    end
-
-    local markdown_text = { fg = branco_puro, bg = "NONE", underline = false, strikethrough = false, nocombine = true }
-    hl("RenderMarkdownTodo", markdown_text)
-    hl("RenderMarkdownDone", markdown_text)
-    hl("@markup.list.unchecked.markdown", markdown_text)
-    hl("@markup.list.checked.markdown", markdown_text)
     hl("@markup.strikethrough", { strikethrough = false, nocombine = true })
 
     -- FIX: @markup.quote.markdown linkava para Identifier que tem underline no aether
