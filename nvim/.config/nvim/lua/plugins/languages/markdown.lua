@@ -1,11 +1,22 @@
 return {
   "MeanderingProgrammer/render-markdown.nvim",
+  ft = { "markdown", "norg", "rmd", "org" },
+  dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
   opts = {
+    render_modes = { "n", "c", "t" },
+    anti_conceal = { enabled = false },
     heading = {
       enabled = true,
       sign = true,
       icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
-      background = { enabled = true },
+      backgrounds = {
+        "RenderMarkdownH1Bg",
+        "RenderMarkdownH2Bg",
+        "RenderMarkdownH3Bg",
+        "RenderMarkdownH4Bg",
+        "RenderMarkdownH5Bg",
+        "RenderMarkdownH6Bg",
+      },
     },
     code = {
       enabled = true,
@@ -28,7 +39,7 @@ return {
     checkbox = {
       enabled = true,
       unchecked = { icon = "󰄱 ", highlight = "RenderMarkdownTodo" },
-      checked = { icon = "󰱒 ", highlight = "RenderMarkdownDone" },
+      checked   = { icon = "󰱒 ", highlight = "RenderMarkdownDone" },
     },
     link = {
       enabled = false,
@@ -50,35 +61,41 @@ return {
   config = function(_, opts)
     require("render-markdown").setup(opts)
 
+    local function setup_markdown_buf()
+      vim.opt_local.conceallevel = 2
+      vim.opt_local.concealcursor = "nc"
+    end
+
     local function force_colors()
       local h_style = { fg = "#FFFFFF", bg = "#000000", bold = true, underline = false, nocombine = true }
       for i = 1, 6 do
         vim.api.nvim_set_hl(0, "RenderMarkdownH" .. i, h_style)
-        vim.api.nvim_set_hl(0, "RenderMarkdownH" .. i .. "Bg", {  fg = "#FFFFFF", bg = "#000000", underline = false, nocombine = true })
+        vim.api.nvim_set_hl(0, "RenderMarkdownH" .. i .. "Bg", { fg = "#FFFFFF", bg = "#000000", underline = false, nocombine = true })
       end
-
-      local cb_text = { fg = "#ffffff", bg = "NONE", underline = false, strikethrough = false, bold = false, nocombine = true }
-      vim.api.nvim_set_hl(0, "RenderMarkdownTodo", cb_text)
-      vim.api.nvim_set_hl(0, "RenderMarkdownDone", cb_text)
-      vim.api.nvim_set_hl(0, "@markup.list.checked.markdown",   cb_text)
-      vim.api.nvim_set_hl(0, "@markup.list.unchecked.markdown", cb_text)
-      vim.api.nvim_set_hl(0, "@markup.strikethrough", { strikethrough = false, nocombine = true })
-
-      vim.api.nvim_set_hl(0, "RenderMarkdownError",   { fg = "#ff5555", bg = "#1a0a0a", bold = true, nocombine = true })
-      vim.api.nvim_set_hl(0, "RenderMarkdownWarn",    { fg = "#ffb86c", bg = "#1a1a0a", bold = true, nocombine = true })
-      vim.api.nvim_set_hl(0, "RenderMarkdownSuccess", { fg = "#50fa7b", bg = "#0a1a0a", bold = true, nocombine = true })
-      vim.api.nvim_set_hl(0, "RenderMarkdownTip",     { fg = "#5936A2", bg = "#0a1a0a", bold = true, nocombine = true })
-      vim.api.nvim_set_hl(0, "RenderMarkdownCaution", { fg = "#A42E05", bg = "#0a1a0a", bold = true, nocombine = true })
-      vim.api.nvim_set_hl(0, "RenderMarkdownInfo",    { fg = "#8be9fd", bg = "#0a0a1a", bold = true, nocombine = true })
+      vim.api.nvim_set_hl(0, "RenderMarkdownTodo", { fg = "#888888", bg = "NONE", bold = false, strikethrough = false, nocombine = true, force = true })
+      vim.api.nvim_set_hl(0, "RenderMarkdownDone", { fg = "#50fa7b", bg = "NONE", bold = false, strikethrough = false, nocombine = true, force = true })
+      vim.api.nvim_set_hl(0, "@markup.list.checked.markdown",   { fg = "#50fa7b", bg = "NONE", strikethrough = false, nocombine = true, force = true })
+      vim.api.nvim_set_hl(0, "@markup.list.unchecked.markdown", { fg = "#888888", bg = "NONE", nocombine = true, force = true })
+      vim.api.nvim_set_hl(0, "@markup.strikethrough",           { strikethrough = false, nocombine = true, force = true })
+      vim.api.nvim_set_hl(0, "RenderMarkdownError",   { fg = "#ff5555", bg = "#1a0a0a", bold = true, nocombine = true, force = true })
+      vim.api.nvim_set_hl(0, "RenderMarkdownWarn",    { fg = "#ffb86c", bg = "#1a1a0a", bold = true, nocombine = true, force = true })
+      vim.api.nvim_set_hl(0, "RenderMarkdownSuccess", { fg = "#50fa7b", bg = "#0a1a0a", bold = true, nocombine = true, force = true })
+      vim.api.nvim_set_hl(0, "RenderMarkdownTip",     { fg = "#5936A2", bg = "#0a1a0a", bold = true, nocombine = true, force = true })
+      vim.api.nvim_set_hl(0, "RenderMarkdownCaution", { fg = "#A42E05", bg = "#0a1a0a", bold = true, nocombine = true, force = true })
+      vim.api.nvim_set_hl(0, "RenderMarkdownInfo",    { fg = "#8be9fd", bg = "#0a0a1a", bold = true, nocombine = true, force = true })
     end
 
-    vim.schedule(force_colors)
-
-    vim.api.nvim_create_autocmd({ "ColorScheme", "BufWinEnter", "BufEnter", "FileType" }, {
-      pattern = { "*.md", "markdown" },
+    local group = vim.api.nvim_create_augroup("RenderMarkdownSetup", { clear = true })
+    vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
+      group = group,
+      pattern = { "markdown", "rmd" },
       callback = function()
+        setup_markdown_buf()
         vim.schedule(force_colors)
       end,
     })
+
+    setup_markdown_buf()
+    vim.schedule(force_colors)
   end,
 }
