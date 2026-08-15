@@ -25,12 +25,12 @@ file_panel_item_create = ['ctrl+n', '']
 file_panel_item_rename = ['ctrl+r', '']
 # file operate
 copy_items = ['ctrl+c', '']
-paste_items = ['ctrl+v', 'ctrl+w', '']
-cut_items = ['none', '']
+paste_items = ['ctrl+k', 'ctrl+v']
+cut_items = ['ctrl+x', '']
 delete_items = ['ctrl+d', 'delete', '']
 permanently_delete_items = ['D', '']
 # compress and extract
-extract_file = ['ctrl+x', '']
+extract_file = ['ctrl+e', '']
 compress_file = ['ctrl+z', '']
 # editor
 open_file_with_editor = ['e', '']
