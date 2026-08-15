@@ -4,6 +4,7 @@ return {
   version = "*",
   opts = function(_, opts)
     
+    opts.signature = { enabled = false }
     opts.completion = {
       ghost_text = { enabled = false },
       

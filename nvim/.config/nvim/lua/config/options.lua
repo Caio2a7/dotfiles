@@ -4,6 +4,13 @@ vim.o.background = "light"
 vim.opt.timeoutlen = 300
 vim.opt.ttimeoutlen = 0
 
+vim.opt.list = false
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.softtabstop = 4
+vim.opt.expandtab = true
+
+
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
