@@ -27,6 +27,9 @@
 6. `/review`: Valida diff contra critérios de aceitação do `.aiflow/spec.md` e conformidade com ADRs em `docs/decisions/`.
 7. `/commit`: Executa `git status` e `git diff --staged`, valida testes (garante que `task-test.sh` não existe), commita e faz push na branch do cabeçalho.
 8. `/mr`: Cria branch de MR (`chore/`, `fix/`, `feat/`), commita, envia push remoto `-u` e exibe o template formatado no chat.
+## Fluxo Analítico Separado (.aiflow/map.md)
+- `/map <paths>`: Mapeia estrutura de diretórios e arquivos (sem ler conteúdo) e salva em `.aiflow/map.md`.
+- `/analyze <foco>`: Lê `.aiflow/map.md`, seleciona cirurgicamente apenas os arquivos relevantes e gera síntese focada.
 
 ## Contexto Dinâmico (.aiflow/context.md)
 - Se `.aiflow/context.md` existir no projeto, leia-o obrigatoriamente antes de qualquer ação.

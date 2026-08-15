@@ -337,6 +337,16 @@
       "description": "Create an Architecture Decision Record for a technical decision",
       "agent": "plan",
       "template": "Primeiro, execute `date +%Y%m%d` para obter a data atual.\nCrie o arquivo docs/decisions/ADR-[DATA]-[ARGUMENTS-COM-HIFENS].md contendo:\n# ADR: $ARGUMENTS\nData: [DATA]\nStatus: Aceito\n\n## Contexto\nQual problema estamos resolvendo?\n## Decisão\nO que decidimos fazer?\n## Alternativas consideradas\nO que foi descartado e por quê?\n## Consequências\nPositivas, negativas e trade-offs que aceitamos."
+    },
+    "map": {
+      "description": "Map repository structure without reading file content",
+      "agent": "plan",
+      "template": "Execute mapeamento estrutural dos paths: $ARGUMENTS\n\n1. Execute tree ou find em cada path\n2. Liste arquivos por diretório com tamanho e data\n3. Identifique padrões (naming, extensões, organização)\n4. Se um diretório tiver mais de 20 arquivos, agrupe por tipo\n\nNão leia conteúdo de nenhum arquivo.\nSalve o resultado em .aiflow/map.md\nFinalize com: 'Mapa gerado. Execute /analyze <foco> para continuar.'"
+    },
+    "analyze": {
+      "description": "Read and synthesize selected files based on map and focus",
+      "agent": "plan",
+      "template": "Leia .aiflow/map.md para entender o que existe.\n\nFoco da análise: $ARGUMENTS\n\nCom base no foco:\n1. Selecione apenas os arquivos que respondem à pergunta — liste-os com justificativa\n2. Ignore: testes unitários, vendor/, node_modules/, locks, arquivos gerados\n3. Se um diretório tiver mais de 20 relevantes, leia os 5 mais representativos\n4. Leia apenas o selecionado e produza síntese estruturada\n\nSe o escopo for amplo demais, proponha quebrar em análises menores."
     }
   }
 }
