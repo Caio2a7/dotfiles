@@ -349,17 +349,10 @@ mods = "Control|Shift"
 chars = "\u001b[84;6u"
 
 [[keyboard.bindings]]
-key = "t"
-mods = "Control|Shift"
-chars = "\u001b[84;6u"
-
-[[keyboard.bindings]]
-key = "m"
-mods = "Control"
-chars = "\u001b[109;5u"
-
-[[keyboard.bindings]]
 key = "M"
 mods = "Control"
-chars = "\u001b[109;5u"
+chars = "\u000b"
+
+
+
 
