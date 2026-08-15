@@ -3,23 +3,22 @@ import { Astal, Gtk } from "ags/gtk4"
 import GLib from "gi://GLib"
 import Gio from "gi://Gio"
 
-const { TOP, LEFT } = Astal.WindowAnchor
+const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
 const H = Gtk.Orientation.HORIZONTAL
 const V = Gtk.Orientation.VERTICAL
 
-const TODO_DIR = `${GLib.get_home_dir()}/.config/to-do-nvim`
-
-// ── Terminal e flag de app-id por terminal:
-//   foot      → "--app-id"
-//   kitty     → "--class"
-//   alacritty → "--class"
-//   wezterm   → "--class"
-//
+const TODO_DIR = `${GLib.get_home_dir()}/vittae/tarefas`
 const TERMINAL = "alacritty"
-const APP_ID_FLAG = "--app-id"
-const APP_ID = "todo-nvim-editor"
 
-// ── Markup escaping manual
+const ORDERED_FILES = [
+  { file: "autodidata.md", label: "Autodidata" },
+  { file: "faculdade.md", label: "Faculdade" },
+  { file: "pathotech.md", label: "Pathotech" },
+  { file: "dell.md", label: "Dell" },
+  { file: "sti.md", label: "Sti" },
+  { file: "vida.md", label: "Vida" },
+]
+
 function esc(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -28,36 +27,9 @@ function esc(s: string): string {
     .replace(/"/g, "&quot;")
 }
 
-// ── Tipos
 interface Task { text: string; done: boolean }
 interface TodoData { urgent: Task[]; pending: Task[] }
 
-// ── Descobre arquivos *.md no diretório, ignora GEMINI.md
-function getMdFiles(): { file: string; label: string }[] {
-  const results: { file: string; label: string }[] = []
-  try {
-    const dir = Gio.File.new_for_path(TODO_DIR)
-    const enumerator = dir.enumerate_children(
-      "standard::name",
-      Gio.FileQueryInfoFlags.NONE,
-      null
-    )
-    let info: Gio.FileInfo | null
-    while ((info = enumerator.next_file(null)) !== null) {
-      const name = info.get_name()
-      if (!name.endsWith(".md")) continue
-      if (name.toLowerCase() === "gemini.md") continue
-      const base = name.replace(/\.md$/, "")
-      const label = base.charAt(0).toUpperCase() + base.slice(1)
-      results.push({ file: name, label })
-    }
-  } catch (e) {
-    console.error(`Erro ao listar ${TODO_DIR}:`, e)
-  }
-  return results.sort((a, b) => a.file.localeCompare(b.file))
-}
-
-// ── Parser do formato markdown do to-do-nvim
 function parseFromString(raw: string): TodoData {
   const lines = raw.split("\n")
   let section: "urgent" | "pending" | "skip" = "skip"
@@ -72,7 +44,7 @@ function parseFromString(raw: string): TodoData {
     }
     if (section === "skip") continue
 
-    const m = line.match(/(?:>\s*)?-\s*\[([xX ])\]\s*(.+)/)
+    const m = line.match(/(?:>\s*)?-\s*\[([xX ]?)\]\s*(.+)/)
     if (!m) continue
 
     const task = { done: m[1].toLowerCase() === "x", text: m[2].trim() }
@@ -83,7 +55,6 @@ function parseFromString(raw: string): TodoData {
   return { urgent, pending }
 }
 
-// ── Gera o Pango markup para o label
 function buildMarkup(raw: string): string {
   try {
     const { urgent, pending } = parseFromString(raw)
@@ -117,7 +88,6 @@ function buildMarkup(raw: string): string {
   }
 }
 
-// ── Lê arquivo de forma síncrona
 function readFile(filename: string): string {
   try {
     const [ok, bytes] = GLib.file_get_contents(`${TODO_DIR}/${filename}`)
@@ -127,9 +97,9 @@ function readFile(filename: string): string {
     return ""
   }
 }
+
 function openInNvim(filename: string): void {
   const filePath = `${TODO_DIR}/${filename}`
-  console.log("Abrindo no nvim:", filePath)
   try {
     Gio.Subprocess.new(
       [
@@ -143,28 +113,25 @@ function openInNvim(filename: string): void {
   }
 }
 
-// ── Card individual por arquivo
 function TodoCard(filename: string, label: string): Gtk.Widget {
   const bodyLabel = new Gtk.Label({
     halign: Gtk.Align.START,
     valign: Gtk.Align.START,
     wrap: true,
-    maxWidthChars: 30,
+    maxWidthChars: 50,
     useMarkup: true,
     cssClasses: ["todo-card-body"],
   })
 
-  // Carga inicial
   bodyLabel.set_label(buildMarkup(readFile(filename)))
 
-  // Polling a cada 2s
   GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2000, () => {
     bodyLabel.set_label(buildMarkup(readFile(filename)))
     return GLib.SOURCE_CONTINUE
   })
 
   const card = (
-    <box class="todo-card" orientation={V} spacing={10}>
+    <box class="todo-card" orientation={V} spacing={10} hexpand={true}>
       <label
         class="todo-card-title"
         label={label}
@@ -176,11 +143,9 @@ function TodoCard(filename: string, label: string): Gtk.Widget {
     </box>
   ) as Gtk.Widget
 
-  // ── GestureClick: detecta duplo clique (nPress === 2)
   const gesture = new Gtk.GestureClick()
-  gesture.set_button(1) // botão esquerdo
+  gesture.set_button(1)
   gesture.connect("pressed", (_g: Gtk.GestureClick, nPress: number) => {
-    console.log(`Click em "${label}": nPress=${nPress}`)
     if (nPress === 2) openInNvim(filename)
   })
   card.add_controller(gesture)
@@ -189,10 +154,7 @@ function TodoCard(filename: string, label: string): Gtk.Widget {
   return card
 }
 
-// ── Janela principal
 export function TodoCards(monitor = 0): Astal.Window {
-  const files = getMdFiles()
-
   return (
     <window
       name="todo-cards"
@@ -201,13 +163,14 @@ export function TodoCards(monitor = 0): Astal.Window {
       application={app}
       visible={false}
       exclusivity={Astal.Exclusivity.IGNORE}
-      anchor={TOP | LEFT}
+      anchor={TOP | LEFT | RIGHT}
       layer={Astal.Layer.BOTTOM}
       marginTop={12}
       marginLeft={12}
+      marginRight={12}
     >
-      <box orientation={H} spacing={12}>
-        {files.map(({ file, label }) => TodoCard(file, label))}
+      <box orientation={H} spacing={12} hexpand={true} homogeneous={true}>
+        {ORDERED_FILES.map(({ file, label }) => TodoCard(file, label))}
       </box>
     </window>
   ) as Astal.Window
