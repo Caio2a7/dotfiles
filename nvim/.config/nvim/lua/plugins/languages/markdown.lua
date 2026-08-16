@@ -103,6 +103,10 @@ return {
       return line:find("%[%s*[xX]%s*%]") ~= nil
     end
 
+    local function is_unchecked_task(line)
+      return (line:find("%[%s*%]") ~= nil) and not is_checked_task(line)
+    end
+
     local function auto_move_completed_tasks(buf)
       if is_moving_tasks then return end
       buf = buf or vim.api.nvim_get_current_buf()
@@ -115,7 +119,10 @@ return {
 
       local cur_section = nil
       local concluidas_idx = nil
-      local to_move = {}
+      local pendentes_idx = nil
+
+      local to_concluidas = {}
+      local to_pendentes = {}
 
       for i, line in ipairs(lines) do
         local sec = get_section_type(line)
@@ -123,38 +130,90 @@ return {
           cur_section = sec
           if sec == "concluidas" then
             concluidas_idx = i
+          elseif sec == "pendentes" then
+            pendentes_idx = i
           end
         elseif (cur_section == "urgentes" or cur_section == "pendentes") and is_checked_task(line) then
-          table.insert(to_move, { line = line, idx = i })
+          table.insert(to_concluidas, { line = line, idx = i })
+        elseif (cur_section == "concluidas") and is_unchecked_task(line) then
+          table.insert(to_pendentes, { line = line, idx = i })
         end
       end
 
-      if #to_move == 0 then return end
+      if #to_concluidas == 0 and #to_pendentes == 0 then return end
 
       is_moving_tasks = true
       local view = vim.fn.winsaveview()
 
-      if not concluidas_idx then
+      if #to_pendentes > 0 and not pendentes_idx then
+        local target_pos = concluidas_idx or (#lines + 1)
+        table.insert(lines, target_pos, "> [!IMPORTANT] Pendentes")
+        table.insert(lines, target_pos, "")
+        pendentes_idx = target_pos + 1
+        if concluidas_idx and concluidas_idx >= target_pos then
+          concluidas_idx = concluidas_idx + 2
+        end
+        for _, item in ipairs(to_concluidas) do
+          if item.idx >= target_pos then item.idx = item.idx + 2 end
+        end
+        for _, item in ipairs(to_pendentes) do
+          if item.idx >= target_pos then item.idx = item.idx + 2 end
+        end
+      end
+
+      if #to_concluidas > 0 and not concluidas_idx then
         table.insert(lines, "")
         table.insert(lines, "> [!DONE] Concluídas")
         concluidas_idx = #lines
       end
 
-      table.sort(to_move, function(a, b) return a.idx > b.idx end)
+      local all_removals = {}
+      for _, item in ipairs(to_concluidas) do
+        table.insert(all_removals, { line = item.line, idx = item.idx, dest = "concluidas" })
+      end
+      for _, item in ipairs(to_pendentes) do
+        table.insert(all_removals, { line = item.line, idx = item.idx, dest = "pendentes" })
+      end
 
-      local moved_lines = {}
-      for _, item in ipairs(to_move) do
-        table.insert(moved_lines, 1, item.line)
-        table.remove(lines, item.idx)
-        if item.idx < concluidas_idx then
+      table.sort(all_removals, function(a, b) return a.idx > b.idx end)
+
+      local concluidas_items = {}
+      local pendentes_items = {}
+
+      for _, rem in ipairs(all_removals) do
+        if rem.dest == "concluidas" then
+          table.insert(concluidas_items, 1, rem.line)
+        else
+          table.insert(pendentes_items, 1, rem.line)
+        end
+
+        table.remove(lines, rem.idx)
+
+        if concluidas_idx and rem.idx < concluidas_idx then
           concluidas_idx = concluidas_idx - 1
+        end
+        if pendentes_idx and rem.idx < pendentes_idx then
+          pendentes_idx = pendentes_idx - 1
         end
       end
 
-      local insert_at = concluidas_idx + 1
-      for _, moved_line in ipairs(moved_lines) do
-        table.insert(lines, insert_at, moved_line)
-        insert_at = insert_at + 1
+      if #pendentes_items > 0 and pendentes_idx then
+        local insert_at = pendentes_idx + 1
+        for _, line in ipairs(pendentes_items) do
+          table.insert(lines, insert_at, line)
+          insert_at = insert_at + 1
+          if concluidas_idx and insert_at <= concluidas_idx then
+            concluidas_idx = concluidas_idx + 1
+          end
+        end
+      end
+
+      if #concluidas_items > 0 and concluidas_idx then
+        local insert_at = concluidas_idx + 1
+        for _, line in ipairs(concluidas_items) do
+          table.insert(lines, insert_at, line)
+          insert_at = insert_at + 1
+        end
       end
 
       vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
@@ -165,6 +224,8 @@ return {
         is_moving_tasks = false
       end)
     end
+
+    _G.auto_move_completed_markdown_tasks = auto_move_completed_tasks
 
     local group = vim.api.nvim_create_augroup("RenderMarkdownSetup", { clear = true })
     vim.api.nvim_create_autocmd({ "FileType", "BufEnter", "BufWinEnter" }, {
@@ -179,9 +240,12 @@ return {
 
     vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "BufWritePre" }, {
       group = group,
-      pattern = { "*.md", "*.rmd" },
+      pattern = "*",
       callback = function(ev)
-        auto_move_completed_tasks(ev.buf)
+        local ft = vim.bo[ev.buf].filetype
+        if ft == "markdown" or ft == "rmd" then
+          auto_move_completed_tasks(ev.buf)
+        end
       end,
     })
 
