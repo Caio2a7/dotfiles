@@ -192,36 +192,60 @@ local function toggle_cell_symbol(is_ins_param)
   local r, c = view.lnum, view.col
   local row_0 = r - 1
   local line = vim.api.nvim_buf_get_lines(buf, row_0, r, false)[1] or ""
-  if line == "" then return end
-
   local ft = (vim.bo[buf].filetype or ""):lower()
   local fn = vim.api.nvim_buf_get_name(buf):lower()
+  local is_markdown = (ft == "markdown" or ft == "rmd" or fn:sub(-3) == ".md" or fn:sub(-4) == ".rmd")
 
-  local s1, e1 = line:find("%[%s*%]")
-  local s2, e2 = line:find("%[[xX]%]")
-  if (s1 or s2) and not line:find(",") then
-    local start_pos, end_pos, is_checked
-    if s1 and s2 then
-      if s1 < s2 then start_pos, end_pos, is_checked = s1, e1, false
-      else start_pos, end_pos, is_checked = s2, e2, true end
-    elseif s1 then start_pos, end_pos, is_checked = s1, e1, false
-    elseif s2 then start_pos, end_pos, is_checked = s2, e2, true end
-    if start_pos then
-      local new_line = is_checked
-        and (line:sub(1, start_pos - 1) .. "[]" .. line:sub(end_pos + 1))
+  if is_markdown then
+    local s1, e1 = line:find("%[%s*%]")
+    local s2, e2 = line:find("%[[xX]%]")
+    local new_line
+
+    if s1 or s2 then
+      local start_pos, end_pos, is_checked
+      if s1 and s2 then
+        if s1 < s2 then start_pos, end_pos, is_checked = s1, e1, false
+        else start_pos, end_pos, is_checked = s2, e2, true end
+      elseif s1 then start_pos, end_pos, is_checked = s1, e1, false
+      elseif s2 then start_pos, end_pos, is_checked = s2, e2, true end
+
+      new_line = is_checked
+        and (line:sub(1, start_pos - 1) .. "[ ]" .. line:sub(end_pos + 1))
         or (line:sub(1, start_pos - 1) .. "[X]" .. line:sub(end_pos + 1))
-      vim.api.nvim_buf_set_lines(buf, row_0, r, false, { new_line })
-      if was_insert then
-        pcall(vim.cmd, "startinsert")
+    else
+      if line:find("^%s*[%-*%+]%s+") then
+        new_line = line:gsub("^(%s*[%-*%+])%s+", "%1 [X] ")
+      else
+        new_line = "- [X] " .. line
       end
-      pcall(vim.fn.winrestview, view)
-      vim.schedule(function()
-        if was_insert then
+    end
+
+    vim.api.nvim_buf_set_lines(buf, row_0, r, false, { new_line })
+
+    if _G.auto_move_completed_markdown_tasks then
+      _G.auto_move_completed_markdown_tasks(buf)
+    end
+
+    local function restore_pos()
+      local line_now = vim.api.nvim_buf_get_lines(buf, row_0, r, false)[1] or new_line
+      local line_len = #line_now
+      if was_insert then
+        local target_c = math.min(c, line_len)
+        pcall(vim.api.nvim_win_set_cursor, 0, { r, target_c })
+        if target_c >= line_len then
+          pcall(vim.cmd, "startinsert!")
+        else
           pcall(vim.cmd, "startinsert")
         end
+      else
+        local target_c = math.min(c, math.max(0, line_len - 1))
+        pcall(vim.api.nvim_win_set_cursor, 0, { r, target_c })
         pcall(vim.fn.winrestview, view)
-      end)
+      end
     end
+
+    restore_pos()
+    vim.schedule(restore_pos)
     return
   end
 
