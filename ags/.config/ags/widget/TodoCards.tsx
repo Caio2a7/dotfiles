@@ -2,6 +2,7 @@ import app from "ags/gtk4/app"
 import { Astal, Gtk } from "ags/gtk4"
 import GLib from "gi://GLib"
 import Gio from "gi://Gio"
+import Pango from "gi://Pango"
 
 const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
 const H = Gtk.Orientation.HORIZONTAL
@@ -117,8 +118,10 @@ function TodoCard(filename: string, label: string): Gtk.Widget {
   const bodyLabel = new Gtk.Label({
     halign: Gtk.Align.START,
     valign: Gtk.Align.START,
+    hexpand: true,
     wrap: true,
-    maxWidthChars: 50,
+    wrapMode: Pango.WrapMode.WORD_CHAR,
+    maxWidthChars: 22,
     useMarkup: true,
     cssClasses: ["todo-card-body"],
   })
@@ -169,7 +172,7 @@ export function TodoCards(monitor = 0): Astal.Window {
       marginLeft={12}
       marginRight={12}
     >
-      <box orientation={H} spacing={12} hexpand={true} homogeneous={true}>
+      <box orientation={H} spacing={8} hexpand={true} homogeneous={true} halign={Gtk.Align.FILL}>
         {ORDERED_FILES.map(({ file, label }) => TodoCard(file, label))}
       </box>
     </window>
