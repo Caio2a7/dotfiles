@@ -52,32 +52,42 @@ task=$(walker --dmenu --placeholder "  Nova tarefa → $selected" < /dev/null)
 #   > [!DONE] Concluídas
 #   > - [X] tarefa concluída
 #
+# ── 3. Inserir no FINAL de Pendentes (comportamento de fila) ──────────────────
 python3 - "$task" "$filename" <<'PYEOF'
 import sys
 import pathlib
 
 task = sys.argv[1]
 path = pathlib.Path(sys.argv[2])
+lines = path.read_text().splitlines(keepends=True)
 
-lines    = path.read_text().splitlines(keepends=True)
-out      = []
-inserted = False
+# 1. Acha o cabeçalho de Pendentes
+header_idx = None
+for i, line in enumerate(lines):
+    if line.rstrip() == "> [!IMPORTANT] Pendentes":
+        header_idx = i
+        break
 
-for line in lines:
-    out.append(line)
-    # Insere imediatamente após o cabeçalho de Pendentes
-    if line.rstrip() == "> [!IMPORTANT] Pendentes" and not inserted:
-        out.append(f"> - [] {task}\n")
-        inserted = True
-
-if not inserted:
+if header_idx is None:
     print(
         f"[ERRO] Seção '> [!IMPORTANT] Pendentes' não encontrada em {path}",
         file=sys.stderr
     )
     sys.exit(1)
 
-path.write_text("".join(out))
+# 2. Avança até o fim da seção: para na linha vazia ou no próximo bloco "> [!"
+#    e mantém o índice de inserção após a última linha de tarefa encontrada
+insert_idx = header_idx + 1          # fallback: seção vazia → logo após o header
+for i in range(header_idx + 1, len(lines)):
+    line = lines[i]
+    if line.startswith("> - "):      # linha de tarefa existente
+        insert_idx = i + 1           # empurra o ponto de inserção para depois dela
+    elif line.strip() == "" or line.startswith("> [!"):
+        break                        # fim da seção
+
+# 3. Insere depois da última tarefa (ou logo após o header se a seção estiver vazia)
+lines.insert(insert_idx, f"> - [] {task}\n")
+path.write_text("".join(lines))
 PYEOF
 
 [ $? -ne 0 ] && {
