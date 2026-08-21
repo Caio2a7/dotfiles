@@ -176,11 +176,14 @@ return {
           if filepath == "" or filepath:sub(-3) ~= ".go" then return end
 
           local norm_path = filepath:gsub("\\", "/")
-          local dir_name = vim.fs.basename(vim.fs.dirname(norm_path)) or "main"
+          local dir_path = vim.fs.dirname(norm_path)
+          local dir_name = (dir_path and dir_path ~= ".") and vim.fs.basename(dir_path) or ""
           local filename = vim.fs.basename(norm_path)
 
+          -- Se for main.go ou estiver dentro de cmd/..., o pacote é main
+          -- Caso contrário, usa o nome exato da pasta atual (ex: status/effect.go -> package status)
           local pkg_name = dir_name
-          if filename == "main.go" or dir_name:match("^cmd") or dir_name == "main" or dir_name == "." then
+          if filename == "main.go" or dir_name:match("^cmd") or dir_name == "" or dir_name == "." then
             pkg_name = "main"
           end
 
@@ -218,6 +221,7 @@ return {
 
           if modified then
             vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
+            pcall(function() vim.bo[bufnr].filetype = "go" end)
           end
         end,
       })
