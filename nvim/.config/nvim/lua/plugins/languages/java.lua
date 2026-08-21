@@ -201,20 +201,16 @@ return {
 
       return opts
     end,
-  },
-
-  -- 3. Autocomando Universal para Package e Classe ao Criar/Abrir Arquivos Java
-  {
-    "nvim-lua/plenary.nvim",
-    lazy = false,
-    config = function()
-      vim.api.nvim_create_autocmd({ "FileType", "BufReadPost", "BufEnter" }, {
-        pattern = { "java", "*.java" },
+    init = function()
+      local group = vim.api.nvim_create_augroup("JavaPackageAutoCmd", { clear = true })
+      vim.api.nvim_create_autocmd({ "FileType", "BufNewFile", "BufReadPost", "BufEnter" }, {
+        group = group,
+        pattern = "*",
         callback = function(ev)
           local bufnr = ev.buf
           if not vim.api.nvim_buf_is_valid(bufnr) then return end
           local filepath = vim.api.nvim_buf_get_name(bufnr)
-          if filepath == "" or not filepath:sub(-5) == ".java" then return end
+          if filepath == "" or filepath:sub(-5) ~= ".java" then return end
 
           local norm_path = filepath:gsub("\\", "/")
           local java_root_pat = "/src/[^/]+/java/"
@@ -231,16 +227,21 @@ return {
           end
 
           local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+          local is_empty = (#lines == 0 or (#lines == 1 and lines[1] == ""))
+          if is_empty then lines = {} end
+
           local has_package = false
           local has_type_def = false
 
-          for _, l in ipairs(lines) do
-            if l:match("^%s*package%s+") then has_package = true end
-            if l:match("^%s*public%s+class%s+") or l:match("^%s*class%s+")
-              or l:match("^%s*public%s+interface%s+") or l:match("^%s*interface%s+")
-              or l:match("^%s*public%s+enum%s+") or l:match("^%s*enum%s+")
-              or l:match("^%s*public%s+record%s+") or l:match("^%s*record%s+") then
-              has_type_def = true
+          if not is_empty then
+            for _, l in ipairs(lines) do
+              if l:match("^%s*package%s+") then has_package = true end
+              if l:match("^%s*public%s+class%s+") or l:match("^%s*class%s+")
+                or l:match("^%s*public%s+interface%s+") or l:match("^%s*interface%s+")
+                or l:match("^%s*public%s+enum%s+") or l:match("^%s*enum%s+")
+                or l:match("^%s*public%s+record%s+") or l:match("^%s*record%s+") then
+                has_type_def = true
+              end
             end
           end
 
