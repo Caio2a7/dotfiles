@@ -1,5 +1,5 @@
 return {
-  -- 1. Plugin de utilitários e geradores para Go (Gopher.nvim)
+  -- 1. Plugin de utilitários, atalhos ;g e autocomando de package/boilerplate para Go
   {
     "olexsmir/gopher.nvim",
     ft = { "go" },
@@ -7,6 +7,68 @@ return {
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
+    init = function()
+      local group = vim.api.nvim_create_augroup("GoPackageAutoCmd", { clear = true })
+      vim.api.nvim_create_autocmd({ "BufNewFile", "BufReadPost", "BufEnter", "FileType" }, {
+        group = group,
+        pattern = "*",
+        callback = function(ev)
+          local bufnr = ev.buf
+          if not vim.api.nvim_buf_is_valid(bufnr) then return end
+          local filepath = vim.api.nvim_buf_get_name(bufnr)
+          if filepath == "" or filepath:sub(-3) ~= ".go" then return end
+
+          local norm_path = filepath:gsub("\\", "/")
+          local dir_path = vim.fs.dirname(norm_path)
+          local dir_name = (dir_path and dir_path ~= ".") and vim.fs.basename(dir_path) or ""
+          local filename = vim.fs.basename(norm_path)
+
+          -- Se for main.go ou estiver dentro de cmd/..., o pacote é main
+          -- Caso contrário, usa o nome exato da pasta atual (ex: status/teste.go -> package status)
+          local pkg_name = dir_name
+          if filename == "main.go" or dir_name:match("^cmd") or dir_name == "" or dir_name == "." then
+            pkg_name = "main"
+          end
+
+          local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+          local is_empty = (#lines == 0 or (#lines == 1 and lines[1] == ""))
+          if is_empty then lines = {} end
+
+          local has_package = false
+          local has_func = false
+
+          if not is_empty then
+            for _, l in ipairs(lines) do
+              if l:match("^%s*package%s+") then has_package = true end
+              if l:match("^%s*func%s+") or l:match("^%s*type%s+") then has_func = true end
+            end
+          end
+
+          local modified = false
+          if not has_package then
+            table.insert(lines, 1, "package " .. pkg_name)
+            table.insert(lines, 2, "")
+            modified = true
+          end
+
+          if not has_func and pkg_name == "main" then
+            table.insert(lines, "import (")
+            table.insert(lines, "    \"fmt\"")
+            table.insert(lines, ")")
+            table.insert(lines, "")
+            table.insert(lines, "func main() {")
+            table.insert(lines, "    fmt.Println(\"Hello, World!\")")
+            table.insert(lines, "}")
+            modified = true
+          end
+
+          if modified then
+            vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
+            pcall(function() vim.bo[bufnr].filetype = "go" end)
+          end
+        end,
+      })
+    end,
     config = function()
       local gopher = require("gopher")
       gopher.setup()
@@ -156,72 +218,6 @@ return {
           local client = vim.lsp.get_client_by_id(args.data.client_id)
           if client and client.name == "gopls" then
             bind_go_keys(args.buf)
-          end
-        end,
-      })
-    end,
-  },
-
-  -- 2. Autocomando Universal para Inserção Automática de Package e func main ao Criar/Abrir Arquivos Go
-  {
-    "nvim-lua/plenary.nvim",
-    lazy = false,
-    config = function()
-      vim.api.nvim_create_autocmd({ "FileType", "BufNewFile", "BufReadPost", "BufEnter" }, {
-        pattern = "*",
-        callback = function(ev)
-          local bufnr = ev.buf
-          if not vim.api.nvim_buf_is_valid(bufnr) then return end
-          local filepath = vim.api.nvim_buf_get_name(bufnr)
-          if filepath == "" or filepath:sub(-3) ~= ".go" then return end
-
-          local norm_path = filepath:gsub("\\", "/")
-          local dir_path = vim.fs.dirname(norm_path)
-          local dir_name = (dir_path and dir_path ~= ".") and vim.fs.basename(dir_path) or ""
-          local filename = vim.fs.basename(norm_path)
-
-          -- Se for main.go ou estiver dentro de cmd/..., o pacote é main
-          -- Caso contrário, usa o nome exato da pasta atual (ex: status/effect.go -> package status)
-          local pkg_name = dir_name
-          if filename == "main.go" or dir_name:match("^cmd") or dir_name == "" or dir_name == "." then
-            pkg_name = "main"
-          end
-
-          local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-          local is_empty = (#lines == 0 or (#lines == 1 and lines[1] == ""))
-          if is_empty then lines = {} end
-
-          local has_package = false
-          local has_func = false
-
-          if not is_empty then
-            for _, l in ipairs(lines) do
-              if l:match("^%s*package%s+") then has_package = true end
-              if l:match("^%s*func%s+") or l:match("^%s*type%s+") then has_func = true end
-            end
-          end
-
-          local modified = false
-          if not has_package then
-            table.insert(lines, 1, "package " .. pkg_name)
-            table.insert(lines, 2, "")
-            modified = true
-          end
-
-          if not has_func and pkg_name == "main" then
-            table.insert(lines, "import (")
-            table.insert(lines, "    \"fmt\"")
-            table.insert(lines, ")")
-            table.insert(lines, "")
-            table.insert(lines, "func main() {")
-            table.insert(lines, "    fmt.Println(\"Hello, World!\")")
-            table.insert(lines, "}")
-            modified = true
-          end
-
-          if modified then
-            vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
-            pcall(function() vim.bo[bufnr].filetype = "go" end)
           end
         end,
       })
