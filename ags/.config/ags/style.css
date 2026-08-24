@@ -651,16 +651,20 @@ scale slider:hover,
 
 .TodoCards {
   background: transparent;
-  max-height: 90vh;
+}
+
+.todo-main-box,
+.todo-top-row,
+.todo-bottom-row {
+  min-height: 0;
 }
 
 .todo-card {
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.55);
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   min-width: 0;
-  max-height: 88vh;
-  overflow: hidden;
+  min-height: 0;
   border: 1px solid rgba(255, 255, 255, 0.07);
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
@@ -669,10 +673,11 @@ scale slider:hover,
   border-color: rgba(200, 200, 200, 0.45);
   box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.06);
 }
+
 .todo-card-title {
   color: #ffffff;
   font-weight: bold;
-  font-size: 12.5px;
+  font-size: 12px;
   letter-spacing: 0.5px;
 }
 
@@ -680,9 +685,342 @@ scale slider:hover,
   background: rgba(255, 255, 255, 0.09);
 }
 
+.todo-scrolled {
+  padding: 0;
+  margin: 0;
+  min-height: 0;
+}
+
+.todo-scrolled scrollbar,
+.todo-scrolled scrollbar.vertical {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-width: 2px;
+}
+
+.todo-scrolled scrollbar trough {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-width: 2px;
+}
+
+.todo-scrolled scrollbar slider {
+  background: rgba(255, 255, 255, 0.20);
+  border-radius: 1px;
+  min-width: 2px;
+  min-height: 20px;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.todo-scrolled scrollbar slider:hover {
+  background: rgba(216, 180, 254, 0.85);
+  min-width: 2px;
+}
+
 .todo-card-body {
   font-size: 11px;
-  line-height: 1.4;
+  line-height: 1.35;
+}
+
+/* ── Dashboard Cards & Graphs ───────────────────────────────────── */
+.dashboard-card {
+  background: rgba(8, 10, 15, 0.85);
+  border-radius: 12px;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.dashboard-card:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), inset 0 0 20px rgba(255, 255, 255, 0.03);
+}
+
+.chart-container {
+  padding: 0;
+  margin: 0;
+}
+
+/* ── Habits Streak Panel ────────────────────────────────────────── */
+.habits-panel {
+  padding: 4px 6px;
+}
+
+.habit-mini-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 2px 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s ease;
+}
+
+.habit-mini-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.habit-mini-card.habit-done {
+  border-color: rgba(74, 222, 128, 0.25);
+  background: rgba(74, 222, 128, 0.05);
+}
+
+.habit-mini-card.habit-done:hover {
+  border-color: rgba(74, 222, 128, 0.45);
+  background: rgba(74, 222, 128, 0.10);
+}
+
+/* ── Live Schedule Table ────────────────────────────────────────── */
+.sched-table-wrapper {
+  padding: 0;
+  margin: 0;
+  min-height: 0;
+}
+
+.sched-grid {
+  min-height: 0;
+}
+
+.sched-col-header {
+  font-size: 9.5px;
+  font-weight: 900;
+  color: #94a3b8;
+  padding: 0 1px;
+  margin: 0;
+  min-height: 0;
+  min-width: 0;
+  border-radius: 0;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.sched-col-header.today {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.40);
+  font-weight: 900;
+}
+
+.sched-col-header.time-col {
+  color: #64748b;
+  font-size: 8.5px;
+  font-weight: 800;
+}
+
+.sched-time-cell {
+  font-size: 9px;
+  font-weight: 800;
+  color: #64748b;
+  padding: 0 1px;
+  margin: 0;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Button Cell Styling */
+button.sched-cell {
+  min-height: 0;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  border: 1px solid transparent;
+  transition: all 0.12s ease;
+  box-shadow: none;
+}
+
+button.sched-cell label {
+  font-size: 10.5px;
+  font-weight: 800;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+}
+
+/* Activity Colors (Conforme table.lua) */
+button.sched-cell.act-faculdade {
+  background: rgba(255, 121, 198, 0.22);
+  color: #ff79c6;
+  border-color: rgba(255, 121, 198, 0.35);
+}
+button.sched-cell.act-faculdade:hover, button.sched-cell.past.act-faculdade:hover {
+  background: rgba(255, 121, 198, 0.50);
+  color: #ffffff;
+  border-color: #ff79c6;
+  box-shadow: 0 0 10px rgba(255, 121, 198, 0.7);
+}
+
+button.sched-cell.act-estudar {
+  background: rgba(71, 209, 178, 0.22);
+  color: #47d1b2;
+  border-color: rgba(71, 209, 178, 0.35);
+}
+button.sched-cell.act-estudar:hover, button.sched-cell.past.act-estudar:hover {
+  background: rgba(71, 209, 178, 0.50);
+  color: #ffffff;
+  border-color: #47d1b2;
+  box-shadow: 0 0 10px rgba(71, 209, 178, 0.7);
+}
+
+button.sched-cell.act-trabalho {
+  background: rgba(255, 0, 51, 0.22);
+  color: #ff3355;
+  border-color: rgba(255, 0, 51, 0.35);
+}
+button.sched-cell.act-trabalho:hover, button.sched-cell.past.act-trabalho:hover {
+  background: rgba(255, 0, 51, 0.50);
+  color: #ffffff;
+  border-color: #ff0033;
+  box-shadow: 0 0 10px rgba(255, 0, 51, 0.7);
+}
+
+button.sched-cell.act-ingles {
+  background: rgba(163, 230, 53, 0.22);
+  color: #a3e635;
+  border-color: rgba(163, 230, 53, 0.35);
+}
+button.sched-cell.act-ingles:hover, button.sched-cell.past.act-ingles:hover {
+  background: rgba(163, 230, 53, 0.50);
+  color: #ffffff;
+  border-color: #a3e635;
+  box-shadow: 0 0 10px rgba(163, 230, 53, 0.7);
+}
+
+button.sched-cell.act-dormir {
+  background: rgba(112, 161, 255, 0.22);
+  color: #70a1ff;
+  border-color: rgba(112, 161, 255, 0.35);
+}
+button.sched-cell.act-dormir:hover, button.sched-cell.past.act-dormir:hover {
+  background: rgba(112, 161, 255, 0.50);
+  color: #ffffff;
+  border-color: #70a1ff;
+  box-shadow: 0 0 10px rgba(112, 161, 255, 0.7);
+}
+
+button.sched-cell.act-xuxis {
+  background: rgba(232, 67, 147, 0.22);
+  color: #e84393;
+  border-color: rgba(232, 67, 147, 0.35);
+}
+button.sched-cell.act-xuxis:hover, button.sched-cell.past.act-xuxis:hover {
+  background: rgba(232, 67, 147, 0.50);
+  color: #ffffff;
+  border-color: #e84393;
+  box-shadow: 0 0 10px rgba(232, 67, 147, 0.7);
+}
+
+button.sched-cell.act-busao {
+  background: rgba(160, 165, 181, 0.20);
+  color: #a0a5b5;
+  border-color: rgba(160, 165, 181, 0.35);
+}
+button.sched-cell.act-busao:hover, button.sched-cell.past.act-busao:hover {
+  background: rgba(160, 165, 181, 0.45);
+  color: #ffffff;
+  border-color: #a0a5b5;
+  box-shadow: 0 0 10px rgba(160, 165, 181, 0.7);
+}
+
+button.sched-cell.act-leitura {
+  background: rgba(10, 189, 227, 0.22);
+  color: #0abde3;
+  border-color: rgba(10, 189, 227, 0.35);
+}
+button.sched-cell.act-leitura:hover, button.sched-cell.past.act-leitura:hover {
+  background: rgba(10, 189, 227, 0.50);
+  color: #ffffff;
+  border-color: #0abde3;
+  box-shadow: 0 0 10px rgba(10, 189, 227, 0.7);
+}
+
+button.sched-cell.act-livre {
+  background: rgba(192, 92, 255, 0.22);
+  color: #c05cff;
+  border-color: rgba(192, 92, 255, 0.35);
+}
+button.sched-cell.act-livre:hover, button.sched-cell.past.act-livre:hover {
+  background: rgba(192, 92, 255, 0.50);
+  color: #ffffff;
+  border-color: #c05cff;
+  box-shadow: 0 0 10px rgba(192, 92, 255, 0.7);
+}
+
+button.sched-cell.act-academia {
+  background: rgba(255, 107, 107, 0.22);
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.35);
+}
+button.sched-cell.act-academia:hover, button.sched-cell.past.act-academia:hover {
+  background: rgba(255, 107, 107, 0.50);
+  color: #ffffff;
+  border-color: #ff6b6b;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.7);
+}
+
+button.sched-cell.act-meditacao {
+  background: rgba(179, 136, 255, 0.22);
+  color: #b388ff;
+  border-color: rgba(179, 136, 255, 0.35);
+}
+button.sched-cell.act-meditacao:hover, button.sched-cell.past.act-meditacao:hover {
+  background: rgba(179, 136, 255, 0.50);
+  color: #ffffff;
+  border-color: #b388ff;
+  box-shadow: 0 0 10px rgba(179, 136, 255, 0.7);
+}
+
+button.sched-cell.act-alimentacao {
+  background: rgba(255, 224, 102, 0.22);
+  color: #ffe066;
+  border-color: rgba(255, 224, 102, 0.35);
+}
+button.sched-cell.act-alimentacao:hover, button.sched-cell.past.act-alimentacao:hover {
+  background: rgba(255, 224, 102, 0.50);
+  color: #ffffff;
+  border-color: #ffe066;
+  box-shadow: 0 0 10px rgba(255, 224, 102, 0.7);
+}
+
+button.sched-cell.act-default {
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Time states: past, current, future */
+button.sched-cell.past {
+  opacity: 0.22;
+  background: rgba(10, 12, 18, 0.55);
+  color: #334155;
+  border-color: rgba(255, 255, 255, 0.02);
+}
+
+button.sched-cell.current {
+  opacity: 1.0;
+  font-weight: 900;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6), inset 0 0 6px rgba(255, 255, 255, 0.35);
+}
+
+button.sched-cell.future {
+  opacity: 0.95;
+}
+
+/* Hover em qualquer celula (remove escuridao e exibe cor original + borda brilhante branca) */
+button.sched-cell:hover,
+button.sched-cell.past:hover {
+  opacity: 1.0;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
 }
 
 
