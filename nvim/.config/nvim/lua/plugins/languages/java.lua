@@ -5,7 +5,7 @@ return {
     enabled = false,
   },
 
-  -- 1. Diagnósticos Instantâneos de Sintaxe para Java via nvim-lint + javac (30ms!)
+  -- 1. Diagnósticos Instantâneos de Sintaxe para Java via nvim-lint + javac
   {
     "mfussenegger/nvim-lint",
     ft = { "java" },
@@ -71,10 +71,120 @@ return {
     end,
   },
 
-  -- 2. Configuracao Customizada do JDTLS (Atalhos ;j + Geradores)
+  -- 2. Configuração Completa e Robusta do JDTLS (Autocomplete Inteligente + Tips + Atalhos)
   {
     "mfussenegger/nvim-jdtls",
+    ft = { "java" },
     opts = function(_, opts)
+      opts = opts or {}
+
+      local root_markers = {
+        "mvnw", "gradlew", "pom.xml", "build.gradle", "build.gradle.kts",
+        "settings.gradle", "settings.gradle.kts", ".project", ".git", "src"
+      }
+
+      opts.root_dir = function(fname)
+        local root = require("jdtls.setup").find_root(root_markers, fname)
+        if not root or root == "" then
+          root = vim.fs.dirname(fname)
+        end
+        return root
+      end
+
+      opts.project_name = function(root_dir)
+        return root_dir and vim.fs.basename(root_dir) or "default"
+      end
+
+      opts.jdtls_config_dir = function(project_name)
+        return vim.fn.stdpath("cache") .. "/jdtls/" .. project_name .. "/config"
+      end
+
+      opts.jdtls_workspace_dir = function(project_name)
+        return vim.fn.stdpath("cache") .. "/jdtls/" .. project_name .. "/workspace"
+      end
+
+      local mason_path = vim.fn.stdpath("data") .. "/mason"
+      local jdtls_bin = mason_path .. "/bin/jdtls"
+      if vim.fn.filereadable(jdtls_bin) == 0 then
+        jdtls_bin = vim.fn.exepath("jdtls")
+      end
+
+      local cmd = { jdtls_bin }
+      local lombok_jar = mason_path .. "/share/jdtls/lombok.jar"
+      if vim.fn.filereadable(lombok_jar) == 1 then
+        table.insert(cmd, string.format("--jvm-arg=-javaagent:%s", lombok_jar))
+      end
+      opts.cmd = cmd
+
+      opts.full_cmd = function(o)
+        local fname = vim.api.nvim_buf_get_name(0)
+        local rdir = o.root_dir(fname)
+        local pname = o.project_name(rdir)
+        local c = vim.deepcopy(o.cmd)
+        vim.list_extend(c, {
+          "-configuration", o.jdtls_config_dir(pname),
+          "-data", o.jdtls_workspace_dir(pname),
+        })
+        return c
+      end
+
+      opts.settings = {
+        java = {
+          signatureHelp = { enabled = true },
+          contentProvider = { preferred = "fernflower" },
+          completion = {
+            favoriteStaticMembers = {
+              "org.junit.Assert.*",
+              "org.junit.Assume.*",
+              "org.junit.jupiter.api.Assertions.*",
+              "org.junit.jupiter.api.Assumptions.*",
+              "org.junit.jupiter.api.DynamicContainer.*",
+              "org.junit.jupiter.api.DynamicTest.*",
+              "org.mockito.Mockito.*",
+              "org.mockito.ArgumentMatchers.*",
+              "org.hamcrest.MatcherAssert.assertThat",
+              "org.hamcrest.Matchers.*",
+              "org.hamcrest.CoreMatchers.*",
+              "java.util.Objects.requireNonNull",
+              "java.util.Objects.requireNonNullElse",
+            },
+            filteredTypes = {
+              "com.sun.*",
+              "io.micrometer.shaded.*",
+              "java.awt.*",
+              "jdk.*",
+              "sun.*",
+            },
+            importOrder = {
+              "java",
+              "javax",
+              "com",
+              "org",
+            },
+          },
+          sources = {
+            organizeImports = {
+              starThreshold = 9999,
+              staticStarThreshold = 9999,
+            },
+          },
+          codeGeneration = {
+            toString = {
+              template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}",
+            },
+            useBlocks = true,
+          },
+          inlayHints = {
+            parameterNames = {
+              enabled = "all",
+            },
+          },
+        },
+      }
+
+      return opts
+    end,
+    config = function(_, opts)
       local function bind_java_keys(bufnr)
         local options = { buffer = bufnr, silent = true, noremap = true }
 
@@ -190,6 +300,65 @@ return {
         end, vim.tbl_extend("force", options, { desc = "Java: Iniciar Debug DAP" }))
       end
 
+      local function attach_jdtls()
+        local fname = vim.api.nvim_buf_get_name(0)
+        if fname == "" or fname:sub(-5) ~= ".java" then return end
+
+        local bundles = {}
+        local mason_path = vim.fn.stdpath("data") .. "/mason"
+        local debug_jar = vim.fn.glob(mason_path .. "/share/java-debug-adapter/com.microsoft.java.debug.plugin-*.jar", false, true)
+        if #debug_jar > 0 then
+          vim.list_extend(bundles, debug_jar)
+          local test_jars = vim.fn.glob(mason_path .. "/share/java-test/*.jar", false, true)
+          if #test_jars > 0 then
+            vim.list_extend(bundles, test_jars)
+          end
+        end
+
+        local capabilities = nil
+        local has_blink, blink = pcall(require, "blink.cmp")
+        if has_blink and blink.get_lsp_capabilities then
+          capabilities = blink.get_lsp_capabilities()
+        else
+          local has_cmp, cmp_lsp = pcall(require, "cmp_nvim_lsp")
+          if has_cmp and cmp_lsp.default_capabilities then
+            capabilities = cmp_lsp.default_capabilities()
+          else
+            capabilities = vim.lsp.protocol.make_client_capabilities()
+          end
+        end
+
+        local config = {
+          cmd = opts.full_cmd(opts),
+          root_dir = opts.root_dir(fname),
+          init_options = {
+            bundles = bundles,
+            extendedClientCapabilities = {
+              progressReportProvider = true,
+              classFileContentsSupport = true,
+              generateToStringPromptSupport = true,
+              hashCodeEqualsPromptSupport = true,
+              advancedExtractRefactoringSupport = true,
+              advancedOrganizeImportsSupport = true,
+              generateConstructorsPromptSupport = true,
+              generateDelegateMethodsPromptSupport = true,
+              moveRefactoringSupport = true,
+              overrideMethodsPromptSupport = true,
+              inferSelectionSupport = { "extractMethod", "extractVariable", "extractConstant" },
+            },
+          },
+          settings = opts.settings,
+          capabilities = capabilities,
+        }
+
+        require("jdtls").start_or_attach(config)
+      end
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "java",
+        callback = attach_jdtls,
+      })
+
       vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(args)
           local client = vim.lsp.get_client_by_id(args.data.client_id)
@@ -199,7 +368,7 @@ return {
         end,
       })
 
-      return opts
+      attach_jdtls()
     end,
     init = function()
       local group = vim.api.nvim_create_augroup("JavaPackageAutoCmd", { clear = true })
