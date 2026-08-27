@@ -57,11 +57,15 @@ return {
         ["Busão"]     = { bg = TABLE_BG, fg = "#a0a5b5" },
         ["Busao"]     = { bg = TABLE_BG, fg = "#a0a5b5" },
         ["Leitura"]   = { bg = TABLE_BG, fg = "#0abde3" },
+        ["Ler"]       = { bg = TABLE_BG, fg = "#0abde3" },
         ["Livre"]     = { bg = TABLE_BG, fg = "#c05cff" },
         ["Gameplay"]  = { bg = TABLE_BG, fg = "#a55eea" },
         ["Academia"]  = { bg = TABLE_BG, fg = "#ff6b6b" },
+        ["Treinar"]   = { bg = TABLE_BG, fg = "#ff6b6b" },
+        ["Treino"]    = { bg = TABLE_BG, fg = "#ff6b6b" },
         ["Meditação"] = { bg = TABLE_BG, fg = "#b388ff" },
         ["Meditacao"] = { bg = TABLE_BG, fg = "#b388ff" },
+        ["Meditar"]   = { bg = TABLE_BG, fg = "#b388ff" },
         ["Almoço"]    = { bg = TABLE_BG, fg = "#ffe066" },
         ["Almoco"]    = { bg = TABLE_BG, fg = "#ffe066" },
         ["Janta"]     = { bg = TABLE_BG, fg = "#ffe066" },
@@ -195,7 +199,38 @@ return {
             end
             local sep_hl = is_hdr and "CsvHdrSep" or "CsvSep"
 
-            if f.s < f.e then
+            if not is_hdr and not has_check and not has_cross and not cell_state and f.t:find("/", 1, true) then
+              local s_idx = 1
+              local len = #f.t
+              while s_idx <= len do
+                local slash_pos = f.t:find("/", s_idx, true)
+                local seg_end = slash_pos and (slash_pos - 1) or len
+                local seg_str = f.t:sub(s_idx, seg_end)
+                local matched_seg = find_name_match(seg_str)
+                local seg_hl = matched_seg and name_hl(matched_seg) or "CsvCell"
+
+                if seg_end >= s_idx then
+                  vim.api.nvim_buf_set_extmark(buf, NS, l, f.s + (s_idx - 1), {
+                    end_col  = f.s + seg_end,
+                    hl_group = seg_hl,
+                    priority = 4096,
+                    hl_mode  = "combine",
+                  })
+                end
+
+                if slash_pos then
+                  vim.api.nvim_buf_set_extmark(buf, NS, l, f.s + (slash_pos - 1), {
+                    end_col  = f.s + slash_pos,
+                    hl_group = "CsvCell",
+                    priority = 4096,
+                    hl_mode  = "combine",
+                  })
+                  s_idx = slash_pos + 1
+                else
+                  break
+                end
+              end
+            elseif f.s < f.e then
               vim.api.nvim_buf_set_extmark(buf, NS, l, f.s, {
                 end_col  = f.e,
                 hl_group = col_hl,
