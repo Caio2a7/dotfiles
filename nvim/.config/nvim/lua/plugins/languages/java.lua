@@ -12,17 +12,29 @@ return {
     opts = function(_, opts)
       opts = opts or {}
 
-      local root_markers = {
-        "mvnw", "gradlew", "pom.xml", "build.gradle", "build.gradle.kts",
-        "settings.gradle", "settings.gradle.kts", ".project", ".classpath", ".git"
-      }
-
       opts.root_dir = function(fname)
-        local root = require("jdtls.setup").find_root(root_markers, fname)
-        if not root or root == "" then
-          root = vim.fs.dirname(fname)
+        if not fname or fname == "" then return vim.fn.getcwd() end
+        local norm_path = fname:gsub("\\", "/")
+
+        -- 1. Verificar ferramentas de build ou arquivos de projeto Eclipse
+        local build_root = vim.fs.root(fname, {
+          "pom.xml", "build.gradle", "build.gradle.kts",
+          "mvnw", "gradlew", "settings.gradle", "settings.gradle.kts",
+          ".project", ".classpath"
+        })
+        if build_root then return build_root end
+
+        -- 2. Se estiver dentro de pasta src/, a raiz do modulo e a pasta imediatamente acima de src/
+        local s = norm_path:find("/src/")
+        if s then
+          return norm_path:sub(1, s - 1)
         end
-        return root
+
+        -- 3. Fallback para git ou diretorio do arquivo
+        local git_root = vim.fs.root(fname, { ".git" })
+        if git_root then return git_root end
+
+        return vim.fs.dirname(fname)
       end
 
       opts.project_name = function(root_dir)
