@@ -5,149 +5,7 @@ return {
     enabled = false,
   },
 
-  -- 1. Diagnósticos Instantâneos de Sintaxe para Java via nvim-lint + javac
-  {
-    "mfussenegger/nvim-lint",
-    ft = { "java" },
-    config = function()
-      local lint = require("lint")
-
-      local function get_java_source_and_classpath(filepath)
-        if not filepath or filepath == "" then return nil, nil end
-        local norm_path = filepath:gsub("\\", "/")
-
-        local bufnr = vim.api.nvim_get_current_buf()
-        local lines = vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_get_lines(bufnr, 0, 50, false) or {}
-        local pkg = nil
-        for _, l in ipairs(lines) do
-          local p = l:match("^%s*package%s+([%w_%.]+)%s*;")
-          if p then
-            pkg = p
-            break
-          end
-        end
-
-        local source_dir = nil
-        if pkg and pkg ~= "" then
-          local pkg_path = pkg:gsub("%.", "/")
-          local s = norm_path:find(pkg_path, 1, true)
-          if s then
-            source_dir = norm_path:sub(1, s - 1):gsub("/+$", "")
-          end
-        end
-
-        if not source_dir or source_dir == "" then
-          local s, e = norm_path:find("/src/[^/]+/java")
-          if e then
-            source_dir = norm_path:sub(1, e)
-          else
-            local s2, e2 = norm_path:find("/src")
-            if e2 then
-              source_dir = norm_path:sub(1, e2)
-            else
-              source_dir = vim.fs.dirname(norm_path)
-            end
-          end
-        end
-
-        local root = vim.fs.root(filepath, { "pom.xml", "build.gradle", ".git", ".project" }) or vim.fs.dirname(source_dir)
-        local cp_entries = { source_dir }
-
-        if root then
-          local possible_cp = {
-            root .. "/target/classes",
-            root .. "/target/test-classes",
-            root .. "/build/classes/java/main",
-            root .. "/build/classes/java/test",
-            root .. "/bin",
-          }
-          for _, dir in ipairs(possible_cp) do
-            if vim.fn.isdirectory(dir) == 1 then
-              table.insert(cp_entries, dir)
-            end
-          end
-
-          local jars = vim.fn.glob(root .. "/**/lib*/*.jar", false, true)
-          if #jars > 0 then
-            for _, j in ipairs(jars) do
-              table.insert(cp_entries, j)
-            end
-          end
-        end
-
-        local sep = package.config:sub(1, 1) == "\\" and ";" or ":"
-        local classpath = table.concat(cp_entries, sep)
-
-        return source_dir, classpath
-      end
-
-      lint.linters.javac = {
-        name = "javac",
-        cmd = "javac",
-        args = {
-          "-sourcepath",
-          function()
-            local filepath = vim.api.nvim_buf_get_name(0)
-            local src, _ = get_java_source_and_classpath(filepath)
-            return src or vim.fs.dirname(filepath)
-          end,
-          "-cp",
-          function()
-            local filepath = vim.api.nvim_buf_get_name(0)
-            local _, cp = get_java_source_and_classpath(filepath)
-            return cp or "."
-          end,
-          "-Xlint:all",
-          "-d",
-          "/tmp",
-          "-proc:none",
-        },
-        stdin = false,
-        stream = "stderr",
-        ignore_exitcode = true,
-        parser = function(output, bufnr)
-          local diagnostics = {}
-          local pattern = "([^:]+):(%d+):%s*(%a+):%s*(.*)"
-          for _, line in ipairs(vim.split(output, "\n")) do
-            local file, lnum, sev, msg = line:match(pattern)
-            if file and lnum and msg then
-              local is_missing_ext_package = msg:match("package%s+[%w_%.]+%s+does not exist")
-              local is_import_symbol = msg:match("cannot find symbol") and msg:match("import%s+")
-
-              if not is_missing_ext_package and not is_import_symbol then
-                local severity = vim.diagnostic.severity.ERROR
-                if sev:lower() == "warning" or sev:lower() == "warn" then
-                  severity = vim.diagnostic.severity.WARN
-                end
-                table.insert(diagnostics, {
-                  bufnr = bufnr,
-                  lnum = tonumber(lnum) - 1,
-                  col = 0,
-                  severity = severity,
-                  message = msg,
-                  source = "javac",
-                })
-              end
-            end
-          end
-          return diagnostics
-        end,
-      }
-
-      lint.linters_by_ft.java = { "javac" }
-
-      local lint_group = vim.api.nvim_create_augroup("JavaLint", { clear = true })
-      vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave", "TextChanged" }, {
-        group = lint_group,
-        pattern = "*.java",
-        callback = function()
-          lint.try_lint("javac")
-        end,
-      })
-    end,
-  },
-
-  -- 2. Configuração Completa e Robusta do JDTLS (Autocomplete Inteligente + Tips + Atalhos)
+  -- 1. Configuração Completa e Robusta do JDTLS (Autocomplete Inteligente + Tips + Atalhos)
   {
     "mfussenegger/nvim-jdtls",
     ft = { "java" },
@@ -192,8 +50,8 @@ return {
       end
       opts.cmd = cmd
 
-      opts.full_cmd = function(o)
-        local fname = vim.api.nvim_buf_get_name(0)
+      opts.full_cmd = function(o, fname)
+        fname = fname or vim.api.nvim_buf_get_name(0)
         local rdir = o.root_dir(fname)
         local pname = o.project_name(rdir)
         local c = vim.deepcopy(o.cmd)
@@ -376,8 +234,10 @@ return {
         end, vim.tbl_extend("force", options, { desc = "Java: Iniciar Debug DAP" }))
       end
 
-      local function attach_jdtls()
-        local fname = vim.api.nvim_buf_get_name(0)
+      local function attach_jdtls(args)
+        local bufnr = (args and args.buf) or vim.api.nvim_get_current_buf()
+        if not vim.api.nvim_buf_is_valid(bufnr) then return end
+        local fname = vim.api.nvim_buf_get_name(bufnr)
         if fname == "" or fname:sub(-5) ~= ".java" then return end
 
         local bundles = {}
@@ -385,7 +245,7 @@ return {
         local debug_jar = vim.fn.glob(mason_path .. "/share/java-debug-adapter/com.microsoft.java.debug.plugin-*.jar", false, true)
         if #debug_jar > 0 then
           vim.list_extend(bundles, debug_jar)
-          local test_jars = vim.fn.glob(mason_path .. "/share/java-test/*.jar", false, true)
+          local test_jars = vim.fn.glob(mason_path .. "/share/java-test/com.microsoft.java.test.plugin-*.jar", false, true)
           if #test_jars > 0 then
             vim.list_extend(bundles, test_jars)
           end
@@ -405,7 +265,7 @@ return {
         end
 
         local config = {
-          cmd = opts.full_cmd(opts),
+          cmd = opts.full_cmd(opts, fname),
           root_dir = opts.root_dir(fname),
           init_options = {
             bundles = bundles,
