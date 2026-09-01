@@ -12,6 +12,75 @@ return {
     config = function()
       local lint = require("lint")
 
+      local function get_java_source_and_classpath(filepath)
+        if not filepath or filepath == "" then return nil, nil end
+        local norm_path = filepath:gsub("\\", "/")
+
+        local bufnr = vim.api.nvim_get_current_buf()
+        local lines = vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_buf_get_lines(bufnr, 0, 50, false) or {}
+        local pkg = nil
+        for _, l in ipairs(lines) do
+          local p = l:match("^%s*package%s+([%w_%.]+)%s*;")
+          if p then
+            pkg = p
+            break
+          end
+        end
+
+        local source_dir = nil
+        if pkg and pkg ~= "" then
+          local pkg_path = pkg:gsub("%.", "/")
+          local s = norm_path:find(pkg_path, 1, true)
+          if s then
+            source_dir = norm_path:sub(1, s - 1):gsub("/+$", "")
+          end
+        end
+
+        if not source_dir or source_dir == "" then
+          local s, e = norm_path:find("/src/[^/]+/java")
+          if e then
+            source_dir = norm_path:sub(1, e)
+          else
+            local s2, e2 = norm_path:find("/src")
+            if e2 then
+              source_dir = norm_path:sub(1, e2)
+            else
+              source_dir = vim.fs.dirname(norm_path)
+            end
+          end
+        end
+
+        local root = vim.fs.root(filepath, { "pom.xml", "build.gradle", ".git", ".project" }) or vim.fs.dirname(source_dir)
+        local cp_entries = { source_dir }
+
+        if root then
+          local possible_cp = {
+            root .. "/target/classes",
+            root .. "/target/test-classes",
+            root .. "/build/classes/java/main",
+            root .. "/build/classes/java/test",
+            root .. "/bin",
+          }
+          for _, dir in ipairs(possible_cp) do
+            if vim.fn.isdirectory(dir) == 1 then
+              table.insert(cp_entries, dir)
+            end
+          end
+
+          local jars = vim.fn.glob(root .. "/**/lib*/*.jar", false, true)
+          if #jars > 0 then
+            for _, j in ipairs(jars) do
+              table.insert(cp_entries, j)
+            end
+          end
+        end
+
+        local sep = package.config:sub(1, 1) == "\\" and ";" or ":"
+        local classpath = table.concat(cp_entries, sep)
+
+        return source_dir, classpath
+      end
+
       lint.linters.javac = {
         name = "javac",
         cmd = "javac",
@@ -19,12 +88,14 @@ return {
           "-sourcepath",
           function()
             local filepath = vim.api.nvim_buf_get_name(0)
-            local norm_path = filepath:gsub("\\", "/")
-            local s, e = norm_path:find("/src/[^/]+/java")
-            if e then
-              return norm_path:sub(1, e)
-            end
-            return vim.fs.dirname(filepath)
+            local src, _ = get_java_source_and_classpath(filepath)
+            return src or vim.fs.dirname(filepath)
+          end,
+          "-cp",
+          function()
+            local filepath = vim.api.nvim_buf_get_name(0)
+            local _, cp = get_java_source_and_classpath(filepath)
+            return cp or "."
           end,
           "-Xlint:all",
           "-d",
@@ -40,18 +111,23 @@ return {
           for _, line in ipairs(vim.split(output, "\n")) do
             local file, lnum, sev, msg = line:match(pattern)
             if file and lnum and msg then
-              local severity = vim.diagnostic.severity.ERROR
-              if sev:lower() == "warning" or sev:lower() == "warn" then
-                severity = vim.diagnostic.severity.WARN
+              local is_missing_ext_package = msg:match("package%s+[%w_%.]+%s+does not exist")
+              local is_import_symbol = msg:match("cannot find symbol") and msg:match("import%s+")
+
+              if not is_missing_ext_package and not is_import_symbol then
+                local severity = vim.diagnostic.severity.ERROR
+                if sev:lower() == "warning" or sev:lower() == "warn" then
+                  severity = vim.diagnostic.severity.WARN
+                end
+                table.insert(diagnostics, {
+                  bufnr = bufnr,
+                  lnum = tonumber(lnum) - 1,
+                  col = 0,
+                  severity = severity,
+                  message = msg,
+                  source = "javac",
+                })
               end
-              table.insert(diagnostics, {
-                bufnr = bufnr,
-                lnum = tonumber(lnum) - 1,
-                col = 0,
-                severity = severity,
-                message = msg,
-                source = "javac",
-              })
             end
           end
           return diagnostics
@@ -80,7 +156,7 @@ return {
 
       local root_markers = {
         "mvnw", "gradlew", "pom.xml", "build.gradle", "build.gradle.kts",
-        "settings.gradle", "settings.gradle.kts", ".project", ".git", "src"
+        "settings.gradle", "settings.gradle.kts", ".project", ".classpath", ".git"
       }
 
       opts.root_dir = function(fname)
@@ -385,6 +461,7 @@ return {
           local java_root_pat = "/src/[^/]+/java/"
           local s, e = norm_path:find(java_root_pat)
           if not s then s, e = norm_path:find("/java/") end
+          if not s then s, e = norm_path:find("/src/") end
 
           local pkg_name = ""
           if e then
