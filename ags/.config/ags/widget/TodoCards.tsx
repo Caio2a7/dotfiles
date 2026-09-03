@@ -4,6 +4,7 @@ import GLib from "gi://GLib"
 import Gio from "gi://Gio"
 import Pango from "gi://Pango"
 import cairo from "gi://cairo"
+import { openHabitsModal } from "./HabitsModal"
 
 const { TOP, LEFT, RIGHT, BOTTOM } = Astal.WindowAnchor
 const H = Gtk.Orientation.HORIZONTAL
@@ -359,17 +360,17 @@ function HabitsStreakPanel(panelHeight: number): Gtk.Widget {
 
     data.forEach((h) => {
       const dots = h.history
-        .map((done) => (done ? `<span foreground="#4ade80">●</span>` : `<span foreground="#334155">○</span>`))
+        .map((done) => (done ? `<span foreground="#4ade80">●</span>` : `<span foreground="#64748b">○</span>`))
         .join(" ")
 
       const streakText =
         h.streak > 0
           ? `<span foreground="#fb923c" weight="heavy">🔥 ${h.streak}d</span>`
-          : `<span foreground="#64748b" weight="bold">0d</span>`
+          : `<span foreground="#cbd5e1" weight="bold">0d</span>`
 
       const todayBadge = h.doneToday
         ? `<span foreground="#4ade80" weight="bold">✓ Feito</span>`
-        : `<span foreground="#94a3b8" weight="bold">○ Pendente</span>`
+        : `<span foreground="#f87171" weight="bold">○ Pendente</span>`
 
       const cardLabel = new Gtk.Label({
         useMarkup: true,
@@ -378,7 +379,7 @@ function HabitsStreakPanel(panelHeight: number): Gtk.Widget {
         xalign: 0.5,
         yalign: 0.5,
         hexpand: true,
-        label: `<span size="large">${h.icon}</span> <b>${h.name}</b>\n${streakText} <span size="small" foreground="#64748b">(${h.maxStreak}d max)</span>\n${dots}\n${todayBadge}`,
+        label: `<span size="14000">${h.icon}</span> <span foreground="#ffffff" weight="bold" size="11500">${h.name}</span>\n<span size="11000">${streakText}</span> <span size="9500" foreground="#cbd5e1">(${h.maxStreak}d max)</span>\n<span size="12000">${dots}</span>\n<span size="11000">${todayBadge}</span>`,
       })
 
       const card = (
@@ -422,8 +423,8 @@ function HabitsStreakPanel(panelHeight: number): Gtk.Widget {
 
   const gesture = new Gtk.GestureClick()
   gesture.set_button(1)
-  gesture.connect("pressed", (_g: Gtk.GestureClick, nPress: number) => {
-    if (nPress === 2) openInNvim(filePath)
+  gesture.connect("pressed", () => {
+    openHabitsModal("today")
   })
   panel.add_controller(gesture)
 
@@ -456,21 +457,16 @@ function parseTimeToHours(timeStr: string): number {
   return h + m / 60
 }
 
-function getWeekInfo(dateStr: string): { key: string; label: string; monday: Date } | null {
-  const parts = dateStr.trim().split("-")
-  if (parts.length !== 3) return null
-  const y = parseInt(parts[0], 10)
-  const m = parseInt(parts[1], 10) - 1
-  const d = parseInt(parts[2], 10)
-  if (isNaN(y) || isNaN(m) || isNaN(d)) return null
-
-  const date = new Date(y, m, d)
-  const day = date.getDay()
+function getWeekInfoFromDate(date: Date): { key: string; label: string; monday: Date } {
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+  const day = d.getDay()
   const diffToMonday = day === 0 ? -6 : 1 - day
-  const monday = new Date(date)
-  monday.setDate(date.getDate() + diffToMonday)
+  const monday = new Date(d)
+  monday.setDate(d.getDate() + diffToMonday)
+  monday.setHours(0, 0, 0, 0)
   const sunday = new Date(monday)
   sunday.setDate(monday.getDate() + 6)
+  sunday.setHours(23, 59, 59, 999)
 
   const fmt = (dt: Date) =>
     `${String(dt.getDate()).padStart(2, "0")}/${String(dt.getMonth() + 1).padStart(2, "0")}`
@@ -480,12 +476,24 @@ function getWeekInfo(dateStr: string): { key: string; label: string; monday: Dat
   return { key, label, monday }
 }
 
+function getWeekInfo(dateStr: string): { key: string; label: string; monday: Date } | null {
+  const parts = dateStr.trim().split("-")
+  if (parts.length !== 3) return null
+  const y = parseInt(parts[0], 10)
+  const m = parseInt(parts[1], 10) - 1
+  const d = parseInt(parts[2], 10)
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return null
+
+  return getWeekInfoFromDate(new Date(y, m, d))
+}
+
 function readStudyWeeks(): WeekData[] {
   try {
     const raw = readFile(`${VITTAE_DIR}/registros.csv`)
     if (!raw) return []
     const lines = raw.split("\n")
-    const weekMap = new Map<string, { label: string; monday: Date; hours: number }>()
+    const weekMap = new Map<string, number>()
+    let earliestMonday: Date | null = null
 
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim()
@@ -505,47 +513,36 @@ function readStudyWeeks(): WeekData[] {
       if (!info) continue
 
       const hours = parseTimeToHours(timeStr)
-      if (!weekMap.has(info.key)) {
-        weekMap.set(info.key, { label: info.label, monday: info.monday, hours: 0 })
+      const currentHours = weekMap.get(info.key) || 0
+      weekMap.set(info.key, currentHours + hours)
+
+      if (!earliestMonday || info.monday.getTime() < earliestMonday.getTime()) {
+        earliestMonday = info.monday
       }
-      const entry = weekMap.get(info.key)!
-      entry.hours += hours
     }
 
-    const sorted: WeekData[] = Array.from(weekMap.entries())
-      .sort((a, b) => a[1].monday.getTime() - b[1].monday.getTime())
-      .map(([key, val]) => ({
-        key,
-        label: val.label,
-        hours: Math.round(val.hours * 10) / 10,
-        monday: val.monday,
-      }))
+    if (!earliestMonday) return []
 
-    if (sorted.length > 0 && sorted.length < 4) {
-      const firstMon = sorted[0].monday
-      const prevMon = new Date(firstMon)
-      prevMon.setDate(firstMon.getDate() - 7)
-      const prevSun = new Date(prevMon)
-      prevSun.setDate(prevMon.getDate() + 6)
-      const fmt = (dt: Date) =>
-        `${String(dt.getDate()).padStart(2, "0")}/${String(dt.getMonth() + 1).padStart(2, "0")}`
-      const prevKey = `${prevMon.getFullYear()}-${String(prevMon.getMonth() + 1).padStart(2, "0")}-${String(prevMon.getDate()).padStart(2, "0")}`
+    const currentWeekInfo = getWeekInfoFromDate(new Date())
+    const currentMonday = currentWeekInfo.monday
+    const endMonday = currentMonday.getTime() > earliestMonday.getTime() ? currentMonday : earliestMonday
 
-      const lastMon = sorted[sorted.length - 1].monday
-      const nextMon = new Date(lastMon)
-      nextMon.setDate(lastMon.getDate() + 7)
-      const nextSun = new Date(nextMon)
-      nextSun.setDate(nextMon.getDate() + 6)
-      const nextKey = `${nextMon.getFullYear()}-${String(nextMon.getMonth() + 1).padStart(2, "0")}-${String(nextMon.getDate()).padStart(2, "0")}`
+    const result: WeekData[] = []
+    const cur = new Date(earliestMonday)
 
-      return [
-        { key: prevKey, label: `${fmt(prevMon)} - ${fmt(prevSun)}`, hours: 0, monday: prevMon },
-        ...sorted,
-        { key: nextKey, label: `${fmt(nextMon)} - ${fmt(nextSun)}`, hours: 0, monday: nextMon },
-      ]
+    while (cur.getTime() <= endMonday.getTime()) {
+      const info = getWeekInfoFromDate(cur)
+      const hours = weekMap.get(info.key) || 0
+      result.push({
+        key: info.key,
+        label: info.label,
+        hours: Math.round(hours * 10) / 10,
+        monday: new Date(info.monday),
+      })
+      cur.setDate(cur.getDate() + 7)
     }
 
-    return sorted
+    return result
   } catch (e) {
     console.error("Erro ao ler registros.csv:", e)
     return []
@@ -555,39 +552,39 @@ function readStudyWeeks(): WeekData[] {
 function drawStudyChart(cr: cairo.Context, width: number, height: number, data: WeekData[]) {
   cr.save()
 
-  const padLeft = 40
+  const padLeft = 46
   const padRight = 24
-  const padTop = 30
-  const padBottom = 24
+  const padTop = 32
+  const padBottom = 28
   const plotW = Math.max(10, width - padLeft - padRight)
   const plotH = Math.max(10, height - padTop - padBottom)
 
-  // Floating summary at top-right (Branco com Cinza)
+  // Floating summary at top-right (Verde Esmeralda + Branco)
   const validData = data.filter((d) => d.hours > 0)
   const totalHours = validData.reduce((acc, d) => acc + d.hours, 0)
-  const avgHours = validData.length > 0 ? (totalHours / validData.length).toFixed(1) : "0"
+  const avgHours = data.length > 0 ? (totalHours / data.length).toFixed(1) : "0"
   const summaryText = `Total: ${totalHours.toFixed(1)}h  |  Média: ${avgHours}h/sem`
 
   cr.selectFontFace("JetBrainsMono Nerd Font", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
-  cr.setFontSize(10)
+  cr.setFontSize(12)
   const sumExt = cr.textExtents(summaryText)
-  const badgeX = width - padRight - sumExt.width - 12
+  const badgeX = width - padRight - sumExt.width - 14
   const badgeY = 5
   cr.setSourceRGBA(0.08, 0.09, 0.12, 0.88)
-  cr.rectangle(badgeX, badgeY, sumExt.width + 12, 17)
+  cr.rectangle(badgeX, badgeY, sumExt.width + 14, 21)
   cr.fill()
-  cr.setSourceRGBA(1.0, 1.0, 1.0, 0.20)
+  cr.setSourceRGBA(0.063, 0.725, 0.506, 0.35)
   cr.setLineWidth(1)
-  cr.rectangle(badgeX, badgeY, sumExt.width + 12, 17)
+  cr.rectangle(badgeX, badgeY, sumExt.width + 14, 21)
   cr.stroke()
   cr.setSourceRGBA(0.92, 0.94, 0.98, 0.95)
-  cr.moveTo(badgeX + 6, badgeY + 12)
+  cr.moveTo(badgeX + 7, badgeY + 15)
   cr.showText(summaryText)
 
   if (data.length === 0) {
     cr.setSourceRGBA(0.6, 0.65, 0.75, 0.6)
     cr.selectFontFace("JetBrainsMono Nerd Font", cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL)
-    cr.setFontSize(11)
+    cr.setFontSize(13)
     cr.moveTo(width / 2 - 60, height / 2)
     cr.showText("Sem dados em registros.csv")
     cr.restore()
@@ -601,7 +598,7 @@ function drawStudyChart(cr: cairo.Context, width: number, height: number, data: 
 
   // Gridlines horizontais & Rótulos Y
   cr.selectFontFace("JetBrainsMono Nerd Font", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
-  cr.setFontSize(9)
+  cr.setFontSize(11)
   for (let s = 0; s <= gridSteps; s++) {
     const val = s * (yMax / gridSteps)
     const y = padTop + plotH - (val / yMax) * plotH
@@ -627,7 +624,7 @@ function drawStudyChart(cr: cairo.Context, width: number, height: number, data: 
     return { x, y, val: d.hours, label: d.label }
   })
 
-  // Gradiente preenchido sob a curva (Light Purple)
+  // Gradiente preenchido sob a curva (Verde Esmeralda #10b981)
   if (points.length > 1) {
     cr.newPath()
     cr.moveTo(points[0].x, padTop + plotH)
@@ -646,11 +643,11 @@ function drawStudyChart(cr: cairo.Context, width: number, height: number, data: 
     cr.lineTo(points[points.length - 1].x, padTop + plotH)
     cr.closePath()
 
-    cr.setSourceRGBA(0.75, 0.52, 0.99, 0.15)
+    cr.setSourceRGBA(0.063, 0.725, 0.506, 0.16)
     cr.fill()
   }
 
-  // Linha conectora suave (Light Purple #c084fc)
+  // Linha conectora suave (Verde Esmeralda #10b981)
   cr.newPath()
   cr.moveTo(points[0].x, points[0].y)
   for (let i = 1; i < points.length; i++) {
@@ -662,7 +659,7 @@ function drawStudyChart(cr: cairo.Context, width: number, height: number, data: 
     const cy2 = pCurr.y
     cr.curveTo(cx1, cy1, cx2, cy2, pCurr.x, pCurr.y)
   }
-  cr.setSourceRGBA(0.75, 0.52, 0.99, 0.95)
+  cr.setSourceRGBA(0.063, 0.725, 0.506, 0.95)
   cr.setLineWidth(2.6)
   cr.stroke()
 
@@ -670,13 +667,13 @@ function drawStudyChart(cr: cairo.Context, width: number, height: number, data: 
   for (let i = 0; i < points.length; i++) {
     const p = points[i]
 
-    // Halo externo roxo claro
-    cr.setSourceRGBA(0.75, 0.52, 0.99, 0.25)
+    // Halo externo verde esmeralda
+    cr.setSourceRGBA(0.063, 0.725, 0.506, 0.25)
     cr.arc(p.x, p.y, 6.0, 0, 2 * Math.PI)
     cr.fill()
 
-    // Ponto sólido roxo claro
-    cr.setSourceRGBA(0.75, 0.52, 0.99, 1.0)
+    // Ponto sólido verde esmeralda
+    cr.setSourceRGBA(0.063, 0.725, 0.506, 1.0)
     cr.arc(p.x, p.y, 3.5, 0, 2 * Math.PI)
     cr.fill()
 
@@ -687,19 +684,19 @@ function drawStudyChart(cr: cairo.Context, width: number, height: number, data: 
 
     // Valor acima do ponto (negrito)
     cr.selectFontFace("JetBrainsMono Nerd Font", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
-    cr.setFontSize(10)
+    cr.setFontSize(12)
     cr.setSourceRGBA(1.0, 1.0, 1.0, 0.95)
     const valText = `${p.val}h`
     const valExt = cr.textExtents(valText)
-    cr.moveTo(p.x - valExt.width / 2, Math.max(12, p.y - 7))
+    cr.moveTo(p.x - valExt.width / 2, Math.max(14, p.y - 8))
     cr.showText(valText)
 
     // Rótulo da semana abaixo (negrito)
     cr.selectFontFace("JetBrainsMono Nerd Font", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
-    cr.setFontSize(8.5)
+    cr.setFontSize(10.5)
     cr.setSourceRGBA(0.65, 0.72, 0.82, 0.85)
     const lblExt = cr.textExtents(p.label)
-    cr.moveTo(p.x - lblExt.width / 2, padTop + plotH + 15)
+    cr.moveTo(p.x - lblExt.width / 2, padTop + plotH + 18)
     cr.showText(p.label)
   }
 
@@ -931,7 +928,7 @@ function LiveScheduleTable(rowHeight = 518): Gtk.Widget {
       halign: Gtk.Align.CENTER,
       xalign: 0.5,
       hexpand: false,
-      widthRequest: 48,
+      widthRequest: 54,
     })
     grid.attach(timeColHead, 0, 0, 1, 1)
 
@@ -1039,7 +1036,7 @@ function LiveScheduleTable(rowHeight = 518): Gtk.Widget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// JANELA PRINCIPAL TODOCARDS (Gráficos no Topo + Cards de Tarefas na Base)
+// JANELA PRINCIPAL TODOCARDS (Cards de Tarefas no Topo + Gráficos na Base)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function TodoCards(monitor = 0): Astal.Window {
@@ -1062,23 +1059,7 @@ export function TodoCards(monitor = 0): Astal.Window {
     </box>
   ) as Gtk.Widget
 
-  const topRow = (
-    <box
-      orientation={H}
-      spacing={10}
-      hexpand={true}
-      vexpand={true}
-      homogeneous={true}
-      halign={Gtk.Align.FILL}
-      heightRequest={rowHeight}
-      class="todo-top-row"
-    >
-      {topLeftColumn}
-      {LiveScheduleTable(rowHeight)}
-    </box>
-  ) as Gtk.Widget
-
-  const bottomRow = (
+  const tasksRow = (
     <box
       orientation={H}
       spacing={8}
@@ -1087,9 +1068,25 @@ export function TodoCards(monitor = 0): Astal.Window {
       homogeneous={true}
       halign={Gtk.Align.FILL}
       heightRequest={rowHeight}
-      class="todo-bottom-row"
+      class="todo-top-row"
     >
       {ORDERED_FILES.map(({ file, label }) => TodoCard(file, label, rowHeight))}
+    </box>
+  ) as Gtk.Widget
+
+  const dashboardRow = (
+    <box
+      orientation={H}
+      spacing={10}
+      hexpand={true}
+      vexpand={true}
+      homogeneous={true}
+      halign={Gtk.Align.FILL}
+      heightRequest={rowHeight}
+      class="todo-bottom-row"
+    >
+      {topLeftColumn}
+      {LiveScheduleTable(rowHeight)}
     </box>
   ) as Gtk.Widget
 
@@ -1102,8 +1099,8 @@ export function TodoCards(monitor = 0): Astal.Window {
       homogeneous={true}
       class="todo-main-box"
     >
-      {topRow}
-      {bottomRow}
+      {tasksRow}
+      {dashboardRow}
     </box>
   ) as Gtk.Widget
 
