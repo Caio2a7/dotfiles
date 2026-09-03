@@ -7,6 +7,7 @@ import Battery from "gi://AstalBattery"
 import Network from "gi://AstalNetwork"
 import GLib from "gi://GLib"
 import cairo from "gi://cairo"
+import { openHabitsModal } from "./HabitsModal"
 
 const { RIGHT } = Astal.WindowAnchor
 const V = Gtk.Orientation.VERTICAL
@@ -203,6 +204,14 @@ export function Work(monitor = 0) {
           label={netIcon}
           halign={Gtk.Align.CENTER}
         />
+        <button
+          class="sys-icon habit-pill-btn"
+          halign={Gtk.Align.CENTER}
+          onClicked={() => openHabitsModal("today")}
+          tooltipText="Hábitos de Hoje"
+        >
+          <label label="󰄬" />
+        </button>
       </box>
     </box>
   ) as Gtk.Widget
