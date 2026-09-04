@@ -1,11 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
-    "@mohak34/opencode-notifier@latest",
-    "opencode-antigravity-auth@latest",
-    "opencode-snip@latest",
-    "openslimedit@latest",
-    "opencode-linter-hook@latest"
+    "@cortexkit/opencode-antigravity-auth",
+    "@mohak34/opencode-notifier",
+    "opencode-snip",
+    "openslimedit",
+    "opencode-linter-hook"
   ],
   "provider": {
     "google": {
@@ -70,6 +70,54 @@
             "max": { "thinkingConfig": { "thinkingBudget": 32768 } }
           }
         },
+        "antigravity-gemini-3.8-flash": {
+          "name": "Gemini 3.8 Flash (Antigravity)",
+          "limit": { "context": 1048576, "output": 65536 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": { "thinkingLevel": "low" },
+            "high": { "thinkingLevel": "high" }
+          }
+        },
+        "antigravity-gemini-3.7-flash": {
+          "name": "Gemini 3.7 Flash (Antigravity)",
+          "limit": { "context": 1048576, "output": 65536 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": { "thinkingLevel": "low" },
+            "high": { "thinkingLevel": "high" }
+          }
+        },
+        "antigravity-gemini-3.6-flash": {
+          "name": "Gemini 3.6 Flash (Antigravity)",
+          "limit": { "context": 1048576, "output": 65536 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": { "thinkingLevel": "low" },
+            "high": { "thinkingLevel": "high" }
+          }
+        },
+        "antigravity-gemini-3.5-flash": {
+          "name": "Gemini 3.5 Flash (Antigravity)",
+          "limit": { "context": 1048576, "output": 65536 },
+          "modalities": {
+            "input": ["text", "image", "pdf"],
+            "output": ["text"]
+          },
+          "variants": {
+            "low": { "thinkingLevel": "low" },
+            "high": { "thinkingLevel": "high" }
+          }
+        },
         "antigravity-gemini-3.1-pro": {
           "name": "Gemini 3.1 Pro (Antigravity)",
           "limit": { "context": 1048576, "output": 65536 },
@@ -80,6 +128,14 @@
           "variants": {
             "low": { "thinkingLevel": "low" },
             "high": { "thinkingLevel": "high" }
+          }
+        },
+        "antigravity-gemini-3.1-flash-image": {
+          "name": "Gemini 3.1 Flash Image (Antigravity)",
+          "limit": { "context": 66000, "output": 33000 },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text", "image"]
           }
         },
         "antigravity-gemini-3-flash": {
@@ -127,6 +183,14 @@
             "input": ["text"],
             "output": ["text"]
           }
+        },
+        "antigravity-gpt-oss-120b-medium": {
+          "name": "GPT-OSS 120B Medium (Antigravity)",
+          "limit": { "context": 131072, "output": 32768 },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
         }
       }
     },
@@ -167,53 +231,166 @@
     }
   },
   "permission": {
-    "edit": "ask",
-    "webfetch": "allow",
-    "websearch": "allow",
-    "skill": {
-      "*": "allow"
-    },
+    "*": "allow",
     "bash": {
-      "*": "ask",
-      "rm -rf *": "ask",
-      "git push *": "ask",
+      "rm *": "ask",
+      "rmdir *": "ask",
+      "git push*": "ask",
       "git push --force*": "deny",
-      "sudo *": "ask",
-      "curl * | bash": "deny",
-      "wget * | bash": "deny",
-      "ls": "allow",
-      "ls *": "allow",
-      "cat *": "allow",
-      "head *": "allow",
-      "tail *": "allow",
-      "grep *": "allow",
-      "wc *": "allow",
-      "stat *": "allow",
-      "file *": "allow",
-      "diff *": "allow",
-      "echo *": "allow",
-      "pwd": "allow",
-      "which *": "allow",
-      "type *": "allow",
-      "env": "allow",
-      "printenv *": "allow",
-      "du *": "allow",
-      "df *": "allow",
-      "uname *": "allow",
-      "id": "allow",
-      "whoami": "allow",
-      "date": "allow",
-      "tree *": "allow",
-      "bat *": "allow",
-      "git status": "allow",
-      "git log": "allow",
-      "git diff *": "allow",
-      "git show *": "allow",
-      "git branch": "allow"
+      "git reset --hard*": "ask",
+      "su *": "ask",
+      "dd *": "ask",
+      "mkfs*": "ask",
+      "chmod -R *": "ask",
+      "chown -R *": "ask",
+      "shutdown*": "ask",
+      "reboot*": "ask"
     }
   },
-  "model": "google/antigravity-claude-sonnet-4-6",
-  "small_model": "google/antigravity-gemini-3-flash",
+  "default_agent": "agentic",
+  "agent": {
+    "orchestrator": {
+      "mode": "primary",
+      "description": "Lead Orchestrator multi-agente: decompõe tarefas, despacha subagentes paralelos e aplica Quality Gates sem poluição de contexto",
+      "color": "#10B981",
+      "permission": "allow"
+    },
+    "agentic": {
+      "mode": "primary",
+      "description": "Modo 100% agêntico com permissões totais irrestritas",
+      "color": "#BB9AF7",
+      "permission": "allow"
+    },
+    "build": {
+      "mode": "primary",
+      "description": "Modo padrão de desenvolvimento com confirmação para comandos modificadores",
+      "color": "#7AA2F7",
+      "permission": {
+        "*": "allow",
+        "bash": {
+          "*": "ask",
+          "git push --force*": "deny",
+          "rm -rf /": "deny",
+          "ls": "allow",
+          "ls *": "allow",
+          "cat *": "allow",
+          "head *": "allow",
+          "tail *": "allow",
+          "grep *": "allow",
+          "rg *": "allow",
+          "find *": "allow",
+          "tree": "allow",
+          "tree *": "allow",
+          "file *": "allow",
+          "stat *": "allow",
+          "wc *": "allow",
+          "du *": "allow",
+          "df *": "allow",
+          "diff *": "allow",
+          "bat *": "allow",
+          "pwd": "allow",
+          "which *": "allow",
+          "type *": "allow",
+          "echo *": "allow",
+          "env": "allow",
+          "printenv *": "allow",
+          "uname *": "allow",
+          "id": "allow",
+          "whoami": "allow",
+          "date": "allow",
+          "git status": "allow",
+          "git status *": "allow",
+          "git diff": "allow",
+          "git diff *": "allow",
+          "git log": "allow",
+          "git log *": "allow",
+          "git branch": "allow",
+          "git branch *": "allow",
+          "git show": "allow",
+          "git show *": "allow",
+          "git remote": "allow",
+          "git remote *": "allow",
+          "git rev-parse *": "allow",
+          "graphify*": "allow",
+          "live-browser inspect*": "allow",
+          "live-browser screenshot*": "allow",
+          "live-browser status*": "allow",
+          "data-query*": "allow",
+          "sec-scan*": "allow",
+          "gitleaks*": "allow",
+          "semgrep*": "allow",
+          "osv-scanner*": "allow",
+          "perf-bench*": "allow",
+          "hyperfine*": "allow"
+        }
+      }
+    },
+    "plan": {
+      "mode": "primary",
+      "description": "Modo de planejamento (somente leitura, pesquisa e análise)",
+      "color": "#FFFF00",
+      "permission": {
+        "*": "allow",
+        "edit": "deny",
+        "bash": {
+          "*": "deny",
+          "ls": "allow",
+          "ls *": "allow",
+          "cat *": "allow",
+          "head *": "allow",
+          "tail *": "allow",
+          "grep *": "allow",
+          "rg *": "allow",
+          "find *": "allow",
+          "tree": "allow",
+          "tree *": "allow",
+          "file *": "allow",
+          "stat *": "allow",
+          "wc *": "allow",
+          "du *": "allow",
+          "df *": "allow",
+          "diff *": "allow",
+          "bat *": "allow",
+          "pwd": "allow",
+          "which *": "allow",
+          "type *": "allow",
+          "echo *": "allow",
+          "env": "allow",
+          "printenv *": "allow",
+          "uname *": "allow",
+          "id": "allow",
+          "whoami": "allow",
+          "date": "allow",
+          "git status": "allow",
+          "git status *": "allow",
+          "git diff": "allow",
+          "git diff *": "allow",
+          "git log": "allow",
+          "git log *": "allow",
+          "git branch": "allow",
+          "git branch *": "allow",
+          "git show": "allow",
+          "git show *": "allow",
+          "git remote": "allow",
+          "git remote *": "allow",
+          "git rev-parse *": "allow",
+          "graphify*": "allow",
+          "live-browser inspect*": "allow",
+          "live-browser screenshot*": "allow",
+          "live-browser status*": "allow",
+          "data-query*": "allow",
+          "sec-scan*": "allow",
+          "gitleaks*": "allow",
+          "semgrep*": "allow",
+          "osv-scanner*": "allow",
+          "perf-bench*": "allow",
+          "hyperfine*": "allow"
+        }
+      }
+    }
+  },
+  "model": "google/antigravity-claude-sonnet-4-6-thinking",
+  "small_model": "google/antigravity-gemini-3.8-flash",
   "lsp": true,
   "compaction": {
     "auto": true,
@@ -250,37 +427,61 @@
   },
   "mcp": {
     "context7": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"],
-      "enabled": true
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp"],
+      "enabled": true,
+      "environment": {}
     },
     "sequential-thinking": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "enabled": true
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "enabled": true,
+      "environment": {}
     },
     "memory": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "enabled": true
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
+      "enabled": true,
+      "environment": {}
     },
     "ast-grep": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@ast-grep/mcp"],
-      "enabled": true
+      "type": "local",
+      "command": ["npx", "-y", "ast-grep-mcp"],
+      "enabled": true,
+      "environment": {}
     },
-    "brave-search": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
-      "env": {
-        "BRAVE_API_KEY": "{env:BRAVE_API_KEY}"
+    "docker": {
+      "type": "local",
+      "command": ["npx", "-y", "mcp-docker-server"],
+      "enabled": true,
+      "environment": {}
+    },
+    "chrome-devtools": {
+      "type": "local",
+      "command": ["npx", "-y", "chrome-devtools-mcp"],
+      "enabled": false,
+      "environment": {}
+    },
+    "github": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PERSONAL_ACCESS_TOKEN}"
       },
-      "enabled": true
+      "enabled": false
+    },
+    "sentry": {
+      "type": "local",
+      "command": ["npx", "-y", "@sentry/mcp-server"],
+      "environment": {
+        "SENTRY_AUTH_TOKEN": "{env:SENTRY_AUTH_TOKEN}"
+      },
+      "enabled": false
+    },
+    "postgres": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-postgres", "{env:DATABASE_URL}"],
+      "enabled": false
     }
   },
   "command": {
@@ -347,6 +548,40 @@
       "description": "Read and synthesize selected files based on map and focus",
       "agent": "plan",
       "template": "Leia .aiflow/map.md para entender o que existe.\n\nFoco da análise: $ARGUMENTS\n\nCom base no foco:\n1. Selecione apenas os arquivos que respondem à pergunta — liste-os com justificativa\n2. Ignore: testes unitários, vendor/, node_modules/, locks, arquivos gerados\n3. Se um diretório tiver mais de 20 relevantes, leia os 5 mais representativos\n4. Leia apenas o selecionado e produza síntese estruturada\n\nSe o escopo for amplo demais, proponha quebrar em análises menores."
+    },
+    "quota": {
+      "description": "Exibe cotas e limites determinísticos do modelo em uso e provedores ativos",
+      "template": "Apresente o relatório de cota gerado deterministicamente abaixo exatamente como formatado, sem executar ferramentas, comandos adicionais ou introduções:\n\n!`python3 ~/.config/opencode/scripts/quota.py $ARGUMENTS`"
+    },
+    "graphify": {
+      "description": "Gera ou consulta o Knowledge Graph estrutural do repositório (Graphify AST)",
+      "agent": "scout",
+      "template": "SE $ARGUMENTS tiver texto:\nExecute: graphify query \"$ARGUMENTS\"\nSENÃO SE existir graphify-out/graph.json:\nExecute: graphify god-nodes --top 10\nSENÃO:\nExecute: graphify extract . --code-only\nExiba o resumo arquitetural."
+    },
+    "playwright": {
+      "description": "Abre o Playwright UI Mode (Dashboard), relatórios HTML ou executa testes E2E",
+      "agent": "browser",
+      "template": "SE $ARGUMENTS contiver 'ui' ou 'dashboard':\nExecute em background: `npx playwright test --ui &` e confirme ao usuário que o Playwright UI Dashboard foi iniciado.\nSENÃO SE $ARGUMENTS contiver 'report':\nExecute em background: `npx playwright show-report &` e confirme abertura do relatório HTML.\nSENÃO SE $ARGUMENTS contiver 'trace':\nExecute em background: `npx playwright show-trace $ARGUMENTS &`\nSENÃO:\nExecute: `npx playwright test --project=chromium --reporter=list $ARGUMENTS`"
+    },
+    "data": {
+      "description": "Executa análise de dados, estatísticas ou consultas SQL analíticas em arquivos locais via DuckDB",
+      "agent": "analyst",
+      "template": "SE $ARGUMENTS começar com 'schema ':\nExecute: data-query schema $ARGUMENTS[7:]\nSENÃO SE $ARGUMENTS começar com 'summary ':\nExecute: data-query summary $ARGUMENTS[8:]\nSENÃO SE $ARGUMENTS começar com 'query ':\nExecute: data-query query \"$ARGUMENTS[6:]\"\nSENÃO:\nAnalise o arquivo ou execute a consulta informada usando `data-query`:\n$ARGUMENTS\nProduza síntese de dados e insights com base nos resultados computados."
+    },
+    "audit": {
+      "description": "Auditoria de segurança de código (Semgrep SAST), segredos (Gitleaks) ou dependências (OSV-Scanner CVEs)",
+      "agent": "blue-team",
+      "template": "SE $ARGUMENTS contiver 'secrets':\nExecute: sec-scan secrets\nSENÃO SE $ARGUMENTS contiver 'sast' ou 'code':\nExecute: sec-scan sast\nSENÃO SE $ARGUMENTS contiver 'deps':\nExecute: sec-scan deps\nSENÃO SE $ARGUMENTS contiver 'threat' ou 'red':\nInvoque @red-team para modelagem de ameaças STRIDE e análise de superfície de ataque em $ARGUMENTS.\nSENÃO:\nExecute auditoria completa (segredos, SAST e dependências): `sec-scan all`\nApresente a síntese dos achados e plano de remediação."
+    },
+    "perf": {
+      "description": "Benchmark estatístico de performance (Hyperfine) ou teste de carga HTTP (Autocannon)",
+      "agent": "performance",
+      "template": "SE $ARGUMENTS começar com 'http ' ou contiver 'http://' ou 'https://':\nExecute: perf-bench http $ARGUMENTS\nSENÃO SE $ARGUMENTS começar com 'cli ':\nExecute: perf-bench cli $ARGUMENTS[4:]\nSENÃO:\nExecute o benchmark de performance solicitado usando `perf-bench`:\n$ARGUMENTS\nApresente a tabela com percentis (p50, p95, p99) e análise do resultado."
+    },
+    "agentic": {
+      "description": "Executa comando ou ativa modo 100% agêntico sem confirmações nesta sessão",
+      "agent": "agentic",
+      "template": "SE $ARGUMENTS tiver texto:\nExecute a tarefa solicitada com autonomia total no modo agêntico (sem solicitar confirmações para rm, git push ou outras ações):\n$ARGUMENTS\n\nSENÃO:\nModo 100% agêntico com permissões totais ativado para esta sessão. Confirme que você está operando com autonomia total sem restrições de permissão (inclusive para comandos destrutivos ou git push quando necessário)."
     }
   }
 }
