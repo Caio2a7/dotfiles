@@ -2,6 +2,7 @@ import app from "ags/gtk4/app"
 import { Astal, Gtk, Gdk } from "ags/gtk4"
 import GLib from "gi://GLib"
 import Gio from "gi://Gio"
+import GObject from "gi://GObject"
 import Pango from "gi://Pango"
 import cairo from "gi://cairo"
 import { openHabitsModal } from "./HabitsModal"
@@ -12,20 +13,38 @@ const V = Gtk.Orientation.VERTICAL
 
 const VITTAE_DIR = `${GLib.get_home_dir()}/vittae`
 const TODO_DIR = `${VITTAE_DIR}/tarefas`
+const PRIORIDADES_FILE = `${TODO_DIR}/prioridades.md`
 const TERMINAL = "alacritty"
-
-const ORDERED_FILES = [
-  { file: "autodidata.md", label: "Autodidata" },
-  { file: "faculdade.md", label: "Faculdade" },
-  { file: "pathotech.md", label: "Pathotech" },
-  { file: "dell.md", label: "Dell" },
-  { file: "sti.md", label: "Sti" },
-  { file: "vida.md", label: "Vida" },
-]
 
 const DAY_NAMES = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"]
 
-function getRowHeight(monitorIdx = 0): number {
+const WIP_LIMIT = 3
+
+// ─── Metadados Semânticos de Domínio ─────────────────────────────────────────
+interface DomainMeta {
+  key: string
+  name: string
+  color: string
+  icon: string
+}
+
+const DOMAINS: Record<string, DomainMeta> = {
+  faculdade: { key: "faculdade", name: "Faculdade", icon: "󰑴", color: "#db2777" }, // Rosa vinho
+  estudos: { key: "estudos", name: "Estudos", icon: "󱚌", color: "#34d399" },     // Verde (caneta com livro)
+  dell: { key: "dell", name: "Dell", icon: "󰃖", color: "#c48350" },              // Marrom (trabalho)
+  pathotech: { key: "pathotech", name: "Pathotech", icon: "󰃖", color: "#c48350" },// Marrom (trabalho)
+  sti: { key: "sti", name: "STI", icon: "󰃖", color: "#c48350" },                  // Marrom (trabalho)
+  vida: { key: "vida", name: "Vida", icon: "󰖙", color: "#ffffff" },              // Branco (Sol)
+}
+
+const DEFAULT_DOMAIN: DomainMeta = {
+  key: "geral",
+  name: "Geral",
+  icon: "󰄲",
+  color: "#94a3b8",
+}
+
+function getDashboardHeights(monitorIdx = 0): { topHeight: number; bottomHeight: number } {
   try {
     const display = Gdk.Display.get_default()
     const monitors = display?.get_monitors()
@@ -33,11 +52,29 @@ function getRowHeight(monitorIdx = 0): number {
     if (mon) {
       const geo = mon.get_geometry()
       if (geo && geo.height > 0) {
-        return Math.floor((geo.height - 24 - 10) / 2)
+        const totalH = geo.height - 20 - 1 // 1080 - 20 (margins) - 1 (mid divider) = 1059px
+        const bottomH = Math.floor(totalH * 0.55) // +10% de altura para a box inferior = 582px
+        const topH = totalH - bottomH // 477px
+        return { topHeight: topH, bottomHeight: bottomH }
       }
     }
   } catch (_) {}
-  return 518
+  return { topHeight: 477, bottomHeight: 582 }
+}
+
+function getDisplayWidth(monitorIdx = 0): number {
+  try {
+    const display = Gdk.Display.get_default()
+    const monitors = display?.get_monitors()
+    const mon = monitors?.get_item(monitorIdx) as Gdk.Monitor | null
+    if (mon) {
+      const geo = mon.get_geometry()
+      if (geo && geo.width > 0) {
+        return geo.width - 20 - 1 // 1920 - 20 (margins) - 1 (vsep) = 1899px
+      }
+    }
+  } catch (_) {}
+  return 1899
 }
 
 function esc(s: string): string {
@@ -46,84 +83,6 @@ function esc(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
-}
-
-interface Task {
-  text: string
-  done: boolean
-}
-interface TodoData {
-  urgent: Task[]
-  pending: Task[]
-}
-
-function parseFromString(raw: string): TodoData {
-  const lines = raw.split("\n")
-  let section: "urgent" | "pending" | "skip" = "skip"
-  const urgent: Task[] = []
-  const pending: Task[] = []
-
-  for (const line of lines) {
-    if (line.includes("[!WARNING]")) {
-      section = "urgent"
-      continue
-    }
-    if (line.includes("[!IMPORTANT]")) {
-      section = "pending"
-      continue
-    }
-    if (
-      line.includes("[!DONE]") ||
-      line.includes("[!TIP]") ||
-      line.includes("[!CAUTION]")
-    ) {
-      section = "skip"
-      continue
-    }
-    if (section === "skip") continue
-
-    const m = line.match(/(?:>\s*)?-\s*\[([xX ]?)\]\s*(.+)/)
-    if (!m) continue
-
-    const task = { done: m[1].toLowerCase() === "x", text: m[2].trim() }
-    if (section === "urgent") urgent.push(task)
-    else pending.push(task)
-  }
-
-  return { urgent, pending }
-}
-
-function buildMarkup(raw: string): string {
-  try {
-    const { urgent, pending } = parseFromString(raw)
-    const lines: string[] = []
-
-    if (urgent.length > 0) {
-      lines.push(`<span foreground="#ff6b6b" weight="bold">⚠ Urgente</span>`)
-      urgent.forEach((t) =>
-        lines.push(
-          `<span foreground="${t.done ? "#555555" : "#ffb3b3"}">  ${t.done ? "✓" : "●"} ${esc(t.text)}</span>`
-        )
-      )
-    }
-
-    if (pending.length > 0) {
-      if (lines.length > 0) lines.push("")
-      lines.push(`<span foreground="#ffd93d" weight="bold">● Pendentes</span>`)
-      pending.forEach((t) =>
-        lines.push(
-          `<span foreground="${t.done ? "#555555" : "#dcdcdc"}">  ${t.done ? "✓" : "○"} ${esc(t.text)}</span>`
-        )
-      )
-    }
-
-    if (lines.length === 0)
-      lines.push(`<span foreground="#4ade80">✓ Tudo em dia</span>`)
-
-    return lines.join("\n")
-  } catch {
-    return `<span foreground="#4ade80">✓ Tudo em dia</span>`
-  }
 }
 
 function readFile(path: string): string {
@@ -152,74 +111,614 @@ function openInNvim(filePath: string): void {
   }
 }
 
-function TodoCard(filename: string, label: string, rowHeight = 518): Gtk.Widget {
-  const filePath = `${TODO_DIR}/${filename}`
-  const bodyLabel = new Gtk.Label({
-    halign: Gtk.Align.FILL,
-    valign: Gtk.Align.START,
+function toggleTaskInFile(filePath: string, rawText: string): void {
+  try {
+    const content = readFile(filePath)
+    if (!content) return
+    const lines = content.split("\n")
+    const newLines = lines.map((line) => {
+      if (line.includes(rawText)) {
+        if (line.includes("- [ ]") || line.includes("- []")) {
+          return line.replace(/- \[[ ]?\]/, "- [x]")
+        } else if (line.includes("- [x]") || line.includes("- [X]")) {
+          return line.replace(/- \[[xX]\]/, "- [ ]")
+        }
+      }
+      return line
+    })
+    GLib.file_set_contents(filePath, newLines.join("\n"))
+  } catch (e) {
+    console.error("Erro ao alternar tarefa:", e)
+  }
+}
+
+// ─── Mover e Reordenar Tarefas (Dentro da mesma seção ou entre seções) ────────
+
+function moveTaskToFile(
+  filePath: string,
+  sourceRawText: string,
+  targetSection: "agora" | "proximo" | "depois",
+  targetBeforeRawText?: string
+): void {
+  try {
+    const content = readFile(filePath)
+    if (!content) return
+
+    const lines = content.split("\n")
+    let extractedLine: string | null = null
+    const remainingLines: string[] = []
+
+    for (const line of lines) {
+      if (line.includes(sourceRawText) && line.includes("- [") && !extractedLine) {
+        extractedLine = line.trim()
+      } else {
+        remainingLines.push(line)
+      }
+    }
+
+    if (!extractedLine) return
+
+    if (!extractedLine.startsWith(">")) {
+      extractedLine = `> ${extractedLine}`
+    }
+
+    const sectionMarkers: Record<string, string> = {
+      agora: "[!CAUTION]",
+      proximo: "[!WARNING]",
+      depois: "[!IMPORTANT]",
+    }
+    const targetMarker = sectionMarkers[targetSection]
+    if (!targetMarker) return
+
+    const allMarkers = ["[!CAUTION]", "[!WARNING]", "[!IMPORTANT]", "[!TIP]", "[!DONE]"]
+    const finalLines: string[] = []
+    let inserted = false
+
+    if (targetBeforeRawText && targetBeforeRawText !== sourceRawText) {
+      for (const line of remainingLines) {
+        if (line.includes(targetBeforeRawText) && line.includes("- [") && !inserted) {
+          finalLines.push(extractedLine)
+          inserted = true
+        }
+        finalLines.push(line)
+      }
+    }
+
+    if (!inserted) {
+      finalLines.length = 0
+      let inTarget = false
+      for (let i = 0; i < remainingLines.length; i++) {
+        const line = remainingLines[i]
+        if (line.includes(targetMarker)) {
+          inTarget = true
+          finalLines.push(line)
+          continue
+        }
+
+        if (inTarget && allMarkers.some((m) => line.includes(m) && m !== targetMarker)) {
+          finalLines.push(extractedLine)
+          finalLines.push("")
+          finalLines.push(line)
+          inserted = true
+          inTarget = false
+          continue
+        }
+
+        finalLines.push(line)
+      }
+
+      if (inTarget && !inserted) {
+        finalLines.push(extractedLine)
+        inserted = true
+      }
+    }
+
+    if (!inserted) {
+      finalLines.push(extractedLine)
+    }
+
+    GLib.file_set_contents(filePath, finalLines.join("\n"))
+  } catch (e) {
+    console.error("Erro ao mover/reordenar tarefa:", e)
+  }
+}
+
+// ─── Extração de Domínio e Texto ────────────────────────────────────────────
+
+function extractDomainAndText(rawText: string): { domainKey: string; cleanText: string } {
+  const bracketMatch = rawText.match(/^\[([a-zA-Z0-9_\u00C0-\u00FF\s-]+)\]\s*(.+)/)
+  if (bracketMatch) {
+    const key = bracketMatch[1].trim().toLowerCase()
+    if (key === "autodidata") return { domainKey: "estudos", cleanText: bracketMatch[2].trim() }
+    return { domainKey: key, cleanText: bracketMatch[2].trim() }
+  }
+
+  const prefixMap: Record<string, string> = {
+    "󰑴": "faculdade",
+    "󱚌": "estudos",
+    "": "estudos",
+    "󰃖": "dell",
+    "󰖙": "vida",
+    "": "vida",
+    "🎓": "faculdade",
+    "💼": "dell",
+    "🔬": "pathotech",
+    "📚": "estudos",
+    "📄": "vida",
+  }
+  for (const [prefix, dKey] of Object.entries(prefixMap)) {
+    if (rawText.startsWith(prefix)) {
+      return { domainKey: dKey, cleanText: rawText.slice(prefix.length).trim() }
+    }
+  }
+
+  return { domainKey: "geral", cleanText: rawText }
+}
+
+// ─── Parser do prioridades.md ───────────────────────────────────────────────
+
+interface Task {
+  text: string
+  rawText: string
+  done: boolean
+  domainKey: string
+}
+
+interface PriorityData {
+  agora: Task[]
+  proximo: Task[]
+  depois: Task[]
+  concluidas: Task[]
+}
+
+function parsePrioridades(raw: string): PriorityData {
+  const lines = raw.split("\n")
+  let section: "agora" | "proximo" | "depois" | "concluidas" | "skip" = "skip"
+  const result: PriorityData = { agora: [], proximo: [], depois: [], concluidas: [] }
+
+  for (const line of lines) {
+    if (line.includes("[!CAUTION]")) { section = "agora"; continue }
+    if (line.includes("[!WARNING]")) { section = "proximo"; continue }
+    if (line.includes("[!IMPORTANT]")) { section = "depois"; continue }
+    if (line.includes("[!TIP]") || line.includes("[!DONE]")) { section = "concluidas"; continue }
+    if (section === "skip") continue
+
+    const m = line.match(/(?:>\s*)?-\s*\[([xX ]?)\]\s*(.+)/)
+    if (!m) continue
+
+    const rawText = m[2].trim()
+    const { domainKey, cleanText } = extractDomainAndText(rawText)
+
+    const task: Task = {
+      done: m[1].toLowerCase() === "x",
+      text: cleanText,
+      rawText,
+      domainKey,
+    }
+    result[section].push(task)
+  }
+
+  return result
+}
+
+// ─── Componente: Card de Tarefa Individual (Arrastável, com Linha de Inserção)
+
+function TaskCard(
+  task: Task,
+  sectionKey: "agora" | "proximo" | "depois",
+  index: number,
+  onRefresh: () => void
+): Gtk.Widget {
+  const meta = DOMAINS[task.domainKey] || DEFAULT_DOMAIN
+
+  // 1. Linha indicadora de inserção fixa de 2px
+  const insertLine = new Gtk.Box({
+    orientation: H,
     hexpand: true,
-    vexpand: false,
+    heightRequest: 2,
+    cssClasses: ["task-insert-line"],
+  })
+  insertLine.can_target = false
+
+  // 2. Tag de Domínio: Apenas o ÍCONE é colorido com a sua cor semântica, o texto é neutro
+  const tagLabel = new Gtk.Label({
+    useMarkup: true,
+    label: `<span foreground="${meta.color}" size="9000">${meta.icon}</span>  <span foreground="#94a3b8" size="8500" weight="bold">${meta.name.toUpperCase()}</span>`,
+    cssClasses: ["task-domain-tag"],
+  })
+  tagLabel.can_target = false
+
+  // 3. Badge de Prioridade Semântica (Carmesim P1, Âmbar P2, Ardósia P3)
+  let prioMarkup = ""
+  if (sectionKey === "agora") {
+    prioMarkup = `<span foreground="#f43f5e" weight="heavy" size="8500">󰀦 P1 • #${index + 1}</span>`
+  } else if (sectionKey === "proximo") {
+    prioMarkup = `<span foreground="#f59e0b" weight="bold" size="8500">󰅐 P2 • FILA</span>`
+  } else {
+    prioMarkup = `<span foreground="#64748b" weight="medium" size="8500">󰒊 P3 • BACKLOG</span>`
+  }
+
+  const prioLabel = new Gtk.Label({
+    useMarkup: true,
+    label: prioMarkup,
+    halign: Gtk.Align.END,
+    hexpand: true,
+  })
+  prioLabel.can_target = false
+
+  const cardHeader = (
+    <box
+      orientation={H}
+      spacing={6}
+      halign={Gtk.Align.FILL}
+      hexpand={true}
+      class="task-card-header"
+    >
+      {tagLabel}
+      {prioLabel}
+    </box>
+  ) as Gtk.Widget
+  cardHeader.can_target = false
+
+  // 4. Checkbox interativo
+  const checkIcon = new Gtk.Label({
+    label: task.done ? "󰄵" : "󰄱",
+    cssClasses: ["task-check-icon", task.done ? "checked" : "unchecked"],
+  })
+  checkIcon.can_target = false
+
+  const checkBtn = new Gtk.Button({
+    child: checkIcon,
+    valign: Gtk.Align.START,
+    halign: Gtk.Align.START,
+    cssClasses: ["task-check-btn"],
+  })
+  checkBtn.connect("clicked", () => {
+    toggleTaskInFile(PRIORIDADES_FILE, task.rawText)
+    onRefresh()
+  })
+
+  // 5. Texto da Tarefa
+  const titleColor = task.done ? "#64748b" : "#ffffff"
+  const titleWeight = sectionKey === "agora" ? "bold" : "600"
+  const titleSize = sectionKey === "agora" ? "11500" : "11000"
+
+  const titleLabel = new Gtk.Label({
+    useMarkup: true,
+    label: `<span foreground="${titleColor}" weight="${titleWeight}" size="${titleSize}">${esc(task.text)}</span>`,
+    halign: Gtk.Align.START,
+    valign: Gtk.Align.START,
     xalign: 0,
     wrap: true,
     wrapMode: Pango.WrapMode.WORD_CHAR,
-    useMarkup: true,
-    cssClasses: ["todo-card-body"],
+    hexpand: true,
+    cssClasses: ["task-card-title", task.done ? "task-done" : ""],
+  })
+  titleLabel.can_target = false
+
+  const cardBody = (
+    <box
+      orientation={H}
+      spacing={10}
+      halign={Gtk.Align.FILL}
+      hexpand={true}
+      class="task-card-body"
+    >
+      {checkBtn}
+      {titleLabel}
+    </box>
+  ) as Gtk.Widget
+
+  const card = (
+    <box
+      orientation={V}
+      spacing={6}
+      halign={Gtk.Align.FILL}
+      hexpand={true}
+      class={`task-card task-card-${sectionKey} ${task.done ? "task-card-done" : ""}`}
+    >
+      {cardHeader}
+      {cardBody}
+    </box>
+  ) as Gtk.Widget
+
+  // Wrapper que contém a linha indicadora de inserção logo acima do card
+  const cardWrapper = (
+    <box orientation={V} spacing={2} halign={Gtk.Align.FILL} hexpand={true} class="task-card-wrapper">
+      {insertLine}
+      {card}
+    </box>
+  ) as Gtk.Widget
+
+  // Duplo clique para abrir no Neovim
+  const gesture = new Gtk.GestureClick()
+  gesture.set_button(1)
+  gesture.connect("pressed", (_g: Gtk.GestureClick, nPress: number) => {
+    if (nPress === 2) openInNvim(PRIORIDADES_FILE)
+  })
+  card.add_controller(gesture)
+
+  // Drag Source com Ícone Visual Completo
+  const dragSource = new Gtk.DragSource()
+  dragSource.set_actions(Gdk.DragAction.MOVE)
+
+  const paintable = new Gtk.WidgetPaintable({ widget: card })
+  dragSource.connect("prepare", (_s, x, y) => {
+    dragSource.set_icon(paintable, Math.floor(x), Math.floor(y))
+    const payload = JSON.stringify({
+      rawText: task.rawText,
+      fromSection: sectionKey,
+    })
+    return Gdk.ContentProvider.new_for_value(payload)
+  })
+  card.add_controller(dragSource)
+
+  // Drop Target com indicador de linha de inserção estável (SEM FLICKER)
+  const cardDropTarget = Gtk.DropTarget.new(GObject.TYPE_STRING, Gdk.DragAction.MOVE)
+  cardDropTarget.connect("enter", () => {
+    insertLine.add_css_class("active")
+    return Gdk.DragAction.MOVE
+  })
+  cardDropTarget.connect("leave", () => {
+    insertLine.remove_css_class("active")
+  })
+  cardDropTarget.connect("drop", (_target, value: string) => {
+    insertLine.remove_css_class("active")
+    try {
+      const data = JSON.parse(value)
+      if (data && data.rawText && data.rawText !== task.rawText) {
+        moveTaskToFile(PRIORIDADES_FILE, data.rawText, sectionKey, task.rawText)
+        onRefresh()
+        return true
+      }
+    } catch (e) {
+      console.error("Erro no drop sobre card:", e)
+    }
+    return false
+  })
+  cardWrapper.add_controller(cardDropTarget)
+
+  return cardWrapper
+}
+
+// ─── Componente: Seção Interna da Coluna ────────────────────────────────────
+
+function ColumnSection(
+  sectionKey: "agora" | "proximo" | "depois",
+  title: string,
+  icon: string,
+  tasks: Task[],
+  rowHeight: number,
+  onRefresh: () => void
+): Gtk.Widget {
+  const activeTasks = tasks.filter((t) => !t.done)
+  const isAgora = sectionKey === "agora"
+  const countBadgeText = isAgora ? `${activeTasks.length}/${WIP_LIMIT}` : `${activeTasks.length}`
+
+  // 1. Cabeçalho Padronizado e com Altura Fixa Alinhada (Sem botão de editar desestabilizando)
+  const iconLabel = new Gtk.Label({
+    label: icon,
+    valign: Gtk.Align.CENTER,
+    cssClasses: ["col-head-icon", `col-head-icon-${sectionKey}`],
   })
 
-  bodyLabel.set_label(buildMarkup(readFile(filePath)))
-
-  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2500, () => {
-    bodyLabel.set_label(buildMarkup(readFile(filePath)))
-    return GLib.SOURCE_CONTINUE
+  const titleLabel = new Gtk.Label({
+    label: title,
+    valign: Gtk.Align.CENTER,
+    cssClasses: ["col-head-title", `col-head-title-${sectionKey}`],
+    halign: Gtk.Align.START,
+    hexpand: true,
   })
 
-  const maxScrollHeight = Math.max(80, rowHeight - 42)
+  const countBadge = new Gtk.Label({
+    label: countBadgeText,
+    valign: Gtk.Align.CENTER,
+    cssClasses: ["col-head-badge", `col-head-badge-${sectionKey}`],
+  })
 
+  const headerBox = (
+    <box
+      orientation={H}
+      spacing={8}
+      halign={Gtk.Align.FILL}
+      valign={Gtk.Align.CENTER}
+      hexpand={true}
+      heightRequest={26}
+      class={`col-header col-header-${sectionKey}`}
+    >
+      {iconLabel}
+      {titleLabel}
+      {countBadge}
+    </box>
+  ) as Gtk.Widget
+
+  // 2. Lista de Cards
+  const tasksBox = new Gtk.Box({
+    orientation: V,
+    spacing: 6,
+    hexpand: true,
+    vexpand: true,
+    halign: Gtk.Align.FILL,
+    cssClasses: ["col-tasks-box"],
+  })
+
+  if (activeTasks.length === 0) {
+    const emptyIcon = new Gtk.Label({
+      label: "󰄵",
+      cssClasses: ["col-empty-icon"],
+    })
+    const emptyTitle = new Gtk.Label({
+      label: "Sem pendências",
+      cssClasses: ["col-empty-title"],
+    })
+    const emptySub = new Gtk.Label({
+      label: "Arraste uma tarefa aqui",
+      cssClasses: ["col-empty-sub"],
+    })
+    const emptyBox = (
+      <box
+        orientation={V}
+        spacing={4}
+        halign={Gtk.Align.CENTER}
+        valign={Gtk.Align.CENTER}
+        hexpand={true}
+        vexpand={true}
+        class="col-empty-box"
+      >
+        {emptyIcon}
+        {emptyTitle}
+        {emptySub}
+      </box>
+    ) as Gtk.Widget
+    tasksBox.append(emptyBox)
+  } else {
+    activeTasks.forEach((task, idx) => {
+      tasksBox.append(TaskCard(task, sectionKey, idx, onRefresh))
+    })
+  }
+
+  // 3. Scrolled Window
+  const maxScrollHeight = Math.max(80, rowHeight - 65)
   const scrolled = new Gtk.ScrolledWindow()
   scrolled.set_hexpand(true)
   scrolled.set_vexpand(true)
   scrolled.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+  scrolled.set_kinetic_scrolling(false)
+  scrolled.set_focus_on_click(false)
   scrolled.set_overlay_scrolling(true)
   scrolled.set_propagate_natural_height(false)
   scrolled.set_propagate_natural_width(false)
-  scrolled.set_min_content_height(30)
+  scrolled.set_min_content_height(40)
   scrolled.set_max_content_height(maxScrollHeight)
-  scrolled.add_css_class("todo-scrolled")
-  scrolled.set_child(bodyLabel)
+  scrolled.add_css_class("col-scrolled")
+  scrolled.set_child(tasksBox)
 
-  const card = (
+  // 4. Container da Seção
+  const colSection = (
     <box
-      class="todo-card"
       orientation={V}
-      spacing={6}
+      spacing={8}
       hexpand={true}
       vexpand={true}
-      heightRequest={rowHeight}
+      halign={Gtk.Align.FILL}
+      class={`prio-section-col prio-section-${sectionKey}`}
     >
-      <label
-        class="todo-card-title"
-        label={label}
-        halign={Gtk.Align.START}
-      />
-      <box class="todo-divider" heightRequest={1} />
+      {headerBox}
+      <box class={`col-divider col-divider-${sectionKey}`} heightRequest={1} />
       {scrolled}
     </box>
   ) as Gtk.Widget
 
-  card.set_overflow(Gtk.Overflow.HIDDEN)
+  colSection.set_overflow(Gtk.Overflow.HIDDEN)
 
-  const gesture = new Gtk.GestureClick()
-  gesture.set_button(1)
-  gesture.connect("pressed", (_g: Gtk.GestureClick, nPress: number) => {
-    if (nPress === 2) openInNvim(filePath)
+  // Drop Target da coluna inteira
+  const dropTarget = Gtk.DropTarget.new(GObject.TYPE_STRING, Gdk.DragAction.MOVE)
+  dropTarget.connect("enter", () => {
+    colSection.add_css_class("prio-col-drop-active")
+    return Gdk.DragAction.MOVE
   })
-  card.add_controller(gesture)
+  dropTarget.connect("leave", () => {
+    colSection.remove_css_class("prio-col-drop-active")
+  })
+  dropTarget.connect("drop", (_target, value: string) => {
+    colSection.remove_css_class("prio-col-drop-active")
+    try {
+      const data = JSON.parse(value)
+      if (data && data.rawText) {
+        moveTaskToFile(PRIORIDADES_FILE, data.rawText, sectionKey, undefined)
+        onRefresh()
+        return true
+      }
+    } catch (e) {
+      console.error("Erro ao receber drop na seção:", e)
+    }
+    return false
+  })
+  colSection.add_controller(dropTarget)
 
-  return card
+  return colSection
+}
+
+// ─── Componente: Quadro de Tarefas (Sem Header Redundante) ───────────────────
+
+function UnifiedPriorityBoard(rowHeight: number): Gtk.Widget {
+  const agoraWrap = new Gtk.Box({ orientation: V, hexpand: true, vexpand: true, halign: Gtk.Align.FILL })
+  const proximoWrap = new Gtk.Box({ orientation: V, hexpand: true, vexpand: true, halign: Gtk.Align.FILL })
+  const depoisWrap = new Gtk.Box({ orientation: V, hexpand: true, vexpand: true, halign: Gtk.Align.FILL })
+
+  function clearBox(box: Gtk.Box) {
+    let child = box.get_first_child()
+    while (child) {
+      const next = child.get_next_sibling()
+      box.remove(child)
+      child = next
+    }
+  }
+
+  let lastRawContent = ""
+
+  function refresh(force = false) {
+    const raw = readFile(PRIORIDADES_FILE)
+    if (!force && raw === lastRawContent) return
+    lastRawContent = raw
+
+    clearBox(agoraWrap)
+    clearBox(proximoWrap)
+    clearBox(depoisWrap)
+
+    const data = parsePrioridades(raw)
+
+    agoraWrap.append(ColumnSection("agora", "AGORA", "󰀦", data.agora, rowHeight, () => refresh(true)))
+    proximoWrap.append(ColumnSection("proximo", "PRÓXIMO", "󰅐", data.proximo, rowHeight, () => refresh(true)))
+    depoisWrap.append(ColumnSection("depois", "BACKLOG", "󰒊", data.depois, rowHeight, () => refresh(true)))
+  }
+
+  refresh(true)
+
+  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 2500, () => {
+    refresh(false)
+    return GLib.SOURCE_CONTINUE
+  })
+
+  // Colunas delimitadas por barra vertical nítida de 1px (Começa direto nas 3 colunas!)
+  const sectionsBox = (
+    <box
+      orientation={H}
+      spacing={0}
+      hexpand={true}
+      vexpand={true}
+      homogeneous={false}
+      halign={Gtk.Align.FILL}
+      class="prio-board-sections"
+    >
+      {agoraWrap}
+      <box class="prio-section-vsep" widthRequest={1} hexpand={false} />
+      {proximoWrap}
+      <box class="prio-section-vsep" widthRequest={1} hexpand={false} />
+      {depoisWrap}
+    </box>
+  ) as Gtk.Widget
+
+  const boardZone = (
+    <box
+      orientation={V}
+      spacing={0}
+      hexpand={true}
+      vexpand={true}
+      heightRequest={rowHeight}
+      class="dash-top-tasks"
+    >
+      {sectionsBox}
+    </box>
+  ) as Gtk.Widget
+
+  boardZone.set_overflow(Gtk.Overflow.HIDDEN)
+
+  return boardZone
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// COMPONENTE: Painel de Streaks de Hábitos (habitos.csv) com Ícones Nerd Font
+// COMPONENTE: Faixa de Streaks de Hábitos no Topo (Horizontal, Toda a Largura)
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface HabitSummary {
@@ -340,10 +839,9 @@ function parseHabits(): HabitSummary[] {
 }
 
 function HabitsStreakPanel(panelHeight: number): Gtk.Widget {
-  const filePath = `${VITTAE_DIR}/habitos.csv`
   const habitsBox = new Gtk.Box({
     orientation: H,
-    spacing: 6,
+    spacing: 8,
     homogeneous: true,
     hexpand: true,
     vexpand: true,
@@ -366,32 +864,62 @@ function HabitsStreakPanel(panelHeight: number): Gtk.Widget {
       const streakText =
         h.streak > 0
           ? `<span foreground="#fb923c" weight="heavy">🔥 ${h.streak}d</span>`
-          : `<span foreground="#cbd5e1" weight="bold">0d</span>`
+          : `<span foreground="#94a3b8" weight="bold">0d</span>`
 
       const todayBadge = h.doneToday
         ? `<span foreground="#4ade80" weight="bold">✓ Feito</span>`
         : `<span foreground="#f87171" weight="bold">○ Pendente</span>`
 
-      const cardLabel = new Gtk.Label({
-        useMarkup: true,
-        halign: Gtk.Align.CENTER,
-        valign: Gtk.Align.CENTER,
-        xalign: 0.5,
-        yalign: 0.5,
-        hexpand: true,
-        label: `<span size="14000">${h.icon}</span> <span foreground="#ffffff" weight="bold" size="11500">${h.name}</span>\n<span size="11000">${streakText}</span> <span size="9500" foreground="#cbd5e1">(${h.maxStreak}d max)</span>\n<span size="12000">${dots}</span>\n<span size="11000">${todayBadge}</span>`,
-      })
+      // Linha 1: [Ícone Nome] ... [Streak (Max)]
+      const row1 = (
+        <box orientation={H} spacing={6} halign={Gtk.Align.FILL} hexpand={true}>
+          <label
+            useMarkup={true}
+            halign={Gtk.Align.START}
+            xalign={0}
+            label={`<span size="12000">${h.icon}</span>  <span foreground="#ffffff" weight="bold" size="10500">${h.name}</span>`}
+          />
+          <box hexpand={true} />
+          <label
+            useMarkup={true}
+            halign={Gtk.Align.END}
+            xalign={1}
+            label={`<span size="10000">${streakText}</span> <span size="8500" foreground="#64748b">(${h.maxStreak}d)</span>`}
+          />
+        </box>
+      ) as Gtk.Widget
+
+      // Linha 2: [Histórico ● ● ●] ... [Badge Status]
+      const row2 = (
+        <box orientation={H} spacing={6} halign={Gtk.Align.FILL} hexpand={true}>
+          <label
+            useMarkup={true}
+            halign={Gtk.Align.START}
+            xalign={0}
+            label={`<span size="10000">${dots}</span>`}
+          />
+          <box hexpand={true} />
+          <label
+            useMarkup={true}
+            halign={Gtk.Align.END}
+            xalign={1}
+            label={`<span size="9500">${todayBadge}</span>`}
+          />
+        </box>
+      ) as Gtk.Widget
 
       const card = (
         <box
           class={`habit-mini-card ${h.doneToday ? "habit-done" : ""}`}
           orientation={V}
+          spacing={4}
           hexpand={true}
           vexpand={true}
           halign={Gtk.Align.FILL}
           valign={Gtk.Align.FILL}
         >
-          {cardLabel}
+          {row1}
+          {row2}
         </box>
       ) as Gtk.Widget
 
@@ -408,7 +936,7 @@ function HabitsStreakPanel(panelHeight: number): Gtk.Widget {
 
   const panel = (
     <box
-      class="dashboard-card habits-panel"
+      class="dash-inner-panel habits-top-panel"
       orientation={V}
       spacing={0}
       hexpand={true}
@@ -432,7 +960,7 @@ function HabitsStreakPanel(panelHeight: number): Gtk.Widget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// COMPONENTE 1: Gráfico de Linhas de Horas de Estudo por Semana (registros.csv)
+// COMPONENTE: Gráfico de Linhas de Horas de Estudo por Semana (registros.csv)
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface WeekData {
@@ -552,39 +1080,39 @@ function readStudyWeeks(): WeekData[] {
 function drawStudyChart(cr: cairo.Context, width: number, height: number, data: WeekData[]) {
   cr.save()
 
-  const padLeft = 46
-  const padRight = 24
-  const padTop = 32
-  const padBottom = 28
+  const padLeft = 32
+  const padRight = 20
+  const padTop = 28
+  const padBottom = 26
   const plotW = Math.max(10, width - padLeft - padRight)
   const plotH = Math.max(10, height - padTop - padBottom)
 
-  // Floating summary at top-right (Verde Esmeralda + Branco)
   const validData = data.filter((d) => d.hours > 0)
   const totalHours = validData.reduce((acc, d) => acc + d.hours, 0)
   const avgHours = data.length > 0 ? (totalHours / data.length).toFixed(1) : "0"
-  const summaryText = `Total: ${totalHours.toFixed(1)}h  |  Média: ${avgHours}h/sem`
+  const bestHours = validData.length > 0 ? Math.max(...validData.map((d) => d.hours)).toFixed(1) : "0"
+  const summaryText = `Ideal: 40h/sem  •  Média: ${avgHours}h/sem  •  Melhor: ${bestHours}h`
 
   cr.selectFontFace("JetBrainsMono Nerd Font", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
-  cr.setFontSize(12)
+  cr.setFontSize(11)
   const sumExt = cr.textExtents(summaryText)
-  const badgeX = width - padRight - sumExt.width - 14
-  const badgeY = 5
-  cr.setSourceRGBA(0.08, 0.09, 0.12, 0.88)
-  cr.rectangle(badgeX, badgeY, sumExt.width + 14, 21)
+  const badgeX = width - padRight - sumExt.width - 12
+  const badgeY = 6
+  cr.setSourceRGBA(0.08, 0.10, 0.15, 0.85)
+  cr.rectangle(badgeX, badgeY, sumExt.width + 12, 20)
   cr.fill()
-  cr.setSourceRGBA(0.063, 0.725, 0.506, 0.35)
+  cr.setSourceRGBA(0.063, 0.725, 0.506, 0.30)
   cr.setLineWidth(1)
-  cr.rectangle(badgeX, badgeY, sumExt.width + 14, 21)
+  cr.rectangle(badgeX, badgeY, sumExt.width + 12, 20)
   cr.stroke()
-  cr.setSourceRGBA(0.92, 0.94, 0.98, 0.95)
-  cr.moveTo(badgeX + 7, badgeY + 15)
+  cr.setSourceRGBA(0.90, 0.93, 0.96, 0.95)
+  cr.moveTo(badgeX + 6, badgeY + 14)
   cr.showText(summaryText)
 
   if (data.length === 0) {
     cr.setSourceRGBA(0.6, 0.65, 0.75, 0.6)
     cr.selectFontFace("JetBrainsMono Nerd Font", cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL)
-    cr.setFontSize(13)
+    cr.setFontSize(12)
     cr.moveTo(width / 2 - 60, height / 2)
     cr.showText("Sem dados em registros.csv")
     cr.restore()
@@ -596,21 +1124,20 @@ function drawStudyChart(cr: cairo.Context, width: number, height: number, data: 
   const yMax = Math.ceil((maxVal * 1.2) / step) * step
   const gridSteps = Math.min(5, Math.floor(yMax / step))
 
-  // Gridlines horizontais & Rótulos Y
   cr.selectFontFace("JetBrainsMono Nerd Font", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
-  cr.setFontSize(11)
+  cr.setFontSize(10)
   for (let s = 0; s <= gridSteps; s++) {
     const val = s * (yMax / gridSteps)
     const y = padTop + plotH - (val / yMax) * plotH
 
-    cr.setSourceRGBA(1.0, 1.0, 1.0, s === 0 ? 0.14 : 0.05)
+    cr.setSourceRGBA(1.0, 1.0, 1.0, s === 0 ? 0.10 : 0.04)
     cr.setLineWidth(1)
     cr.newPath()
     cr.moveTo(padLeft, y)
     cr.lineTo(padLeft + plotW, y)
     cr.stroke()
 
-    cr.setSourceRGBA(0.55, 0.62, 0.72, 0.8)
+    cr.setSourceRGBA(0.55, 0.62, 0.72, 0.75)
     const labelText = `${Math.round(val)}h`
     const ext = cr.textExtents(labelText)
     cr.moveTo(padLeft - ext.width - 6, y + ext.height / 2)
@@ -624,7 +1151,6 @@ function drawStudyChart(cr: cairo.Context, width: number, height: number, data: 
     return { x, y, val: d.hours, label: d.label }
   })
 
-  // Gradiente preenchido sob a curva (Verde Esmeralda #10b981)
   if (points.length > 1) {
     cr.newPath()
     cr.moveTo(points[0].x, padTop + plotH)
@@ -643,11 +1169,10 @@ function drawStudyChart(cr: cairo.Context, width: number, height: number, data: 
     cr.lineTo(points[points.length - 1].x, padTop + plotH)
     cr.closePath()
 
-    cr.setSourceRGBA(0.063, 0.725, 0.506, 0.16)
+    cr.setSourceRGBA(0.063, 0.725, 0.506, 0.14)
     cr.fill()
   }
 
-  // Linha conectora suave (Verde Esmeralda #10b981)
   cr.newPath()
   cr.moveTo(points[0].x, points[0].y)
   for (let i = 1; i < points.length; i++) {
@@ -660,50 +1185,44 @@ function drawStudyChart(cr: cairo.Context, width: number, height: number, data: 
     cr.curveTo(cx1, cy1, cx2, cy2, pCurr.x, pCurr.y)
   }
   cr.setSourceRGBA(0.063, 0.725, 0.506, 0.95)
-  cr.setLineWidth(2.6)
+  cr.setLineWidth(2.4)
   cr.stroke()
 
-  // Pontos, Valores e Eixo X
   for (let i = 0; i < points.length; i++) {
     const p = points[i]
 
-    // Halo externo verde esmeralda
-    cr.setSourceRGBA(0.063, 0.725, 0.506, 0.25)
-    cr.arc(p.x, p.y, 6.0, 0, 2 * Math.PI)
+    cr.setSourceRGBA(0.063, 0.725, 0.506, 0.20)
+    cr.arc(p.x, p.y, 5.5, 0, 2 * Math.PI)
     cr.fill()
 
-    // Ponto sólido verde esmeralda
     cr.setSourceRGBA(0.063, 0.725, 0.506, 1.0)
-    cr.arc(p.x, p.y, 3.5, 0, 2 * Math.PI)
+    cr.arc(p.x, p.y, 3.0, 0, 2 * Math.PI)
     cr.fill()
 
-    // Ponto central branco
     cr.setSourceRGBA(1.0, 1.0, 1.0, 1.0)
-    cr.arc(p.x, p.y, 1.5, 0, 2 * Math.PI)
+    cr.arc(p.x, p.y, 1.2, 0, 2 * Math.PI)
     cr.fill()
 
-    // Valor acima do ponto (negrito)
     cr.selectFontFace("JetBrainsMono Nerd Font", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
-    cr.setFontSize(12)
+    cr.setFontSize(11)
     cr.setSourceRGBA(1.0, 1.0, 1.0, 0.95)
     const valText = `${p.val}h`
     const valExt = cr.textExtents(valText)
-    cr.moveTo(p.x - valExt.width / 2, Math.max(14, p.y - 8))
+    cr.moveTo(p.x - valExt.width / 2, Math.max(14, p.y - 7))
     cr.showText(valText)
 
-    // Rótulo da semana abaixo (negrito)
     cr.selectFontFace("JetBrainsMono Nerd Font", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
-    cr.setFontSize(10.5)
-    cr.setSourceRGBA(0.65, 0.72, 0.82, 0.85)
+    cr.setFontSize(10)
+    cr.setSourceRGBA(0.65, 0.72, 0.82, 0.80)
     const lblExt = cr.textExtents(p.label)
-    cr.moveTo(p.x - lblExt.width / 2, padTop + plotH + 18)
+    cr.moveTo(p.x - lblExt.width / 2, padTop + plotH + 16)
     cr.showText(p.label)
   }
 
   cr.restore()
 }
 
-function StudyHoursChart(cardHeight: number): Gtk.Widget {
+function StudyHoursChart(cardHeight: number, cardWidth = 949): Gtk.Widget {
   const filePath = `${VITTAE_DIR}/registros.csv`
 
   const drawingArea = new Gtk.DrawingArea({
@@ -723,13 +1242,14 @@ function StudyHoursChart(cardHeight: number): Gtk.Widget {
     return GLib.SOURCE_CONTINUE
   })
 
-  const card = (
+  const panel = (
     <box
-      class="dashboard-card"
+      class="dash-inner-panel chart-panel"
       orientation={V}
       spacing={0}
       hexpand={true}
       vexpand={true}
+      widthRequest={cardWidth}
       heightRequest={cardHeight}
     >
       <box class="chart-container" hexpand={true} vexpand={true}>
@@ -738,20 +1258,20 @@ function StudyHoursChart(cardHeight: number): Gtk.Widget {
     </box>
   ) as Gtk.Widget
 
-  card.set_overflow(Gtk.Overflow.HIDDEN)
+  panel.set_overflow(Gtk.Overflow.HIDDEN)
 
   const gesture = new Gtk.GestureClick()
   gesture.set_button(1)
   gesture.connect("pressed", (_g: Gtk.GestureClick, nPress: number) => {
     if (nPress === 2) openInNvim(filePath)
   })
-  card.add_controller(gesture)
+  panel.add_controller(gesture)
 
-  return card
+  return panel
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// COMPONENTE 2: Tabela Viva do Cronograma (cronograma.csv) + Notificações
+// COMPONENTE: Tabela Viva do Cronograma (cronograma.csv) + Notificações
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface ScheduleRow {
@@ -811,7 +1331,6 @@ function getActivityClass(act: string): string {
   return "act-default"
 }
 
-// ── Notificações Inteligentes do Cronograma ───────────────────────────────────
 let lastNotifiedActivity = ""
 
 const ACTIVITY_NOTIF_INFO: Record<string, { emoji: string; desc: string }> = {
@@ -845,7 +1364,6 @@ function checkScheduleNotification(rows: ScheduleRow[], currentDayIdx: number, a
   const currentAct = (row.activities[currentDayIdx] || "").trim()
   if (!currentAct) return
 
-  // Filtra repetições consecutivas (ex: Dormir 6 vezes só notifica a 1ª vez)
   if (currentAct !== lastNotifiedActivity) {
     lastNotifiedActivity = currentAct
     const details = getActNotifDetails(currentAct)
@@ -877,7 +1395,7 @@ function checkScheduleNotification(rows: ScheduleRow[], currentDayIdx: number, a
   }
 }
 
-function LiveScheduleTable(rowHeight = 518): Gtk.Widget {
+function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
   const filePath = `${VITTAE_DIR}/cronograma.csv`
 
   const grid = new Gtk.Grid({
@@ -911,7 +1429,6 @@ function LiveScheduleTable(rowHeight = 518): Gtk.Widget {
       }
     }
 
-    // Processa lógica de notificação automática ao mudar de atividade
     checkScheduleNotification(rows, currentDayIdx, activeRowIdx)
 
     let child = grid.get_first_child()
@@ -921,14 +1438,13 @@ function LiveScheduleTable(rowHeight = 518): Gtk.Widget {
       child = next
     }
 
-    // 1. Cabeçalho (Linha 0 do Grid)
     const timeColHead = new Gtk.Label({
       label: "Hora",
       cssClasses: ["sched-col-header", "time-col"],
       halign: Gtk.Align.CENTER,
       xalign: 0.5,
       hexpand: false,
-      widthRequest: 54,
+      widthRequest: 50,
     })
     grid.attach(timeColHead, 0, 0, 1, 1)
 
@@ -944,7 +1460,6 @@ function LiveScheduleTable(rowHeight = 518): Gtk.Widget {
       grid.attach(dayHead, dIdx + 1, 0, 1, 1)
     })
 
-    // 2. Linhas do Cronograma (Linhas 1 a N do Grid)
     rows.forEach((row, rIdx) => {
       const gridRow = rIdx + 1
 
@@ -955,7 +1470,7 @@ function LiveScheduleTable(rowHeight = 518): Gtk.Widget {
         halign: Gtk.Align.CENTER,
         xalign: 0.5,
         hexpand: false,
-        widthRequest: 48,
+        widthRequest: 46,
       })
       grid.attach(timeLabel, 0, gridRow, 1, 1)
 
@@ -1008,13 +1523,14 @@ function LiveScheduleTable(rowHeight = 518): Gtk.Widget {
     return GLib.SOURCE_CONTINUE
   })
 
-  const card = (
+  const panel = (
     <box
-      class="dashboard-card"
+      class="dash-inner-panel sched-panel"
       orientation={V}
       spacing={0}
       hexpand={true}
       vexpand={true}
+      widthRequest={colWidth || 1140}
       heightRequest={rowHeight}
     >
       <box class="sched-table-wrapper" orientation={V} hexpand={true} vexpand={true}>
@@ -1023,86 +1539,92 @@ function LiveScheduleTable(rowHeight = 518): Gtk.Widget {
     </box>
   ) as Gtk.Widget
 
-  card.set_overflow(Gtk.Overflow.HIDDEN)
+  panel.set_overflow(Gtk.Overflow.HIDDEN)
 
   const gesture = new Gtk.GestureClick()
   gesture.set_button(1)
   gesture.connect("pressed", (_g: Gtk.GestureClick, nPress: number) => {
     if (nPress === 2) openInNvim(filePath)
   })
-  card.add_controller(gesture)
+  panel.add_controller(gesture)
 
-  return card
+  return panel
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// JANELA PRINCIPAL TODOCARDS (Cards de Tarefas no Topo + Gráficos na Base)
+// JANELA PRINCIPAL TODOCARDS (HÁBITOS NO TOPO + TAREFAS + GRÁFICO E CRONOGRAMA)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function TodoCards(monitor = 0): Astal.Window {
-  const rowHeight = getRowHeight(monitor)
+  const { topHeight, bottomHeight } = getDashboardHeights(monitor) // top: 477px, bottom: 582px (+10% para gráfico/tabela)
+  const totalWidth = getDisplayWidth(monitor) // 1899px
+  const halfWidth = Math.floor((totalWidth - 1) / 2) // 50% = 949px
 
-  const habitsHeight = Math.floor((rowHeight - 8) * 0.20)
-  const chartHeight = rowHeight - 8 - habitsHeight
+  const habitsStripHeight = 68
+  const tasksHeight = topHeight - habitsStripHeight - 1 // 408px
 
-  const topLeftColumn = (
+  // 1. Faixa Superior: Hábitos em toda a largura horizontal no topo
+  const topHabitsStrip = HabitsStreakPanel(habitsStripHeight)
+
+  // 2. Divisor nítido de 1px entre Hábitos e Tarefas
+  const topDivider = <box class="prio-board-divider" heightRequest={1} hexpand={true} />
+
+  // 3. Quadro de Tarefas (3 Colunas direto, sem o header antigo)
+  const tasksZone = UnifiedPriorityBoard(tasksHeight)
+
+  // 4. Bloco Superior Completo (Hábitos no topo + divisor + Tarefas)
+  const topHalf = (
     <box
       orientation={V}
-      spacing={8}
+      spacing={0}
       hexpand={true}
       vexpand={true}
-      heightRequest={rowHeight}
-      class="todo-top-left-col"
+      heightRequest={topHeight}
+      class="dash-top-half"
     >
-      {HabitsStreakPanel(habitsHeight)}
-      {StudyHoursChart(chartHeight)}
+      {topHabitsStrip}
+      {topDivider}
+      {tasksZone}
     </box>
   ) as Gtk.Widget
 
-  const tasksRow = (
+  // 5. Linha Divisora Horizontal Central (1px nítida)
+  const midDivider = <box class="prio-zone-hsep" heightRequest={1} hexpand={true} />
+
+  // 6. Bloco Inferior (50% Gráfico de Horas na esquerda, 50% Cronograma na direita com +10% de altura)
+  const bottomHalf = (
     <box
       orientation={H}
-      spacing={8}
+      spacing={0}
       hexpand={true}
       vexpand={true}
-      homogeneous={true}
+      homogeneous={false}
       halign={Gtk.Align.FILL}
-      heightRequest={rowHeight}
-      class="todo-top-row"
+      heightRequest={bottomHeight}
+      class="dash-bottom-zone"
     >
-      {ORDERED_FILES.map(({ file, label }) => TodoCard(file, label, rowHeight))}
+      {StudyHoursChart(bottomHeight, halfWidth)}
+      <box class="prio-section-vsep" widthRequest={1} hexpand={false} />
+      {LiveScheduleTable(bottomHeight, halfWidth)}
     </box>
   ) as Gtk.Widget
 
-  const dashboardRow = (
-    <box
-      orientation={H}
-      spacing={10}
-      hexpand={true}
-      vexpand={true}
-      homogeneous={true}
-      halign={Gtk.Align.FILL}
-      heightRequest={rowHeight}
-      class="todo-bottom-row"
-    >
-      {topLeftColumn}
-      {LiveScheduleTable(rowHeight)}
-    </box>
-  ) as Gtk.Widget
-
-  const mainBox = (
+  // 7. Box Geral Única Contínua
+  const unifiedBox = (
     <box
       orientation={V}
-      spacing={10}
+      spacing={0}
       hexpand={true}
       vexpand={true}
-      homogeneous={true}
-      class="todo-main-box"
+      class="unified-dashboard-container"
     >
-      {tasksRow}
-      {dashboardRow}
+      {topHalf}
+      {midDivider}
+      {bottomHalf}
     </box>
   ) as Gtk.Widget
+
+  unifiedBox.set_overflow(Gtk.Overflow.HIDDEN)
 
   return (
     <window
@@ -1114,12 +1636,12 @@ export function TodoCards(monitor = 0): Astal.Window {
       exclusivity={Astal.Exclusivity.IGNORE}
       anchor={TOP | LEFT | RIGHT | BOTTOM}
       layer={Astal.Layer.BOTTOM}
-      marginTop={12}
-      marginLeft={12}
-      marginRight={12}
-      marginBottom={12}
+      marginTop={10}
+      marginLeft={10}
+      marginRight={10}
+      marginBottom={10}
     >
-      {mainBox}
+      {unifiedBox}
     </window>
   ) as Astal.Window
 }
