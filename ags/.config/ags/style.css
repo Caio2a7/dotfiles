@@ -7,7 +7,6 @@
 .hub-inner {
   background: rgba(8, 10, 15, 0.90);
   backdrop-filter: blur(32px) saturate(1.4);
-  -webkit-backdrop-filter: blur(32px) saturate(1.4);
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   min-width: 180px;
@@ -65,7 +64,6 @@
 .ws-btn {
   background: rgba(20, 24, 32, 0.85);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   min-width: 30px;
@@ -158,17 +156,13 @@
   background-color: rgba(18, 22, 30, 0.90);
   border-radius: 4px;
   min-width: 8px;
-  width: 8px;
   min-height: 88px;
-  height: 88px;
-  max-height: 88px;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hub-syscard levelbar block.filled {
   border-radius: 4px;
   min-width: 8px;
-  width: 8px;
 }
 
 /* CPU */
@@ -260,7 +254,6 @@
 .hub-stat {
   background: rgba(12, 15, 22, 0.82);
   backdrop-filter: blur(20px) saturate(1.3);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 8px 10px;
@@ -649,121 +642,482 @@ scale slider:hover,
   background: transparent;
 }
 
-.TodoCards {
-  background: transparent;
-}
-
 .todo-main-box,
-.todo-top-row,
 .todo-bottom-row {
   min-height: 0;
 }
 
-.todo-card {
-  background: rgba(0, 0, 0, 0.55);
-  border-radius: 12px;
-  padding: 8px 10px;
+/* ── Painel Geral Único (Superfície Contínua Translúcida + Contornos Nítidos) */
+.unified-dashboard-container {
+  background: rgba(12, 16, 26, 0.74);
+  backdrop-filter: blur(28px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  padding: 0;
   min-width: 0;
   min-height: 0;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.20),
+    0 20px 60px rgba(0, 0, 0, 0.75);
+  transition: border-color 0.25s ease;
 }
 
-.todo-card:hover {
-  border-color: rgba(200, 200, 200, 0.45);
-  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.06);
+.unified-dashboard-container:hover {
+  border-color: rgba(255, 255, 255, 0.26);
 }
 
-.todo-card-title {
+.dash-top-half,
+.dash-top-tasks,
+.dash-bottom-zone {
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Divisores com contorno nítido e bem delimitado */
+.prio-zone-hsep {
+  min-height: 1px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.prio-section-vsep {
+  min-width: 1px;
+  background: rgba(255, 255, 255, 0.14);
+  margin: 0;
+}
+
+.prio-board-divider {
+  min-height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Componentes nús na box geral: sem fundo escurecido separado */
+.dash-inner-panel {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  min-height: 0;
+  min-width: 0;
+  padding: 8px 12px;
+}
+
+.prio-board-card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ── Top Bar do Quadro ──────────────────────────────────────────── */
+.prio-board-header {
+  padding: 8px 16px 6px 16px;
+}
+
+.prio-board-brand-icon {
+  font-size: 13px;
+  color: #64748b;
+  margin-right: 5px;
+}
+
+.prio-board-brand-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 1px;
+}
+
+.prio-board-edit-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 5px;
+  padding: 2px 8px;
+  color: #94a3b8;
+  transition: all 150ms ease;
+}
+
+.prio-board-edit-btn:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.20);
   color: #ffffff;
-  font-weight: bold;
-  font-size: 14px;
+}
+
+.prio-board-edit-label {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.prio-board-divider {
+  background: rgba(255, 255, 255, 0.06);
+  min-height: 1px;
+}
+
+/* ── Seções Internas do Quadro (Delimitadas com espaçamento amplo) ─ */
+.prio-board-sections {
+  padding: 0;
+  margin: 0;
+  min-height: 0;
+}
+
+/* Barra separadora vertical sutil e refinada */
+.prio-section-vsep {
+  background: rgba(255, 255, 255, 0.07);
+  min-width: 1px;
+  margin: 6px 0;
+}
+
+.prio-section-col {
+  padding: 10px 14px;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 6px;
+  margin: 0;
+  transition: background-color 200ms ease;
+}
+
+/* Cores de fundo sutis e distintas para cada seção */
+.prio-section-agora {
+  background: rgba(244, 63, 94, 0.025);
+}
+
+.prio-section-proximo {
+  background: rgba(245, 158, 11, 0.018);
+}
+
+.prio-section-depois {
+  background: rgba(255, 255, 255, 0.010);
+}
+
+/* Drop hover feedback ao arrastar card para uma coluna */
+.prio-col-drop-active {
+  background: rgba(56, 189, 248, 0.10);
+  box-shadow: inset 0 0 0 1.5px rgba(56, 189, 248, 0.35);
+}
+
+/* ── Cabeçalhos de Cada Seção (Tipografia elegante e contida) ────── */
+.col-header {
+  padding: 2px 2px 4px 2px;
+  min-height: 26px;
+}
+
+.col-head-icon {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.col-head-icon-agora {
+  color: #f43f5e;
+}
+
+.col-head-icon-proximo {
+  color: #f59e0b;
+}
+
+.col-head-icon-depois {
+  color: #94a3b8;
+}
+
+.col-head-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #e2e8f0;
+}
+
+.col-head-title-agora {
+  color: #e2e8f0;
+}
+
+.col-head-title-proximo {
+  color: #e2e8f0;
+}
+
+.col-head-title-depois {
+  color: #e2e8f0;
+}
+
+.col-head-badge {
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 9.5px;
+  font-weight: 700;
   letter-spacing: 0.5px;
 }
 
-.todo-divider {
-  background: rgba(255, 255, 255, 0.09);
+.col-head-badge-agora {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.30);
+  color: #fb7185;
 }
 
-.todo-scrolled {
+.col-head-badge-proximo {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.30);
+  color: #fbbf24;
+}
+
+.col-head-badge-depois {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+}
+
+/* ── Divisor interno de cada coluna ─────────────────────────────── */
+.col-divider {
+  min-height: 1px;
+  margin-bottom: 6px;
+}
+
+.col-divider-agora {
+  background: rgba(244, 63, 94, 0.22);
+}
+
+.col-divider-proximo {
+  background: rgba(245, 158, 11, 0.18);
+}
+
+.col-divider-depois {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Container de Cards & Scrolled Window ───────────────────────── */
+.col-tasks-box {
+  padding: 2px 0;
+}
+
+.col-scrolled {
   padding: 0;
   margin: 0;
   min-height: 0;
 }
 
-.todo-scrolled scrollbar,
-.todo-scrolled scrollbar.vertical {
+.col-scrolled scrollbar,
+.col-scrolled scrollbar.vertical {
   background: transparent;
   border: none;
   padding: 0;
   margin: 0;
-  min-width: 2px;
+  min-width: 3px;
 }
 
-.todo-scrolled scrollbar trough {
+.col-scrolled scrollbar trough {
   background: transparent;
   border: none;
   padding: 0;
   margin: 0;
-  min-width: 2px;
+  min-width: 3px;
 }
 
-.todo-scrolled scrollbar slider {
-  background: rgba(255, 255, 255, 0.20);
-  border-radius: 1px;
-  min-width: 2px;
+.col-scrolled scrollbar slider {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 2px;
+  min-width: 3px;
+  min-height: 24px;
+  border: none;
+  padding: 0;
+  margin: 0;
+  transition: background-color 150ms ease;
+}
+
+.col-scrolled scrollbar slider:hover {
+  background: rgba(255, 255, 255, 0.38);
+}
+
+/* ── Cards de Tarefa Padronizados (Linear / ClickUp style) ───────── */
+.task-card-wrapper {
+  padding: 0;
+  margin: 0;
+}
+
+/* Linha indicadora de inserção fixa de 2px (acende ao arrastar card) */
+.task-insert-line {
+  min-height: 2px;
+  background: transparent;
+  border-radius: 999px;
+  margin: 0 4px 2px 4px;
+  transition: background-color 120ms ease;
+}
+
+.task-insert-line.active {
+  background: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.90);
+}
+
+.task-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  border-right: 1px solid rgba(255, 255, 255, 0.09);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  padding: 9px 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: all 160ms ease;
+}
+
+.task-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.20);
+  border-right-color: rgba(255, 255, 255, 0.20);
+  border-bottom-color: rgba(255, 255, 255, 0.20);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+/* Friso lateral semântico de prioridade (estilo Linear) */
+.task-card-agora {
+  border-left: 3px solid #f43f5e;
+}
+
+.task-card-agora:hover {
+  border-left: 3px solid #f43f5e;
+  border-top-color: rgba(244, 63, 94, 0.35);
+  border-right-color: rgba(244, 63, 94, 0.35);
+  border-bottom-color: rgba(244, 63, 94, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(244, 63, 94, 0.20),
+    0 4px 16px rgba(244, 63, 94, 0.12);
+}
+
+.task-card-proximo {
+  border-left: 3px solid #f59e0b;
+}
+
+.task-card-proximo:hover {
+  border-left: 3px solid #f59e0b;
+  border-top-color: rgba(245, 158, 11, 0.35);
+  border-right-color: rgba(245, 158, 11, 0.35);
+  border-bottom-color: rgba(245, 158, 11, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(245, 158, 11, 0.20),
+    0 4px 16px rgba(245, 158, 11, 0.12);
+}
+
+.task-card-depois {
+  border-left: 3px solid #475569;
+}
+
+.task-card-depois:hover {
+  border-left: 3px solid #64748b;
+  border-top-color: rgba(148, 163, 184, 0.22);
+  border-right-color: rgba(148, 163, 184, 0.22);
+  border-bottom-color: rgba(148, 163, 184, 0.22);
+}
+
+/* Feedback visual ao arrastar uma tarefa sobre outro card (inserção acima) */
+.task-card-drop-hover {
+  background: rgba(56, 189, 248, 0.20);
+  border-top: 2px solid #38bdf8;
+  box-shadow:
+    0 -2px 8px rgba(56, 189, 248, 0.30),
+    inset 0 1px 0 rgba(56, 189, 248, 0.25);
+}
+
+.task-card-done {
+  opacity: 0.45;
+}
+
+/* ── Elementos Internos do Card ─────────────────────────────────── */
+.task-card-header {
+  padding-bottom: 2px;
+}
+
+.task-domain-tag {
+  border-radius: 4px;
+  padding: 2px 7px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.task-card-body {
+  padding-top: 2px;
+}
+
+.task-check-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0 4px 0 0;
+  min-width: 20px;
   min-height: 20px;
-  border: none;
-  padding: 0;
-  margin: 0;
+  box-shadow: none;
+  transition: transform 120ms ease;
 }
 
-.todo-scrolled scrollbar slider:hover {
-  background: rgba(216, 180, 254, 0.85);
-  min-width: 2px;
+.task-check-btn:hover {
+  background: transparent;
+  transform: scale(1.18);
 }
 
-.todo-card-body {
-  font-size: 13px;
-  line-height: 1.4;
+.task-check-icon {
+  font-size: 16px;
+  transition: color 120ms ease;
 }
 
-/* ── Dashboard Cards & Graphs ───────────────────────────────────── */
-.dashboard-card {
-  background: rgba(0, 0, 0, 0.55);
-  border-radius: 12px;
-  padding: 8px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+.task-check-icon.unchecked {
+  color: #94a3b8;
 }
 
-.dashboard-card:hover {
-  border-color: rgba(200, 200, 200, 0.45);
-  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.06);
+.task-check-btn:hover .task-check-icon.unchecked {
+  color: #34d399;
 }
 
-.chart-container {
-  padding: 0;
-  margin: 0;
+.task-check-icon.checked {
+  color: #34d399;
 }
 
-/* ── Habits Streak Panel ────────────────────────────────────────── */
+.task-card-title {
+  font-size: 12.5px;
+  line-height: 1.35;
+  letter-spacing: 0.15px;
+}
+
+.task-card-title.task-done {
+  text-decoration: line-through;
+  color: #64748b;
+}
+
+/* ── Estado Vazio de Cada Seção ─────────────────────────────────── */
+.col-empty-box {
+  padding: 36px 10px;
+}
+
+.col-empty-icon {
+  font-size: 26px;
+  color: #475569;
+  margin-bottom: 4px;
+}
+
+.col-empty-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #94a3b8;
+}
+
+.col-empty-sub {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* ── Painel de Hábitos no Topo ──────────────────────────────────── */
+.habits-top-panel,
 .habits-panel {
-  padding: 4px 6px;
+  padding: 6px 12px;
 }
 
 .habit-mini-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  padding: 2px 4px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: all 0.2s ease;
+  padding: 6px 10px;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .habit-mini-card:hover {
+  border-color: rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 .habit-mini-card.habit-done {
@@ -773,10 +1127,24 @@ scale slider:hover,
 
 .habit-mini-card.habit-done:hover {
   border-color: rgba(74, 222, 128, 0.45);
-  background: rgba(74, 222, 128, 0.10);
+  background: rgba(74, 222, 128, 0.09);
 }
 
-/* ── Live Schedule Table ────────────────────────────────────────── */
+/* ── Painel do Gráfico Bento ────────────────────────────────────── */
+.chart-panel {
+  padding: 8px 14px;
+}
+
+.chart-container {
+  padding: 2px 4px;
+  margin: 0;
+}
+
+/* ── Painel do Cronograma Bento ─────────────────────────────────── */
+.sched-panel {
+  padding: 8px 12px;
+}
+
 .sched-table-wrapper {
   padding: 0;
   margin: 0;
@@ -1276,7 +1644,6 @@ switch slider {
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   min-width: 360px;
-  max-width: 420px;
   padding: 20px 22px;
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.80),
@@ -1469,5 +1836,196 @@ switch slider {
 
 .habit-pill-btn:hover {
   color: #34d399;
+}
+
+/* ────────────────────────────────────────────────────────────────── */
+/* MODAL: NOVA TAREFA (SUPER + N)                                     */
+/* ────────────────────────────────────────────────────────────────── */
+.NewTaskModal {
+  background: transparent;
+}
+
+.new-task-scrim {
+  background: rgba(4, 6, 10, 0.72);
+}
+
+.new-task-dialog {
+  background: rgba(16, 20, 30, 0.96);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 440px;
+  padding: 18px 22px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.new-task-header {
+  padding-bottom: 4px;
+}
+
+.new-task-header-icon {
+  font-size: 20px;
+  color: #38bdf8;
+  margin-right: 6px;
+}
+
+.new-task-header-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.new-task-header-sub {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.new-task-esc-badge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 5px;
+  padding: 2px 7px;
+}
+
+.new-task-esc-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.new-task-divider {
+  background: rgba(255, 255, 255, 0.08);
+  min-height: 1px;
+}
+
+.new-task-field-label {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #8a9fc0;
+  text-transform: uppercase;
+}
+
+/* Campo de Entrada de Texto */
+.new-task-entry {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #ffffff;
+  transition: all 150ms ease;
+}
+
+.new-task-entry:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+}
+
+/* Botões Seletores de Domínio */
+.new-task-domain-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 5px 8px;
+  color: #94a3b8;
+  font-weight: 700;
+  transition: all 150ms ease;
+}
+
+.new-task-domain-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.new-task-domain-btn.active {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.50);
+  color: #38bdf8;
+  box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.12);
+}
+
+/* Botões Seletores de Prioridade */
+.new-task-prio-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  padding: 7px 10px;
+  color: #94a3b8;
+  font-weight: 800;
+  transition: all 150ms ease;
+}
+
+.new-task-prio-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.new-task-prio-btn.prio-agora.active {
+  background: rgba(244, 63, 94, 0.22);
+  border-color: #f43f5e;
+  color: #fb7185;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);
+}
+
+.new-task-prio-btn.prio-proximo.active {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: #f59e0b;
+  color: #fbbf24;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+}
+
+.new-task-prio-btn.prio-depois.active {
+  background: rgba(148, 163, 184, 0.18);
+  border-color: #94a3b8;
+  color: #f1f5f9;
+}
+
+/* Rodapé do Diálogo */
+.new-task-footer {
+  padding-top: 4px;
+}
+
+.new-task-btn-cancel {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 8px;
+  padding: 7px 14px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 150ms ease;
+}
+
+.new-task-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.new-task-btn-submit {
+  background: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.40);
+  border-radius: 8px;
+  padding: 7px 18px;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 800;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+  transition: all 150ms ease;
+}
+
+.new-task-btn-submit:hover {
+  background: #059669;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.50);
+}
+
+.new-task-btn-submit-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #ffffff;
 }
 
