@@ -24,6 +24,8 @@ return {
       mode = { "n", "i", "v" },
       desc = "Buffers",
     },
+    { "<c-/>", false },
+    { "<c-_>", false },
   },
   opts = {
     dashboard = {
