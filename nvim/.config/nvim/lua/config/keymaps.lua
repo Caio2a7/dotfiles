@@ -177,7 +177,6 @@ vim.schedule(function()
 
   -- Mapeamento vv: Selecionar linha inteira no modo Normal (como dd e yy)
   vim.keymap.set("n", "vv", "V", { desc = "Selecionar Linha Inteira", noremap = true, silent = true })
-  vim.keymap.set("i", "vv", "<Esc>V", { desc = "Selecionar Linha Inteira", noremap = true, silent = true })
   vim.keymap.set("v", "vv", "V", { desc = "Selecionar Linha Inteira", noremap = true, silent = true })
 
   -- Objetos de Texto customizados: vil (conteúdo útil da linha) e val (linha inteira)
@@ -540,4 +539,11 @@ vim.keymap.set("o", "<Right>", "v$", { noremap = true, silent = true })
 vim.keymap.set("o", "<Left>", "v0", { noremap = true, silent = true })
 
 pcall(require, "plugins.core.macros")
+
+-- Desativar Ctrl+/ e Ctrl+_ para terminal (LazyVim / Snacks default)
+for _, lhs in ipairs({ "<C-/>", "<c-/>", "<C-_>", "<c-_>" }) do
+  for _, m in ipairs({ "n", "t", "i", "v", "x" }) do
+    pcall(vim.keymap.del, m, lhs)
+  end
+end
 

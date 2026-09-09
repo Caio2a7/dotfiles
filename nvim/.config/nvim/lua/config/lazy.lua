@@ -19,7 +19,6 @@ require("lazy").setup({
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
     { import = "lazyvim.plugins.extras.lang.go" },
-    { import = "lazyvim.plugins.extras.lang.java" },
 
     -- 🎯 INJEÇÃO DO PLUGIN OIL.NVIM (GARANTIDA DE FUNCIONAMENTO)
     {
