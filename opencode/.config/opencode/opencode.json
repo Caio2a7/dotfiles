@@ -254,6 +254,8 @@
   "agent": {
     "orchestrator": {
       "mode": "primary",
+      "steps": 12,
+      "temperature": 0.1,
       "description": "Lead Orchestrator multi-agente: coordena e despacha subagentes via task em paralelo com Zero Context Pollution",
       "color": "#10B981",
       "permission": {
