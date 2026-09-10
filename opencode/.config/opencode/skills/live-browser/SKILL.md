@@ -1,60 +1,58 @@
 ---
 name: live-browser
-description: Live interaction with the user's running Helium browser via CDP. Use when the user asks to interact with their open browser ('em meu navegador', 'in my browser', 'na página que estou no meu navegador', 'preencha no browser', 'clique no meu navegador').
+description: Live interaction with the user's running Helium browser via CDP. Use when the user asks to interact with their open browser ('em meu navegador', 'in my browser', 'na página que estou no meu navegador', 'preencha no browser', 'clique no meu navegador', 'pesquise no meu browser').
 ---
 
 # Live Browser Interaction (Helium Browser & CDP)
 
-Esta skill permite ao agente interagir diretamente com a aba ativa do **Helium Browser** do desenvolvedor através do Chrome DevTools Protocol (CDP na porta 9222).
+Comandos CLI atômicos e instantâneos (< 200ms) para operar a aba ativa do **Helium Browser** do desenvolvedor via Chrome DevTools Protocol na porta 9222.
 
 ## ⚠️ Regra Mandatória de Confirmação Prévia:
-Sempre que o usuário solicitar uma ação em seu navegador aberto:
-1. **O agente NUNCA deve executar comandos no navegador sem antes perguntar a permissão explícita do usuário.**
-2. Use a ferramenta `question` (ou pergunta direta) com a ação clara:
-   - *"Deseja permitir que eu interaja com a aba ativa do seu Helium Browser para [descrever ação: preencher formulário / clicar no botão X]?"*
-3. **Somente após o usuário responder afirmativamente (permitir), a execução está liberada.**
+- Quando o usuário solicitar uma ação em seu navegador aberto, o agente **deve perguntar autorização primeiro** caso ainda não tenha autorização na sessão.
+- Uma vez autorizado, o agente **deve executar comandos CLI diretos via `live-browser`** (NUNCA escreva scripts Node improvisados).
 
 ---
 
-## 🔒 Comportamento por Modo do OpenCode:
-- **Modo `orchestrator` e `agentic`:** Pede a confirmação específica para interagir com o navegador aberto. Com a autorização concedida, executa com autonomia e velocidade total.
-- **Modo `build`:** Solicita confirmação tanto para a ação quanto para qualquer comando bash modificador, conforme as regras do modo build.
-- **Modo `plan`:** **ESTRITAMENTE SOMENTE LEITURA.** No modo plan, é permitido apenas inspecionar a página (`inspect`, ler título, URL e elementos visíveis) ou tirar capturas de tela (`screenshot`). É terminantemente proibido clicar, submeter dados ou alterar o estado da página.
+## ⚡ Comandos CLI Atômicos (Executam em < 200ms):
 
----
+### 1. Pesquisar e Abrir Nova Aba no Navegador
+Abre imediatamente uma nova aba pesquisando no Google e trazendo-a para o primeiro plano:
+```bash
+live-browser search "termo de pesquisa"
+```
 
-## Comandos Disponíveis via Helper CLI (`live-browser` ou `node ~/.config/opencode/scripts/live-browser.js`):
+### 2. Clicar em Links ou Botões por Texto ou Seletor
+Localiza o elemento clicável pelo texto ou seletor e clica instantaneamente:
+```bash
+live-browser click "Wikipedia"
+live-browser click "button[type='submit']"
+```
 
-### 1. Inspecionar a Página Aberta (Somente Leitura)
-Retorna título, URL e lista de elementos interativos (com seletores resilientes):
+### 3. Pesquisar e Rolar até uma Palavra na Página (`find`)
+Busca a palavra no DOM, rola a página suavemente até o elemento e destaca o trecho em amarelo com borda vermelha para o usuário:
+```bash
+live-browser find "Bismarck"
+```
+
+### 4. Navegar Diretamente para uma URL
+```bash
+live-browser goto "https://pt.wikipedia.org"
+```
+
+### 5. Inspecionar a Página Atual (Somente Leitura)
+Retorna título, URL, cabeçalhos H1, inputs e links de amostra da aba ativa:
 ```bash
 live-browser inspect
 ```
 
-### 2. Capturar Screenshot da Aba Atual
+### 6. Capturar Screenshot da Aba Ativa
 ```bash
-live-browser screenshot --out preview.png
-```
-
-### 3. Preencher Formulário / Input
-```bash
-live-browser fill --selector "#email" --value "usuario@exemplo.com"
-live-browser fill --selector "[name='password']" --value "senha123"
-```
-
-### 4. Clicar em Botões ou Links
-```bash
-live-browser click --selector "button[type='submit']"
-live-browser click --selector "text='Entrar'"
-```
-
-### 5. Executar JavaScript na Página
-```bash
-live-browser eval --code "document.querySelector('h1').innerText"
+live-browser screenshot preview.png
 ```
 
 ---
 
-## Requisito de Conexão com o Helium Browser:
-A flag `--remote-debugging-port=9222` já está configurada no seu sistema em `~/.config/helium-browser-flags.conf`.
-Se o comando retornar `disconnected`, certifique-se de que o Helium Browser foi reiniciado após a adição da flag para abrir a porta 9222.
+## 🔒 Regras por Modo:
+- **`orchestrator` e `agentic`:** Autorizados a navegar, pesquisar, clicar e rolar.
+- **`build`:** Solicita confirmação de comandos de modificação de sistema conforme padrão.
+- **`plan`:** **SOMENTE LEITURA.** Permitido apenas `inspect`, `find` e `screenshot`. Proibido `click` ou navegações que alterem o estado da página.
