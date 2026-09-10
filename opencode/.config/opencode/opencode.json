@@ -265,7 +265,9 @@
     },
     "agentic": {
       "mode": "primary",
-      "description": "Modo 100% agêntico com permissões totais irrestritas",
+      "steps": 8,
+      "temperature": 0.1,
+      "description": "Modo rápido e direto para tarefas pontuais (Locate -> Edit -> Finish)",
       "color": "#BB9AF7",
       "permission": "allow"
     },
