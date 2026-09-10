@@ -5,58 +5,78 @@ description: Web interaction, UI verification, and browser automation using Play
 
 # Playwright CLI & Web Verification Guidelines
 
-Esta skill orienta o uso do **Playwright CLI** para testes E2E, validação visual e automação eficiente de navegadores sem sobrecarga de MCP.
+Esta skill orienta o uso do **Playwright CLI oficial (`playwright-cli`)** para testes E2E, validação visual e automação eficiente de navegadores sem scripts ad-hoc e sem sobrecarga de MCP.
 
-## Vantagens do Modo CLI
-- **Zero Poluição de Contexto:** Não injeta 15 schemas de ferramentas no prompt da IA.
-- **Eficiência Máxima:** Execução atômica sob demanda via `bash`.
-- **Determinismo:** Suporte total a reporters nativos (`list`, `line`, `html`), traces e screenshots.
+## ⚡ Regra de Ouro: Proibido Criar Scripts JS sob Demanda
+O agente **NUNCA deve inventar scripts `node -e`** para navegar ou clicar.
+Utilize exclusivamente os comandos atômicos oficiais da CLI do Playwright (`playwright-cli`), que executam de forma determinística e em milissegundos.
 
-## Principais Comandos do Playwright CLI
+---
 
-### 1. Captura de Screenshots (Verificação Visual)
+## 🛠️ Vocabulário Oficial do `playwright-cli`:
+
+### 1. Navegação
 ```bash
-# Captura de tela inteira em modo headless
-npx playwright screenshot --full-page <URL> screenshot.png
+# Abrir navegador com página inicial
+playwright-cli open <URL>
 
-# Captura aguardando renderização de SPA
-npx playwright screenshot --wait-for-timeout=2000 <URL> screenshot.png
+# Navegar para uma URL específica
+playwright-cli goto <URL>
+
+# Voltar, avançar e recarregar
+playwright-cli go-back
+playwright-cli go-forward
+playwright-cli reload
 ```
 
-### 2. Execução de Testes E2E
+### 2. Interação com Elementos
 ```bash
-# Executa todos os testes E2E no Chromium headless
+# Inspecionar estrutura da página e obter IDs de referência (e1, e2, etc.)
+playwright-cli snapshot
+
+# Localizar texto na página com contexto visual imediato
+playwright-cli find "<texto ou regex>"
+
+# Clicar em um elemento por seletor, texto ou referência de snapshot
+playwright-cli click "<seletor ou ref>"
+
+# Preencher campo de texto
+playwright-cli fill "<seletor ou ref>" "meu texto"
+
+# Digitar teclas
+playwright-cli type "texto a digitar"
+playwright-cli press Enter
+```
+
+### 3. Conexão ao Navegador Pessoal com Extensão (Zero Flags / Zero Riscos)
+Para interagir com o seu navegador pessoal (Helium/Chrome) com sessões logadas e sem flags que afetem downloads:
+1. Instale a extensão oficial **Playwright Extension** no Chrome Web Store do seu navegador.
+2. Execute o comando de conexão:
+```bash
+playwright-cli attach --extension
+```
+
+### 4. Captura Visual e Dashboards
+```bash
+# Captura de screenshot da página atual
+playwright-cli screenshot [arquivo.png]
+
+# Abrir o Dashboard visual / Time-Travel do Playwright
+playwright-cli show
+```
+
+### 5. Execução de Suítes de Teste E2E (`npx playwright test`)
+```bash
+# Executa todos os testes no Chromium headless
 npx playwright test --project=chromium --reporter=list
 
-# Executa um arquivo ou cenário específico
-npx playwright test tests/login.spec.ts --project=chromium
-
-# Modo com rastreamento detalhado em caso de falha
+# Gravação de trace para autópsia visual em caso de falha
 npx playwright test --trace on-first-retry
 ```
 
-### 3. Geração de Código de Teste (Codegen)
-```bash
-# Inicia navegador e gera script de teste a partir de ações do usuário
-npx playwright codegen <URL>
-```
+---
 
-### 4. Scripts Rápidos sob Demanda
-Para extrair texto ou interagir com um elemento sem uma suíte completa de testes:
-```bash
-node -e '
-const { chromium } = require("playwright");
-(async () => {
-  const browser = await chromium.launch({ headless: true });
-  const page = await browser.newPage();
-  await page.goto("http://localhost:3000");
-  const title = await page.title();
-  console.log("Title:", title);
-  await browser.close();
-})();
-'
-```
-
-## Boas Práticas:
-- Use sempre seletores resilientes recomendados pelo Playwright: `page.getByRole()`, `page.getByLabel()`, `page.getByTestId()`.
-- Em CI/CD, garanta `--reporter=list` ou `--reporter=github` para logs limpos.
+## 🔒 Boas Práticas:
+- Use seletores acessíveis e semânticos (`text="..."`, `button[type='submit']`, `[name='...']`).
+- Em testes automatizados, utilize o modo headless padrão.
+- Ao finalizar automações, encerre a sessão do CLI: `playwright-cli close`.
