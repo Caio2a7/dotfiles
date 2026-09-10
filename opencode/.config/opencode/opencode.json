@@ -395,7 +395,7 @@
       }
     }
   },
-  "model": "google/antigravity-claude-sonnet-4-6-thinking",
+  "model": "google/antigravity-gemini-3.8-flash",
   "small_model": "google/antigravity-gemini-3.8-flash",
   "lsp": true,
   "compaction": {
