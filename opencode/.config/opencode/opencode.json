@@ -10,9 +10,9 @@
   "provider": {
     "google": {
       "options": {
-        "timeout": 86400000,
-        "chunkTimeout": 86400000,
-        "headerTimeout": 600000
+        "timeout": false,
+        "headerTimeout": false,
+        "chunkTimeout": 300000
       },
       "models": {
         "antigravity-claude-opus-4-6-thinking": {
@@ -199,7 +199,10 @@
       "name": "OpenRouter Free",
       "options": {
         "baseURL": "https://openrouter.ai/api/v1",
-        "apiKey": "{env:OPENROUTER_FREE_API_KEY}"
+        "apiKey": "{env:OPENROUTER_FREE_API_KEY}",
+        "timeout": false,
+        "headerTimeout": false,
+        "chunkTimeout": 300000
       },
       "models": {
         "minimax/minimax-m2.5:free": {
@@ -251,9 +254,12 @@
   "agent": {
     "orchestrator": {
       "mode": "primary",
-      "description": "Lead Orchestrator multi-agente: decompõe tarefas, despacha subagentes paralelos e aplica Quality Gates sem poluição de contexto",
+      "description": "Lead Orchestrator multi-agente: coordena e despacha subagentes via task em paralelo com Zero Context Pollution",
       "color": "#10B981",
-      "permission": "allow"
+      "permission": {
+        "*": "allow",
+        "edit": "deny"
+      }
     },
     "agentic": {
       "mode": "primary",
@@ -441,8 +447,10 @@
     "memory": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
-      "enabled": true,
-      "environment": {}
+      "environment": {
+        "MEMORY_FILE_PATH": "/home/caio/.config/opencode/memory.jsonl"
+      },
+      "enabled": true
     },
     "ast-grep": {
       "type": "local",
@@ -510,12 +518,12 @@
     },
     "validate": {
       "description": "Run full quality gate with advisory routing and debug context capture",
-      "agent": "plan",
+      "agent": "tester",
       "template": "Execute o portão de qualidade completo:\n1. Testes: rode a suíte completa e reporte falhas.\n2. Lint: rode o linter configurado e reporte violações.\n3. Type-check: rode o verificador de tipos e reporte erros.\n4. Dependências: verifique vulnerabilidades conhecidas (npm audit / pip-audit).\n5. Cobertura: reporte se a cobertura caiu em relação ao baseline.\n\nSE APROVADO:\n- Consulte a classificação no cabeçalho do .aiflow/plan.md.\n- Se SIMPLES: recomende executar /commit.\n- Se COMPLEXA: recomende executar /review.\n\nSE REPROVADO:\n- Falha de Teste -> Crie ou sobrescreva .aiflow/debug-context.md com timestamp, comando de teste, testes falhos, output completo e stack trace. Recomende executar /debug.\n- Falha de Lint/Types -> Recomende executar /refactor ou sugira a correção no arquivo.\n- Falha de Cobertura -> Recomende executar /task para adicionar testes ausentes.\n- Falha de Segurança -> Indique a vulnerabilidade e recomende a atualização."
     },
     "review": {
       "description": "Full code review against spec acceptance criteria and ADR compliance",
-      "agent": "plan",
+      "agent": "reviewer",
       "template": "Faça code review do diff atual.\n1. Verifique cada critério de aceitação do .aiflow/spec.md — a implementação atende?\n2. Verifique se existe algum ADR em docs/decisions/ relevante para o diff e inclua a seção '## Conformidade com ADRs'.\n3. Segurança: injection, exposição de dados, autenticação.\n4. Performance: N+1, memory leaks, complexidade algorítmica.\n5. Manutenibilidade: duplicação, acoplamento, coesão.\n\nFormato:\n🔴 Crítico (bloqueia merge)\n🟡 Importante (deve ser discutido)\n🟢 Sugestão\n\nResumo final: aprovado/reprovado + motivo.\nSe aprovado: recomende executar /commit."
     },
     "commit": {
@@ -528,15 +536,16 @@
     },
     "debug": {
       "description": "Automatic debug from .aiflow/task-test.log, .aiflow/debug-context.md or latest error",
-      "template": "0. Identifique automaticamente a origem da falha sem necessitar de argumentos:\n   - SE .aiflow/task-test.sh e .aiflow/task-test.log existirem → Origem: falha no teste atômico da tarefa isolada.\n   - SE .aiflow/debug-context.md existir → Origem: falha no portão de qualidade /validate.\n   - SENÃO → Analise a última saída do test runner ou logs de erro disponíveis no contexto do terminal.\n\n1. Investigação & Resolução:\n   - Leia o arquivo de log/contexto como ponto de partida (erro exato, comando e stack trace já documentados).\n   - Forme hipóteses e teste-as. Se após 3 hipóteses locais falharem, consulte o Brave Search MCP para pesquisar a mensagem de erro exata e a versão da dependência.\n   - Se a origem foi task-test.sh, execute novamente: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n   - SE PASSOU nos testes: apague .aiflow/task-test.sh, .aiflow/task-test.log e .aiflow/debug-context.md se existirem. Atualize .aiflow/context.md com o aprendizado da sessão. Recomende /commit ou /validate conforme a classificação no .aiflow/plan.md.\n   - SE FALHOU: atualize o log/contexto, informe o erro e tente nova hipótese."
+      "template": "0. Identifique automaticamente a origem da falha sem necessitar de argumentos:\n   - SE .aiflow/task-test.sh e .aiflow/task-test.log existirem → Origem: falha no teste atômico da tarefa isolada.\n   - SE .aiflow/debug-context.md existir → Origem: falha no portão de qualidade /validate.\n   - SENÃO → Analise a última saída do test runner ou logs de erro disponíveis no contexto do terminal.\n\n1. Investigação & Resolução:\n   - Leia o arquivo de log/contexto como ponto de partida (erro exato, comando e stack trace já documentados).\n   - Forme hipóteses e teste-as. Se após 3 hipóteses locais falharem, consulte a pesquisa web (`websearch`) para pesquisar a mensagem de erro exata e a versão da dependência.\n   - Se a origem foi task-test.sh, execute novamente: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n   - SE PASSOU nos testes: apague .aiflow/task-test.sh, .aiflow/task-test.log e .aiflow/debug-context.md se existirem. Atualize .aiflow/context.md com o aprendizado da sessão. Recomende /commit ou /validate conforme a classificação no .aiflow/plan.md.\n   - SE FALHOU: atualize o log/contexto, informe o erro e tente nova hipótese."
     },
     "refactor": {
       "description": "Automatic refactoring from plan.md, git diff, and AGENTS.md thresholds",
+      "agent": "refactorer",
       "template": "0. Identificação Automática sem necessitar de argumentos:\n   - Leia .aiflow/plan.md, .aiflow/spec.md e analise o diff atual ou arquivos modificados.\n   - Identifique pontos de refatoração conforme os limites do AGENTS.md (funções > 40 linhas, arquivos > 300 linhas, duplicação de código ou avisos de lint/types do /validate).\n\n1. Execução Segura:\n   - Rode TODOS os testes do projeto antes para capturar o snapshot de aprovação.\n   - Refatore o código focando em: coesão, desacoplamento, SOLID e eliminação de duplicação.\n   - Rode os testes novamente — devem ter exatamente o mesmo resultado verde.\n   - Se qualquer teste quebrar, reverta e tente uma abordagem diferente.\n   - Nenhuma mudança de comportamento externo é permitida.\n\n2. Conclusão:\n   - Atualize .aiflow/context.md com aprendizados ou padrões de refatoração aplicados.\n   - Consulte .aiflow/plan.md: se TRIVIAL/SIMPLES recomende /commit; se COMPLEXA recomende /validate."
     },
     "adr": {
       "description": "Create an Architecture Decision Record for a technical decision",
-      "agent": "plan",
+      "agent": "architect",
       "template": "Primeiro, execute `date +%Y%m%d` para obter a data atual.\nCrie o arquivo docs/decisions/ADR-[DATA]-[ARGUMENTS-COM-HIFENS].md contendo:\n# ADR: $ARGUMENTS\nData: [DATA]\nStatus: Aceito\n\n## Contexto\nQual problema estamos resolvendo?\n## Decisão\nO que decidimos fazer?\n## Alternativas consideradas\nO que foi descartado e por quê?\n## Consequências\nPositivas, negativas e trade-offs que aceitamos."
     },
     "map": {
