@@ -53,13 +53,13 @@ function getDashboardHeights(monitorIdx = 0): { topHeight: number; bottomHeight:
       const geo = mon.get_geometry()
       if (geo && geo.height > 0) {
         const totalH = geo.height - 20 - 1 // 1080 - 20 (margins) - 1 (mid divider) = 1059px
-        const bottomH = Math.floor(totalH * 0.55) // +10% de altura para a box inferior = 582px
-        const topH = totalH - bottomH // 477px
+        const bottomH = Math.floor(totalH * 0.60) // 60% para a box inferior
+        const topH = totalH - bottomH // 40% para a box superior
         return { topHeight: topH, bottomHeight: bottomH }
       }
     }
   } catch (_) {}
-  return { topHeight: 477, bottomHeight: 582 }
+  return { topHeight: 424, bottomHeight: 635 }
 }
 
 function getDisplayWidth(monitorIdx = 0): number {
