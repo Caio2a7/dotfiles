@@ -1350,6 +1350,7 @@ function parseCronogramaCSV(): ScheduleRow[] {
 
 function getActivityClass(act: string): string {
   const norm = act.trim().toLowerCase()
+  if (norm.includes("meditar/treinar") || (norm.includes("medit") && norm.includes("trein")) || norm.includes("medita")) return "act-meditar-treinar"
   if (norm.includes("faculd")) return "act-faculdade"
   if (norm.includes("estud")) return "act-estudar"
   if (norm.includes("trabalh")) return "act-trabalho"
@@ -1358,9 +1359,8 @@ function getActivityClass(act: string): string {
   if (norm.includes("xuxi")) return "act-xuxis"
   if (norm.includes("bus")) return "act-busao"
   if (norm.includes("leitur")) return "act-leitura"
-  if (norm.includes("livre")) return "act-livre"
+  if (norm.includes("livre") || norm.includes("gameplay")) return "act-livre"
   if (norm.includes("acad") || norm.includes("exerc")) return "act-academia"
-  if (norm.includes("medita")) return "act-meditacao"
   if (norm.includes("almo") || norm.includes("janta")) return "act-alimentacao"
   return "act-default"
 }
