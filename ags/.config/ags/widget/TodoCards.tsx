@@ -1453,6 +1453,104 @@ function checkScheduleNotification(
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// COMPONENTE: Painel de Metas Semanais com Sliders e Configuração de Tópicos
+// ─────────────────────────────────────────────────────────────────────────────
+
+const SHORT_DAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"]
+
+export 
+function safeLoadCss(provider: Gtk.CssProvider, css: string): void {
+  try {
+    if (typeof (provider as any).load_from_string === "function") {
+      ;(provider as any).load_from_string(css)
+    } else {
+      ;(provider as any).load_from_data(css, -1)
+    }
+  } catch (_) {
+    try {
+      ;(provider as any).load_from_data(css, -1)
+    } catch (_) {}
+  }
+}
+
+
+function getProgressColorInfo(feitas: number, meta: number): { colorClass: string; hex: string; pct: number } {
+  if (meta <= 0) {
+    return { colorClass: feitas > 0 ? "pct-royal-blue" : "pct-red", hex: feitas > 0 ? "#1d4ed8" : "#ef4444", pct: feitas > 0 ? 100 : 0 }
+  }
+  const pct = Math.round((feitas / meta) * 100)
+  if (pct < 30) return { colorClass: "pct-red", hex: "#ef4444", pct }
+  if (pct < 50) return { colorClass: "pct-orange", hex: "#f97316", pct }
+  if (pct < 70) return { colorClass: "pct-yellow", hex: "#eab308", pct }
+  if (pct < 90) return { colorClass: "pct-green", hex: "#10b981", pct }
+  if (pct < 100) return { colorClass: "pct-cyan", hex: "#06b6d4", pct }
+  return { colorClass: "pct-royal-blue", hex: "#1d4ed8", pct }
+}
+
+
+function createGoalProgressBar(initialFeitas: number, initialMeta: number): {
+  widget: Gtk.Widget
+  update: (f: number, m: number) => void
+} {
+  let feitas = initialFeitas
+  let meta = initialMeta
+
+  const da = new Gtk.DrawingArea({
+    hexpand: true,
+    heightRequest: 5,
+    valign: Gtk.Align.CENTER,
+  })
+
+  da.set_draw_func((_area, cr, width, height) => {
+    const fraction = meta > 0 ? Math.min(1.0, Math.max(0, feitas / meta)) : (feitas > 0 ? 1.0 : 0)
+    const r = height / 2
+
+    // 1. Calha da barra (trough)
+    cr.setSourceRGBA(1.0, 1.0, 1.0, 0.10)
+    cr.newPath()
+    cr.arc(r, r, r, Math.PI / 2, (3 * Math.PI) / 2)
+    cr.arc(Math.max(r, width - r), r, r, -Math.PI / 2, Math.PI / 2)
+    cr.closePath()
+    cr.fill()
+
+    // 2. Preenchimento colorido
+    if (fraction > 0) {
+      const fillW = Math.max(height, width * fraction)
+      const pct = (feitas / Math.max(1, meta)) * 100
+
+      // < 30% vermelho, < 50% laranja, < 70% amarelo, < 90% verde, < 100% ciano, >= 100% azul royale
+      if (pct < 30) {
+        cr.setSourceRGB(0.937, 0.267, 0.267) // #ef4444 Vermelho
+      } else if (pct < 50) {
+        cr.setSourceRGB(0.976, 0.451, 0.086) // #f97316 Laranja
+      } else if (pct < 70) {
+        cr.setSourceRGB(0.918, 0.702, 0.031) // #eab308 Amarelo
+      } else if (pct < 90) {
+        cr.setSourceRGB(0.063, 0.725, 0.506) // #10b981 Verde
+      } else if (pct < 100) {
+        cr.setSourceRGB(0.024, 0.714, 0.831) // #06b6d4 Ciano
+      } else {
+        cr.setSourceRGB(0.114, 0.306, 0.847) // #1d4ed8 Azul Escuro Royale
+      }
+
+      cr.newPath()
+      cr.arc(r, r, r, Math.PI / 2, (3 * Math.PI) / 2)
+      cr.arc(Math.max(r, fillW - r), r, r, -Math.PI / 2, Math.PI / 2)
+      cr.closePath()
+      cr.fill()
+    }
+  })
+
+  function update(f: number, m: number) {
+    feitas = f
+    meta = m
+    da.queue_draw()
+  }
+
+  return { widget: da, update }
+}
+
 function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
   const filePath = `${VITTAE_DIR}/cronograma.csv`
 
