@@ -1551,6 +1551,395 @@ function createGoalProgressBar(initialFeitas: number, initialMeta: number): {
   return { widget: da, update }
 }
 
+function StudyGoalsPanel(panelHeight: number, panelWidth: number): Gtk.Widget {
+  const container = new Gtk.Box({
+    orientation: V,
+    spacing: 0,
+    hexpand: true,
+    vexpand: true,
+    widthRequest: panelWidth,
+    heightRequest: panelHeight,
+    cssClasses: ["dash-inner-panel", "study-goals-panel"],
+  })
+
+  // Cabeçalho elegante
+  let isLocked = true
+
+  const headerBox = new Gtk.Box({
+    orientation: H,
+    spacing: 8,
+    hexpand: true,
+    cssClasses: ["study-goals-header"],
+  })
+
+  const titleIcon = new Gtk.Label({
+    label: "󰓥",
+    cssClasses: ["study-goals-icon"],
+  })
+
+  const titleText = new Gtk.Label({
+    label: "METAS DA SEMANA",
+    cssClasses: ["study-goals-title"],
+    halign: Gtk.Align.START,
+  })
+
+  const subtitleLabel = new Gtk.Label({
+    label: "",
+    cssClasses: ["study-goals-sub"],
+    halign: Gtk.Align.END,
+    hexpand: true,
+  })
+
+  const lockBtn = new Gtk.Button({
+    label: isLocked ? "󰌾 Bloqueado" : "󰌿 Editar",
+    cssClasses: ["study-goals-lock-btn", isLocked ? "locked" : "unlocked"],
+    valign: Gtk.Align.CENTER,
+    tooltipText: isLocked ? "Sliders bloqueados. Clique para editar metas." : "Modo edição ativo. Clique para bloquear sliders.",
+  })
+  lockBtn.connect("clicked", () => {
+    isLocked = !isLocked
+    lockBtn.label = isLocked ? "󰌾 Bloqueado" : "󰌿 Editar"
+    lockBtn.set_css_classes(["study-goals-lock-btn", isLocked ? "locked" : "unlocked"])
+    lockBtn.tooltipText = isLocked ? "Sliders bloqueados. Clique para editar metas." : "Modo edição ativo. Clique para bloquear sliders."
+    renderGoals()
+  })
+
+  headerBox.append(titleIcon)
+  headerBox.append(titleText)
+  headerBox.append(lockBtn)
+  headerBox.append(subtitleLabel)
+  container.append(headerBox)
+
+  // Scroll com a lista de cards
+  const scroll = new Gtk.ScrolledWindow({
+    hexpand: true,
+    vexpand: true,
+    hscrollbarPolicy: Gtk.PolicyType.NEVER,
+    vscrollbarPolicy: Gtk.PolicyType.AUTOMATIC,
+    cssClasses: ["study-goals-scroll"],
+  })
+
+  const cardsListBox = new Gtk.Box({
+    orientation: V,
+    spacing: 2,
+    hexpand: true,
+    cssClasses: ["study-goals-cards-list"],
+  })
+  scroll.set_child(cardsListBox)
+    
+  container.append(scroll)
+
+  let saveTimeoutId: number | null = null
+
+  function renderGoals() {
+    const metas = readMetas()
+    const doneHoursMap = readDoneHoursThisWeek()
+    const { slots } = parseScheduleStudySlots()
+    const allocResult = computeScheduleAllocation(metas, slots, doneHoursMap)
+
+    subtitleLabel.set_text(
+      `${allocResult.totalHorasPlanejadas}h planejadas / ${allocResult.totalHorasDisponiveis}h livres`
+    )
+
+    let child = cardsListBox.get_first_child()
+    while (child) {
+      const next = child.get_next_sibling()
+      cardsListBox.remove(child)
+      child = next
+    }
+
+    metas.topicos.forEach((t) => {
+      const prog = allocResult.progressoTopicos.find((p) => p.id === t.id)
+      const feitas = prog ? prog.horas_feitas : 0
+      const progInfo = getProgressColorInfo(feitas, t.horas_meta)
+      const { widget: pbarWidget, update: updatePbar } = createGoalProgressBar(feitas, t.horas_meta)
+
+      const card = new Gtk.Box({
+        orientation: V,
+        spacing: 4,
+        hexpand: true,
+        cssClasses: ["study-topic-card"],
+      })
+
+      // Injetar borda colorida da matéria no card
+      const cardBorderProvider = new Gtk.CssProvider()
+      safeLoadCss(cardBorderProvider, `
+        box.study-topic-card {
+          border-left: 3px solid ${t.cor};
+        }
+      `)
+      card.get_style_context().add_provider(cardBorderProvider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
+      // ─── Linha 1: Identificação & Metadados ───────────────────────
+      const topRow = new Gtk.Box({
+        orientation: H,
+        spacing: 8,
+        hexpand: true,
+        valign: Gtk.Align.CENTER,
+      })
+
+      // Nome do tópico
+      const nameLabel = new Gtk.Label({
+        label: `${t.icon}  ${t.nome}`,
+        cssClasses: ["study-topic-title"],
+        halign: Gtk.Align.START,
+      })
+      topRow.append(nameLabel)
+
+      // Spacer
+      const spacer = new Gtk.Box({ hexpand: true })
+      topRow.append(spacer)
+
+      // Lado direito da Linha 1: Badges & Horas
+      const metaInfoBox = new Gtk.Box({
+        orientation: H,
+        spacing: 6,
+        valign: Gtk.Align.CENTER,
+      })
+
+      // Controles de Categoria e Dia da Meta (SEMPRE VISÍVEIS)
+      const catBadge = new Gtk.Button({
+        label: t.categoria === "constante" ? "󰄲 Constante" : "󰀨 Volátil",
+        cssClasses: ["topic-badge-toggle", t.categoria],
+        valign: Gtk.Align.CENTER,
+        tooltipText: "Clique para alternar entre Constante e Volátil",
+      })
+      catBadge.connect("clicked", () => {
+        t.categoria = t.categoria === "constante" ? "volatil" : "constante"
+        if (t.categoria === "volatil" && t.dia_importante === null) {
+          t.dia_importante = 5
+        }
+        saveMetas(metas)
+        triggerScheduleRefresh()
+        renderGoals()
+      })
+      metaInfoBox.append(catBadge)
+
+      if (t.categoria === "volatil") {
+        const pillsBox = new Gtk.Box({
+          orientation: H,
+          spacing: 2,
+          valign: Gtk.Align.CENTER,
+          cssClasses: ["topic-day-pills-box"],
+        })
+
+        SHORT_DAYS.forEach((dShort, dIdx) => {
+          const isSelected = t.dia_importante === dIdx
+          const pillBtn = new Gtk.Button({
+            label: dShort,
+            cssClasses: isSelected ? ["topic-day-pill", "active"] : ["topic-day-pill"],
+            valign: Gtk.Align.CENTER,
+            tooltipText: `Priorizar estudos antes de ${DAY_NAMES[dIdx]}`,
+          })
+
+          pillBtn.connect("clicked", () => {
+            t.dia_importante = dIdx
+            saveMetas(metas)
+            triggerScheduleRefresh()
+            renderGoals()
+          })
+
+          pillsBox.append(pillBtn)
+        })
+
+        metaInfoBox.append(pillsBox)
+      }
+
+      // Horas: Feitas / Meta
+      const progressLabel = new Gtk.Label({
+        label: `${feitas}h / ${t.horas_meta}h`,
+        cssClasses: ["study-topic-progress"],
+        halign: Gtk.Align.END,
+      })
+      metaInfoBox.append(progressLabel)
+
+      topRow.append(metaInfoBox)
+      card.append(topRow)
+
+      // ─── Linha 2: Telemetria (Progresso 50% | Meta 50%) ──────────
+      const bottomRow = new Gtk.Box({
+        orientation: H,
+        spacing: 16,
+        hexpand: true,
+        homogeneous: true,
+        valign: Gtk.Align.CENTER,
+        cssClasses: ["study-telemetry-row"],
+      })
+
+      // Metade Esquerda: Progresso
+      const progressBox = new Gtk.Box({
+        orientation: H,
+        spacing: 6,
+        hexpand: true,
+        valign: Gtk.Align.CENTER,
+      })
+
+      const pbarTag = new Gtk.Label({
+        label: "Progresso",
+        cssClasses: ["study-metric-tag"],
+      })
+
+      const pctLabel = new Gtk.Label({
+        label: `${progInfo.pct}%`,
+        cssClasses: ["topic-progress-pct", progInfo.colorClass],
+        halign: Gtk.Align.END,
+      })
+
+      progressBox.append(pbarTag)
+      progressBox.append(pbarWidget)
+      progressBox.append(pctLabel)
+
+      // Metade Direita: Meta (Slider)
+      const sliderBox = new Gtk.Box({
+        orientation: H,
+        spacing: 6,
+        hexpand: true,
+        valign: Gtk.Align.CENTER,
+      })
+
+      const metaTag = new Gtk.Label({
+        label: "Meta",
+        cssClasses: ["study-metric-tag"],
+      })
+
+      const scale = new Gtk.Scale({
+        orientation: H,
+        hexpand: true,
+        drawValue: false,
+      })
+      scale.add_css_class("study-goal-slider")
+      scale.set_range(0, 20)
+      scale.set_increments(1, 2)
+      scale.set_digits(0)
+      scale.set_value(t.horas_meta)
+      scale.set_sensitive(!isLocked)
+
+      const scaleGreenProvider = new Gtk.CssProvider()
+      safeLoadCss(scaleGreenProvider, `
+        highlight {
+          background: linear-gradient(90deg, #047857, #10b981);
+          border-radius: 4px;
+        }
+        slider {
+          background: radial-gradient(circle at 35% 35%, #a7f3d0, #10b981);
+          border-radius: 50%;
+          border: 1px solid rgba(255, 255, 255, 0.25);
+          min-width: 14px;
+          min-height: 14px;
+          margin: -5px 0;
+        }
+        slider:hover {
+          background: radial-gradient(circle at 35% 35%, #d1fae5, #34d399);
+        }
+      `)
+      scale.get_style_context().add_provider(scaleGreenProvider, Gtk.STYLE_PROVIDER_PRIORITY_USER)
+
+      const valLabel = new Gtk.Label({
+        label: `${t.horas_meta}h/sem`,
+        cssClasses: ["study-goal-value"],
+        halign: Gtk.Align.END,
+      })
+
+      scale.connect("value-changed", () => {
+        if (isLocked) {
+          scale.set_value(t.horas_meta)
+          return
+        }
+        const val = Math.round(scale.get_value())
+        t.horas_meta = val
+        valLabel.set_text(`${val}h/sem`)
+        progressLabel.set_text(`${feitas}h / ${val}h`)
+
+        updatePbar(feitas, val)
+        const updatedProg = getProgressColorInfo(feitas, val)
+        pctLabel.set_text(`${updatedProg.pct}%`)
+        pctLabel.set_css_classes(["topic-progress-pct", updatedProg.colorClass])
+
+        if (saveTimeoutId) {
+          GLib.source_remove(saveTimeoutId)
+          saveTimeoutId = null
+        }
+
+        saveTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+          saveMetas(metas)
+          triggerScheduleRefresh()
+          const updatedAlloc = computeScheduleAllocation(metas, slots, doneHoursMap)
+          subtitleLabel.set_text(
+            `${updatedAlloc.totalHorasPlanejadas}h planejadas / ${updatedAlloc.totalHorasDisponiveis}h livres`
+          )
+          saveTimeoutId = null
+          return GLib.SOURCE_REMOVE
+        })
+      })
+
+      sliderBox.append(metaTag)
+      sliderBox.append(scale)
+      sliderBox.append(valLabel)
+
+      bottomRow.append(progressBox)
+      bottomRow.append(sliderBox)
+      card.append(bottomRow)
+
+      cardsListBox.append(card)
+    })
+  }
+
+  renderGoals()
+
+  // Listener para atualizar metas quando o cronograma for alterado
+  scheduleRefreshListeners.push(() => {
+    // Apenas se o usuário não estiver arrastando slider
+    if (!saveTimeoutId) {
+      renderGoals()
+    }
+  })
+
+  return container
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COMPONENTE: Tabela Viva do Cronograma (cronograma.csv) + Notificações
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface ScheduleRow {
+  timeStr: string
+  startHour: number
+  endHour: number
+  activities: string[]
+}
+
+
+
+function isStudyTopic(actName: string, metas?: any): boolean {
+  const norm = actName.trim().toLowerCase()
+  if (norm.startsWith("estud")) return true
+  if (norm.includes("programa") || norm.includes("distrib")) return true
+  if (norm.includes("eng") && norm.includes("ling")) return true
+  if (norm.includes("estat")) return true
+  if (norm.includes("dataprev")) return true
+  if (norm.includes("ingl")) return true
+  if (metas && metas.topicos) {
+    return metas.topicos.some((t: any) => {
+      const tn = t.nome.toLowerCase()
+      return norm.includes(tn) || tn.includes(norm) || norm.includes(t.id)
+    })
+  }
+  return false
+}
+
+function getShortActivityName(name: string): string {
+  const norm = name.trim().toLowerCase()
+  if (norm.includes("programa") || norm.includes("distrib")) return "Prog. Dist."
+  if (norm.includes("eng") && norm.includes("ling")) return "Eng. Ling."
+  if (norm.includes("estat")) return "Estatística"
+  if (norm.includes("dataprev")) return "Dataprev"
+  if (norm.includes("ingl")) return "Inglês"
+  if (norm.includes("estudo livre") || norm.includes("livre")) return "Livre"
+  if (norm.includes("meditar/treinar")) return "Meditar/Treinar"
+  if (norm.includes("busão/ler") || norm.includes("busao/ler")) return "Busão/Ler"
+  return name
+}
+
 function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
   const filePath = `${VITTAE_DIR}/cronograma.csv`
 
