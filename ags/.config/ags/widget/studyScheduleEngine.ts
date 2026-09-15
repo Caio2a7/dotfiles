@@ -48,3 +48,75 @@ export interface ScheduleAllocationResult {
   totalHorasDisponiveis: number
   totalHorasPlanejadas: number
 }
+
+function readFile(path: string): string {
+  try {
+    const [ok, bytes] = GLib.file_get_contents(path)
+    if (!ok) return ""
+    return new TextDecoder().decode(bytes)
+  } catch {
+    return ""
+  }
+}
+
+function writeFile(path: string, content: string): boolean {
+  try {
+    return GLib.file_set_contents(path, content)
+  } catch (e) {
+    console.error(`Erro ao gravar ${path}:`, e)
+    return false
+  }
+}
+
+export function readMetas(): MetasData {
+  try {
+    const raw = readFile(METAS_FILE)
+    if (!raw) return { topicos: [] }
+    return JSON.parse(raw) as MetasData
+  } catch (e) {
+    console.error("Erro ao ler metas_semana.json:", e)
+    return { topicos: [] }
+  }
+}
+
+export function saveMetas(data: MetasData): boolean {
+  try {
+    const jsonStr = JSON.stringify(data, null, 2)
+    return writeFile(METAS_FILE, jsonStr)
+  } catch (e) {
+    console.error("Erro ao salvar metas_semana.json:", e)
+    return false
+  }
+}
+
+function normalizeStr(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+}
+
+function parseTimeToHours(timeStr: string): number {
+  if (!timeStr) return 0
+  let h = 0
+  let m = 0
+  const hMatch = timeStr.match(/(\d+)\s*h/i)
+  const mMatch = timeStr.match(/(\d+)\s*m/i)
+  if (hMatch) h = parseInt(hMatch[1], 10)
+  if (mMatch) m = parseInt(mMatch[1], 10)
+  if (!hMatch && !mMatch) {
+    const n = parseFloat(timeStr)
+    if (!isNaN(n)) return n
+  }
+  return h + m / 60
+}
+
+function getMondayOfDate(d: Date): Date {
+  const date = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  const day = date.getDay()
+  const diffToMonday = day === 0 ? -6 : 1 - day
+  date.setDate(date.getDate() + diffToMonday)
+  date.setHours(0, 0, 0, 0)
+  return date
+}
