@@ -221,3 +221,182 @@ export function parseScheduleStudySlots(): {
  * 1. Tópicos voláteis: prioridade máxima antes de dia_importante (limite máx 6h/dia).
  * 2. Tópicos constantes: distribuídos suavemente nos slots restantes (1h a 2h/dia).
  */
+export function computeScheduleAllocation(
+  metas: MetasData,
+  studySlots: BaseScheduleSlot[],
+  doneHoursMap: Map<string, number>
+): ScheduleAllocationResult {
+  const slotMap = new Map<string, AllocatedSlot>()
+  const hoursAllocated = new Map<string, number>()
+  const dailyHoursByTopic = new Map<string, Map<number, number>>()
+
+  metas.topicos.forEach((t) => {
+    hoursAllocated.set(t.id, 0)
+    dailyHoursByTopic.set(t.id, new Map<number, number>())
+  })
+
+  // Ordenar slots cronologicamente: por dia (0..6) e depois por linha/hora (rowIdx)
+  const sortedSlots = [...studySlots].sort((a, b) => {
+    if (a.dayIdx !== b.dayIdx) return a.dayIdx - b.dayIdx
+    return a.rowIdx - b.rowIdx
+  })
+
+  const occupiedSlots = new Set<string>()
+
+  // 1. Tópicos Voláteis: Prioridade antes do dia importante
+  const topicosVolateis = metas.topicos.filter((t) => t.categoria === "volatil" && t.horas_meta > 0)
+  // Ordena voláteis pelos que têm prazo mais cedo
+  topicosVolateis.sort((a, b) => (a.dia_importante ?? 7) - (b.dia_importante ?? 7))
+
+  for (const topico of topicosVolateis) {
+    let remaining = topico.horas_meta
+    const deadlineDay = topico.dia_importante !== null ? topico.dia_importante : 6
+    const topicoDays = dailyHoursByTopic.get(topico.id)!
+
+    // Primeiro passo: alocar estritamente antes do dia_importante (dias 0 .. deadlineDay - 1)
+    for (const slot of sortedSlots) {
+      if (remaining <= 0) break
+      const key = `${slot.rowIdx}-${slot.dayIdx}`
+      if (occupiedSlots.has(key)) continue
+      if (slot.dayIdx >= deadlineDay && deadlineDay > 0) continue
+
+      const dayCurrentHours = topicoDays.get(slot.dayIdx) || 0
+      if (dayCurrentHours + slot.durationHours > 6) continue // Limite max 6h/dia
+
+      occupiedSlots.add(key)
+      slotMap.set(key, {
+        topico,
+        nome: topico.nome,
+        cor: topico.cor,
+        icon: topico.icon,
+        isCustomStudy: true,
+      })
+
+      remaining -= slot.durationHours
+      hoursAllocated.set(topico.id, (hoursAllocated.get(topico.id) || 0) + slot.durationHours)
+      topicoDays.set(slot.dayIdx, dayCurrentHours + slot.durationHours)
+    }
+
+    // Segundo passo de tolerância: se faltar horas e não coube tudo antes da prova, usa os dias restantes
+    if (remaining > 0) {
+      for (const slot of sortedSlots) {
+        if (remaining <= 0) break
+        const key = `${slot.rowIdx}-${slot.dayIdx}`
+        if (occupiedSlots.has(key)) continue
+
+        const dayCurrentHours = topicoDays.get(slot.dayIdx) || 0
+        if (dayCurrentHours + slot.durationHours > 6) continue
+
+        occupiedSlots.add(key)
+        slotMap.set(key, {
+          topico,
+          nome: topico.nome,
+          cor: topico.cor,
+          icon: topico.icon,
+          isCustomStudy: true,
+        })
+
+        remaining -= slot.durationHours
+        hoursAllocated.set(topico.id, (hoursAllocated.get(topico.id) || 0) + slot.durationHours)
+        topicoDays.set(slot.dayIdx, dayCurrentHours + slot.durationHours)
+      }
+    }
+  }
+
+  // 2. Tópicos Constantes: Distribuição equilibrada dia a dia (1h ou 2h)
+  const topicosConstantes = metas.topicos.filter((t) => t.categoria === "constante" && t.horas_meta > 0)
+
+  // Para equilibrar os constantes, fazemos rodadas round-robin pelos dias da semana
+  let addedAnyInRound = true
+  while (addedAnyInRound) {
+    addedAnyInRound = false
+    for (const topico of topicosConstantes) {
+      const allocated = hoursAllocated.get(topico.id) || 0
+      if (allocated >= topico.horas_meta) continue
+
+      const topicoDays = dailyHoursByTopic.get(topico.id)!
+
+      // Procura o melhor slot: prioriza dias onde este tópico constante ainda NÃO foi estudado hoje
+      let bestSlot: BaseScheduleSlot | null = null
+      let minTopicDayHours = 999
+
+      for (const slot of sortedSlots) {
+        const key = `${slot.rowIdx}-${slot.dayIdx}`
+        if (occupiedSlots.has(key)) continue
+
+        const dayHours = topicoDays.get(slot.dayIdx) || 0
+        if (dayHours >= 2) continue // Constantes no máximo 2h por dia
+
+        if (dayHours < minTopicDayHours) {
+          minTopicDayHours = dayHours
+          bestSlot = slot
+        }
+      }
+
+      if (bestSlot) {
+        const key = `${bestSlot.rowIdx}-${bestSlot.dayIdx}`
+        occupiedSlots.add(key)
+        slotMap.set(key, {
+          topico,
+          nome: topico.nome,
+          cor: topico.cor,
+          icon: topico.icon,
+          isCustomStudy: true,
+        })
+
+        const prevDayH = topicoDays.get(bestSlot.dayIdx) || 0
+        topicoDays.set(bestSlot.dayIdx, prevDayH + bestSlot.durationHours)
+        hoursAllocated.set(topico.id, allocated + bestSlot.durationHours)
+        addedAnyInRound = true
+      }
+    }
+  }
+
+  // 3. Slots não preenchidos: "Estudo Livre"
+  for (const slot of sortedSlots) {
+    const key = `${slot.rowIdx}-${slot.dayIdx}`
+    if (!occupiedSlots.has(key)) {
+      slotMap.set(key, {
+        topico: null,
+        nome: "Estudo Livre",
+        cor: "#94a3b8",
+        icon: "󰄲",
+        isCustomStudy: true,
+      })
+    }
+  }
+
+  // Montar relatório de progresso dos tópicos
+  const progressoTopicos: TopicoProgresso[] = metas.topicos.map((t) => {
+    const normNome = normalizeStr(t.nome)
+    const normId = normalizeStr(t.id)
+    let feitas = 0
+    for (const [key, val] of doneHoursMap.entries()) {
+      if (key === normNome || key === normId || key.includes(normNome) || normNome.includes(key)) {
+        feitas += val
+      }
+    }
+
+    return {
+      id: t.id,
+      nome: t.nome,
+      categoria: t.categoria,
+      dia_importante: t.dia_importante,
+      horas_meta: t.horas_meta,
+      horas_alocadas: hoursAllocated.get(t.id) || 0,
+      horas_feitas: Math.round(feitas * 10) / 10,
+      cor: t.cor,
+      icon: t.icon,
+    }
+  })
+
+  const totalHorasDisponiveis = studySlots.reduce((acc, s) => acc + s.durationHours, 0)
+  const totalHorasPlanejadas = metas.topicos.reduce((acc, t) => acc + t.horas_meta, 0)
+
+  return {
+    slotMap,
+    progressoTopicos,
+    totalHorasDisponiveis,
+    totalHorasPlanejadas,
+  }
+}
