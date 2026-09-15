@@ -1367,21 +1367,21 @@ function getActivityClass(act: string): string {
 
 let lastNotifiedActivity = ""
 
-const ACTIVITY_NOTIF_INFO: Record<string, { emoji: string; desc: string }> = {
-  faculd: { emoji: "🎓", desc: "Horário de Faculdade" },
-  estud: { emoji: "📚", desc: "Foco nos Estudos" },
-  trabalh: { emoji: "💼", desc: "Horário de Trabalho" },
-  ingl: { emoji: "💬", desc: "Prática de Inglês" },
-  dorm: { emoji: "💤", desc: "Hora de Dormir / Descanso" },
-  xuxi: { emoji: "💖", desc: "Momento com Xuxis" },
-  bus: { emoji: "🚌", desc: "Deslocamento / Busão" },
-  leitur: { emoji: "📖", desc: "Hora da Leitura" },
-  livre: { emoji: "🎮", desc: "Tempo Livre" },
-  acad: { emoji: "🏋️", desc: "Treino / Academia" },
-  exerc: { emoji: "🏋️", desc: "Treino / Exercício" },
-  medita: { emoji: "🧘", desc: "Momento de Meditação" },
-  almo: { emoji: "🍱", desc: "Horário de Almoço" },
-  janta: { emoji: "🍲", desc: "Horário de Jantar" },
+const ACTIVITY_NOTIF_INFO: Record<string, { icon: string; desc: string }> = {
+  faculd: { icon: "󰑴", desc: "Horário de Faculdade" },
+  estud: { icon: "󱚌", desc: "Foco nos Estudos" },
+  trabalh: { icon: "󰃖", desc: "Horário de Trabalho" },
+  ingl: { icon: "󰠮", desc: "Prática de Inglês" },
+  dorm: { icon: "󰒲", desc: "Hora de Dormir / Descanso" },
+  xuxi: { icon: "󰋑", desc: "Momento com Xuxis" },
+  bus: { icon: "󰨃", desc: "Deslocamento / Busão" },
+  leitur: { icon: "󱚌", desc: "Hora da Leitura" },
+  livre: { icon: "󰄲", desc: "Tempo Livre" },
+  acad: { icon: "󰚥", desc: "Treino / Academia" },
+  exerc: { icon: "󰚥", desc: "Treino / Exercício" },
+  medita: { icon: "󰖙", desc: "Momento de Meditação" },
+  almo: { icon: "󰏣", desc: "Horário de Almoço" },
+  janta: { icon: "󰏣", desc: "Horário de Jantar" },
 }
 
 function getActNotifDetails(act: string) {
@@ -1389,7 +1389,7 @@ function getActNotifDetails(act: string) {
   for (const [key, val] of Object.entries(ACTIVITY_NOTIF_INFO)) {
     if (norm.includes(key)) return val
   }
-  return { emoji: "📌", desc: act }
+  return { icon: "󰄲", desc: act }
 }
 
 function checkScheduleNotification(rows: ScheduleRow[], currentDayIdx: number, activeRowIdx: number) {
