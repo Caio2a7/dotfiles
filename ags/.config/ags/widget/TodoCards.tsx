@@ -2063,8 +2063,14 @@ function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
 
   refreshSchedule()
 
+  // Conectar listener reativo para atualização instantânea quando sliders/metas mudarem
+  scheduleRefreshListeners.push(refreshSchedule)
+
   GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
     refreshSchedule()
+
+  // Conectar listener reativo para atualização instantânea quando sliders/metas mudarem
+  scheduleRefreshListeners.push(refreshSchedule)
     return GLib.SOURCE_CONTINUE
   })
 
