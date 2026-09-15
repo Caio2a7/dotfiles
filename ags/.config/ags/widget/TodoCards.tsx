@@ -6,6 +6,40 @@ import GObject from "gi://GObject"
 import Pango from "gi://Pango"
 import cairo from "gi://cairo"
 import { openHabitsModal } from "./HabitsModal"
+import {
+  readMetas,
+  saveMetas,
+  readDoneHoursThisWeek,
+  parseScheduleStudySlots,
+  computeScheduleAllocation,
+  TopicoMeta,
+  ScheduleAllocationResult,
+  AllocatedSlot,
+} from "./studyScheduleEngine"
+
+const scheduleRefreshListeners: Array<() => void> = []
+export function triggerScheduleRefresh(): void {
+  scheduleRefreshListeners.forEach((fn) => {
+    try {
+      fn()
+    } catch (e) {
+      console.error("Erro no listener de schedule refresh:", e)
+    }
+  })
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  let c = hex.replace("#", "")
+  if (c.length === 3) {
+    c = c.split("").map((x) => x + x).join("")
+  }
+  const num = parseInt(c, 16)
+  if (isNaN(num)) return `rgba(148, 163, 184, ${alpha})`
+  const r = (num >> 16) & 255
+  const g = (num >> 8) & 255
+  const b = num & 255
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+}
 
 const { TOP, LEFT, RIGHT, BOTTOM } = Astal.WindowAnchor
 const H = Gtk.Orientation.HORIZONTAL
