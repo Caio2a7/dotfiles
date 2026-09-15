@@ -1392,17 +1392,41 @@ function getActNotifDetails(act: string) {
   return { icon: "󰄲", desc: act }
 }
 
-function checkScheduleNotification(rows: ScheduleRow[], currentDayIdx: number, activeRowIdx: number) {
+function checkScheduleNotification(
+  rows: ScheduleRow[],
+  currentDayIdx: number,
+  activeRowIdx: number,
+  slotMap?: Map<string, AllocatedSlot>
+) {
   if (activeRowIdx < 0 || activeRowIdx >= rows.length) return
   const row = rows[activeRowIdx]
   const currentAct = (row.activities[currentDayIdx] || "").trim()
   if (!currentAct) return
 
-  if (currentAct !== lastNotifiedActivity) {
-    lastNotifiedActivity = currentAct
-    const details = getActNotifDetails(currentAct)
-    const title = `${details.emoji} ${currentAct}`
-    const body = `${details.desc} • ${row.timeStr}`
+  const slotKey = `${activeRowIdx}-${currentDayIdx}`
+  const allocated = slotMap?.get(slotKey)
+
+  const notifKey = allocated?.topico
+    ? `${allocated.topico.id}-${activeRowIdx}-${currentDayIdx}`
+    : `${currentAct}-${activeRowIdx}-${currentDayIdx}`
+
+  if (notifKey !== lastNotifiedActivity) {
+    lastNotifiedActivity = notifKey
+
+    let title = ""
+    let body = ""
+
+    if (allocated?.topico) {
+      title = `${allocated.topico.icon} ${allocated.topico.nome}`
+      body = `Estudos: ${allocated.topico.nome} • ${row.timeStr}`
+    } else if (allocated?.nome === "Estudo Livre") {
+      title = "󰄲 Estudo Livre"
+      body = `Estudos • ${row.timeStr}`
+    } else {
+      const details = getActNotifDetails(currentAct)
+      title = `${details.icon} ${currentAct}`
+      body = `${details.desc} • ${row.timeStr}`
+    }
 
     try {
       Gio.Subprocess.new(
