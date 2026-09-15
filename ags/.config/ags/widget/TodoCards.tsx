@@ -1949,12 +1949,18 @@ function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
     hexpand: true,
     vexpand: true,
     columnHomogeneous: false,
-    rowHomogeneous: true,
+    rowHomogeneous: false,
     cssClasses: ["sched-grid"],
   })
 
   function refreshSchedule() {
-    const rows = parseCronogramaCSV()
+    const metas = readMetas()
+    const doneHoursMap = readDoneHoursThisWeek()
+    const { slots, allRows } = parseScheduleStudySlots()
+    const allocResult = computeScheduleAllocation(metas, slots, doneHoursMap)
+    const slotMap = allocResult.slotMap
+
+    const rows: ScheduleRow[] = allRows.length > 0 ? allRows : parseCronogramaCSV()
     const now = new Date()
     const jsDay = now.getDay()
     const currentDayIdx = jsDay === 0 ? 6 : jsDay - 1
@@ -1963,8 +1969,8 @@ function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
     let activeRowIdx = -1
     for (let r = 0; r < rows.length; r++) {
       const row = rows[r]
-      if (row.startHour === 23 && row.endHour === 0) {
-        if (currentHour === 23) {
+      if (row.startHour === 23 && (row.endHour === 5 || row.endHour === 0)) {
+        if (currentHour >= 23 || currentHour < (row.endHour === 0 ? 0 : row.endHour)) {
           activeRowIdx = r
           break
         }
@@ -1974,7 +1980,7 @@ function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
       }
     }
 
-    checkScheduleNotification(rows, currentDayIdx, activeRowIdx)
+    checkScheduleNotification(rows, currentDayIdx, activeRowIdx, slotMap)
 
     let child = grid.get_first_child()
     while (child) {
@@ -2005,9 +2011,9 @@ function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
       grid.attach(dayHead, dIdx + 1, 0, 1, 1)
     })
 
+        // 1. Anexar cabeçalhos de hora na coluna 0
     rows.forEach((row, rIdx) => {
       const gridRow = rIdx + 1
-
       const compactTime = `${row.startHour}h-${row.endHour}h`
       const timeLabel = new Gtk.Label({
         label: compactTime,
@@ -2018,27 +2024,94 @@ function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
         widthRequest: 46,
       })
       grid.attach(timeLabel, 0, gridRow, 1, 1)
+    })
 
-      row.activities.forEach((act, dIdx) => {
+    // 2. Anexar células das colunas dos dias (1 a 7) com agrupamento inteligente de células consecutivas iguais
+    for (let dIdx = 0; dIdx < 7; dIdx++) {
+      let r = 0
+      while (r < rows.length) {
+        const row = rows[r]
+        const act = (row.activities[dIdx] || "").trim()
+
+        const slotKey = `${r}-${dIdx}`
+        const allocatedSlot = slotMap.get(slotKey)
+        const isStudy = isStudyTopic(act, metas) || allocatedSlot !== undefined
+
+        let labelText = act
+        let actClass = getActivityClass(act)
+        let fullTooltipText = act
+
+        if (isStudy) {
+          actClass = "act-allocated-study"
+          if (allocatedSlot && allocatedSlot.topico) {
+            labelText = getShortActivityName(allocatedSlot.topico.nome)
+            fullTooltipText = `Estudo: ${allocatedSlot.topico.nome}`
+          } else if (allocatedSlot && allocatedSlot.nome === "Estudo Livre") {
+            labelText = "Livre"
+            fullTooltipText = "Tempo Livre / Revisão"
+            actClass = "act-livre"
+          } else {
+            labelText = getShortActivityName(act)
+            fullTooltipText = `Estudo: ${act}`
+          }
+        } else {
+          labelText = getShortActivityName(act)
+        }
+
+        // Calcular span vertical: quantas linhas consecutivas seguintes têm exatamente o mesmo labelText e classe
+        let span = 1
+        while (r + span < rows.length) {
+          const nextRow = rows[r + span]
+          const nextAct = (nextRow.activities[dIdx] || "").trim()
+          const nextSlotKey = `${r + span}-${dIdx}`
+          const nextAllocated = slotMap.get(nextSlotKey)
+          const nextIsStudy = isStudyTopic(nextAct, metas) || nextAllocated !== undefined
+
+          let nextLabel = nextAct
+          if (nextIsStudy) {
+            if (nextAllocated && nextAllocated.topico) {
+              nextLabel = getShortActivityName(nextAllocated.topico.nome)
+            } else if (nextAllocated && nextAllocated.nome === "Estudo Livre") {
+              nextLabel = "Livre"
+            } else {
+              nextLabel = getShortActivityName(nextAct)
+            }
+          } else {
+            nextLabel = getShortActivityName(nextAct)
+          }
+
+          if (nextLabel === labelText && nextIsStudy === isStudy) {
+            span++
+          } else {
+            break
+          }
+        }
+
+        // Determinar stateClass (past, current, future) para o bloco inteiro
         let stateClass = "future"
         if (dIdx < currentDayIdx) {
           stateClass = "past"
         } else if (dIdx === currentDayIdx) {
-          if (rIdx < activeRowIdx) stateClass = "past"
-          else if (rIdx === activeRowIdx) stateClass = "current"
-          else stateClass = "future"
+          if (activeRowIdx >= r && activeRowIdx < r + span) {
+            stateClass = "current"
+          } else if (activeRowIdx >= r + span) {
+            stateClass = "past"
+          } else {
+            stateClass = "future"
+          }
         } else {
           stateClass = "future"
         }
 
-        const actClass = getActivityClass(act)
-
         const cellLabel = new Gtk.Label({
-          label: act,
+          label: labelText,
           halign: Gtk.Align.CENTER,
           valign: Gtk.Align.CENTER,
           xalign: 0.5,
           yalign: 0.5,
+          wrap: false,
+          singleLineMode: true,
+          ellipsize: Pango.EllipsizeMode.END,
           hexpand: true,
           vexpand: true,
         })
@@ -2049,6 +2122,7 @@ function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
           vexpand: true,
           halign: Gtk.Align.FILL,
           valign: Gtk.Align.FILL,
+          tooltipText: span > 1 ? `${fullTooltipText} (${span}h)` : fullTooltipText,
           cssClasses: ["sched-cell", actClass, stateClass],
         })
 
@@ -2056,9 +2130,12 @@ function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
           openInNvim(filePath)
         })
 
-        grid.attach(cellBtn, dIdx + 1, gridRow, 1, 1)
-      })
-    })
+        // Attach com span vertical (row span)
+        grid.attach(cellBtn, dIdx + 1, r + 1, 1, span)
+
+        r += span
+      }
+    }
   }
 
   refreshSchedule()
@@ -2068,9 +2145,6 @@ function LiveScheduleTable(rowHeight = 529, colWidth = 949): Gtk.Widget {
 
   GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
     refreshSchedule()
-
-  // Conectar listener reativo para atualização instantânea quando sliders/metas mudarem
-  scheduleRefreshListeners.push(refreshSchedule)
     return GLib.SOURCE_CONTINUE
   })
 
