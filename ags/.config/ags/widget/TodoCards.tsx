@@ -2216,7 +2216,26 @@ export function TodoCards(monitor = 0): Astal.Window {
   // 5. Linha Divisora Horizontal Central (1px nítida)
   const midDivider = <box class="prio-zone-hsep" heightRequest={1} hexpand={true} />
 
-  // 6. Bloco Inferior (50% Gráfico de Horas na esquerda, 50% Cronograma na direita com +10% de altura)
+  // 6. Bloco Inferior: Esquerda (Gráfico de Horas em cima + Metas Semanais embaixo), Direita Tabela de Rotina
+  const chartHeight = 195
+  const goalsHeight = bottomHeight - chartHeight - 1
+
+  const leftBottomBox = (
+    <box
+      orientation={V}
+      spacing={0}
+      hexpand={true}
+      vexpand={true}
+      widthRequest={halfWidth}
+      heightRequest={bottomHeight}
+      class="dash-bottom-left"
+    >
+      {StudyHoursChart(chartHeight, halfWidth)}
+      <box class="prio-zone-hsep" heightRequest={1} hexpand={true} />
+      {StudyGoalsPanel(goalsHeight, halfWidth)}
+    </box>
+  ) as Gtk.Widget
+
   const bottomHalf = (
     <box
       orientation={H}
@@ -2228,7 +2247,7 @@ export function TodoCards(monitor = 0): Astal.Window {
       heightRequest={bottomHeight}
       class="dash-bottom-zone"
     >
-      {StudyHoursChart(bottomHeight, halfWidth)}
+      {leftBottomBox}
       <box class="prio-section-vsep" widthRequest={1} hexpand={false} />
       {LiveScheduleTable(bottomHeight, halfWidth)}
     </box>
