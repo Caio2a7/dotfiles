@@ -2079,3 +2079,73 @@ switch slider {
   color: #ffffff;
 }
 
+/* ── Painel de Metas Semanais (StudyGoalsPanel Compacto) ─────────── */
+.study-goals-panel {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 6px 10px;
+}
+
+.study-goals-header {
+  padding-bottom: 3px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.study-goals-icon {
+  font-size: 13px;
+  color: #10b981;
+}
+
+.study-goals-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.study-goals-sub {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.2px;
+}
+
+.study-goals-scroll {
+  min-height: 0;
+}
+
+.study-goals-scroll scrollbar,
+.study-goals-scroll scrollbar.vertical {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-width: 3px;
+}
+
+.study-goals-scroll scrollbar trough {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  min-width: 3px;
+}
+
+.study-goals-scroll scrollbar slider {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 2px;
+  min-width: 3px;
+  min-height: 20px;
+  border: none;
+  padding: 0;
+  margin: 0;
+  transition: background-color 150ms ease;
+}
+
+.study-goals-scroll scrollbar slider:hover {
+  background: rgba(255, 255, 255, 0.38);
+}
+
