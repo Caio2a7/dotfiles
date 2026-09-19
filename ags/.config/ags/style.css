@@ -1210,155 +1210,210 @@ button.sched-cell label {
   color: #ffffff;
 }
 
-/* Activity Colors (Conforme table.lua) */
+/* Activity Colors (Mais opacos, texto branco negrito e faculdade limão) */
+button.sched-cell.act-meditar-treinar {
+  background: rgba(30, 58, 138, 0.40);
+  color: #ffffff;
+  border-color: rgba(96, 165, 250, 0.55);
+}
+button.sched-cell.act-meditar-treinar label {
+  color: #ffffff;
+  font-weight: 800;
+}
+button.sched-cell.act-meditar-treinar:hover, button.sched-cell.past.act-meditar-treinar:hover {
+  background: rgba(30, 64, 175, 0.90);
+  color: #ffffff;
+  border-color: #93c5fd;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
+}
+
 button.sched-cell.act-faculdade {
-  background: rgba(255, 121, 198, 0.22);
-  color: #ff79c6;
-  border-color: rgba(255, 121, 198, 0.35);
+  background: rgba(132, 204, 22, 0.35); /* Verde Limão */
+  color: #ffffff;
+  border-color: rgba(190, 242, 100, 0.65);
+}
+button.sched-cell.act-faculdade label {
+  color: #ffffff;
+  font-weight: 800;
 }
 button.sched-cell.act-faculdade:hover, button.sched-cell.past.act-faculdade:hover {
-  background: rgba(255, 121, 198, 0.50);
+  background: rgba(132, 204, 22, 0.85);
   color: #ffffff;
-  border-color: #ff79c6;
-  box-shadow: 0 0 10px rgba(255, 121, 198, 0.7);
-}
-
-button.sched-cell.act-estudar {
-  background: rgba(71, 209, 178, 0.22);
-  color: #47d1b2;
-  border-color: rgba(71, 209, 178, 0.35);
-}
-button.sched-cell.act-estudar:hover, button.sched-cell.past.act-estudar:hover {
-  background: rgba(71, 209, 178, 0.50);
-  color: #ffffff;
-  border-color: #47d1b2;
-  box-shadow: 0 0 10px rgba(71, 209, 178, 0.7);
-}
-
-button.sched-cell.act-trabalho {
-  background: rgba(255, 0, 51, 0.22);
-  color: #ff3355;
-  border-color: rgba(255, 0, 51, 0.35);
-}
-button.sched-cell.act-trabalho:hover, button.sched-cell.past.act-trabalho:hover {
-  background: rgba(255, 0, 51, 0.50);
-  color: #ffffff;
-  border-color: #ff0033;
-  box-shadow: 0 0 10px rgba(255, 0, 51, 0.7);
-}
-
-button.sched-cell.act-ingles {
-  background: rgba(163, 230, 53, 0.22);
-  color: #a3e635;
-  border-color: rgba(163, 230, 53, 0.35);
-}
-button.sched-cell.act-ingles:hover, button.sched-cell.past.act-ingles:hover {
-  background: rgba(163, 230, 53, 0.50);
-  color: #ffffff;
-  border-color: #a3e635;
+  border-color: #bef264;
   box-shadow: 0 0 10px rgba(163, 230, 53, 0.7);
 }
 
+button.sched-cell.act-estudar,
+button.sched-cell.act-allocated-study {
+  background: rgba(16, 185, 129, 0.35); /* Verde Esmeralda */
+  color: #ffffff;
+  border-color: rgba(52, 211, 153, 0.60);
+}
+button.sched-cell.act-estudar label,
+button.sched-cell.act-allocated-study label {
+  color: #ffffff;
+  font-weight: 800;
+}
+button.sched-cell.act-estudar:hover, button.sched-cell.past.act-estudar:hover,
+button.sched-cell.act-allocated-study:hover, button.sched-cell.past.act-allocated-study:hover {
+  background: rgba(16, 185, 129, 0.85);
+  color: #ffffff;
+  border-color: #6ee7b7;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+}
+
+button.sched-cell.act-trabalho {
+  background: rgba(225, 29, 72, 0.35);
+  color: #ffffff;
+  border-color: rgba(251, 113, 133, 0.60);
+}
+button.sched-cell.act-trabalho label {
+  color: #ffffff;
+  font-weight: 800;
+}
+button.sched-cell.act-trabalho:hover, button.sched-cell.past.act-trabalho:hover {
+  background: rgba(225, 29, 72, 0.85);
+  color: #ffffff;
+  border-color: #fda4af;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.7);
+}
+
+button.sched-cell.act-ingles {
+  background: rgba(20, 184, 166, 0.35);
+  color: #ffffff;
+  border-color: rgba(45, 212, 191, 0.60);
+}
+button.sched-cell.act-ingles label {
+  color: #ffffff;
+  font-weight: 800;
+}
+button.sched-cell.act-ingles:hover, button.sched-cell.past.act-ingles:hover {
+  background: rgba(20, 184, 166, 0.85);
+  color: #ffffff;
+  border-color: #5eead4;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.7);
+}
+
 button.sched-cell.act-dormir {
-  background: rgba(112, 161, 255, 0.22);
-  color: #70a1ff;
-  border-color: rgba(112, 161, 255, 0.35);
+  background: rgba(59, 130, 246, 0.30);
+  color: #ffffff;
+  border-color: rgba(147, 197, 253, 0.55);
+}
+button.sched-cell.act-dormir label {
+  color: #ffffff;
+  font-weight: 800;
 }
 button.sched-cell.act-dormir:hover, button.sched-cell.past.act-dormir:hover {
-  background: rgba(112, 161, 255, 0.50);
+  background: rgba(59, 130, 246, 0.80);
   color: #ffffff;
-  border-color: #70a1ff;
-  box-shadow: 0 0 10px rgba(112, 161, 255, 0.7);
+  border-color: #93c5fd;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
 }
 
 button.sched-cell.act-xuxis {
-  background: rgba(232, 67, 147, 0.22);
-  color: #e84393;
-  border-color: rgba(232, 67, 147, 0.35);
+  background: rgba(236, 72, 153, 0.35);
+  color: #ffffff;
+  border-color: rgba(244, 114, 182, 0.60);
+}
+button.sched-cell.act-xuxis label {
+  color: #ffffff;
+  font-weight: 800;
 }
 button.sched-cell.act-xuxis:hover, button.sched-cell.past.act-xuxis:hover {
-  background: rgba(232, 67, 147, 0.50);
+  background: rgba(236, 72, 153, 0.85);
   color: #ffffff;
-  border-color: #e84393;
-  box-shadow: 0 0 10px rgba(232, 67, 147, 0.7);
+  border-color: #fbcfe8;
+  box-shadow: 0 0 10px rgba(236, 72, 153, 0.7);
 }
 
 button.sched-cell.act-busao {
-  background: rgba(160, 165, 181, 0.20);
-  color: #a0a5b5;
-  border-color: rgba(160, 165, 181, 0.35);
+  background: rgba(14, 165, 233, 0.35);
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.60);
+}
+button.sched-cell.act-busao label {
+  color: #ffffff;
+  font-weight: 800;
 }
 button.sched-cell.act-busao:hover, button.sched-cell.past.act-busao:hover {
-  background: rgba(160, 165, 181, 0.45);
+  background: rgba(14, 165, 233, 0.85);
   color: #ffffff;
-  border-color: #a0a5b5;
-  box-shadow: 0 0 10px rgba(160, 165, 181, 0.7);
+  border-color: #7dd3fc;
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.7);
 }
 
 button.sched-cell.act-leitura {
-  background: rgba(10, 189, 227, 0.22);
-  color: #0abde3;
-  border-color: rgba(10, 189, 227, 0.35);
+  background: rgba(6, 182, 212, 0.35);
+  color: #ffffff;
+  border-color: rgba(34, 211, 238, 0.60);
+}
+button.sched-cell.act-leitura label {
+  color: #ffffff;
+  font-weight: 800;
 }
 button.sched-cell.act-leitura:hover, button.sched-cell.past.act-leitura:hover {
-  background: rgba(10, 189, 227, 0.50);
+  background: rgba(6, 182, 212, 0.85);
   color: #ffffff;
-  border-color: #0abde3;
-  box-shadow: 0 0 10px rgba(10, 189, 227, 0.7);
+  border-color: #67e8f9;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.7);
 }
 
 button.sched-cell.act-livre {
-  background: rgba(192, 92, 255, 0.22);
-  color: #c05cff;
-  border-color: rgba(192, 92, 255, 0.35);
+  background: rgba(147, 51, 234, 0.35); /* Roxo */
+  color: #ffffff;
+  border-color: rgba(192, 132, 252, 0.60);
+}
+button.sched-cell.act-livre label {
+  color: #ffffff;
+  font-weight: 800;
 }
 button.sched-cell.act-livre:hover, button.sched-cell.past.act-livre:hover {
-  background: rgba(192, 92, 255, 0.50);
+  background: rgba(147, 51, 234, 0.85);
   color: #ffffff;
-  border-color: #c05cff;
-  box-shadow: 0 0 10px rgba(192, 92, 255, 0.7);
+  border-color: #d8b4fe;
+  box-shadow: 0 0 10px rgba(147, 51, 234, 0.7);
 }
 
 button.sched-cell.act-academia {
-  background: rgba(255, 107, 107, 0.22);
-  color: #ff6b6b;
-  border-color: rgba(255, 107, 107, 0.35);
+  background: rgba(239, 68, 68, 0.35);
+  color: #ffffff;
+  border-color: rgba(248, 113, 113, 0.60);
+}
+button.sched-cell.act-academia label {
+  color: #ffffff;
+  font-weight: 800;
 }
 button.sched-cell.act-academia:hover, button.sched-cell.past.act-academia:hover {
-  background: rgba(255, 107, 107, 0.50);
+  background: rgba(239, 68, 68, 0.85);
   color: #ffffff;
-  border-color: #ff6b6b;
-  box-shadow: 0 0 10px rgba(255, 107, 107, 0.7);
-}
-
-button.sched-cell.act-meditacao {
-  background: rgba(179, 136, 255, 0.22);
-  color: #b388ff;
-  border-color: rgba(179, 136, 255, 0.35);
-}
-button.sched-cell.act-meditacao:hover, button.sched-cell.past.act-meditacao:hover {
-  background: rgba(179, 136, 255, 0.50);
-  color: #ffffff;
-  border-color: #b388ff;
-  box-shadow: 0 0 10px rgba(179, 136, 255, 0.7);
+  border-color: #fca5a5;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);
 }
 
 button.sched-cell.act-alimentacao {
-  background: rgba(255, 224, 102, 0.22);
-  color: #ffe066;
-  border-color: rgba(255, 224, 102, 0.35);
+  background: rgba(217, 119, 6, 0.35);
+  color: #ffffff;
+  border-color: rgba(251, 191, 36, 0.65);
+}
+button.sched-cell.act-alimentacao label {
+  color: #ffffff;
+  font-weight: 800;
 }
 button.sched-cell.act-alimentacao:hover, button.sched-cell.past.act-alimentacao:hover {
-  background: rgba(255, 224, 102, 0.50);
+  background: rgba(217, 119, 6, 0.85);
   color: #ffffff;
-  border-color: #ffe066;
-  box-shadow: 0 0 10px rgba(255, 224, 102, 0.7);
+  border-color: #fde047;
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.7);
 }
 
 button.sched-cell.act-default {
-  background: rgba(255, 255, 255, 0.06);
-  color: #cbd5e1;
-  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+button.sched-cell.act-default label {
+  color: #ffffff;
+  font-weight: 800;
 }
 
 /* Time states: past, current, future */
