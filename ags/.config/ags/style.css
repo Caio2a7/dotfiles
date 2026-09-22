@@ -2241,3 +2241,64 @@ switch slider {
   min-width: 44px;
 }
 
+/* ── Sliders de Metas de Estudo (Verde Esmeralda #10b981 idêntico ao Hub) ── */
+.study-goal-slider {
+  min-width: 70px;
+}
+
+.study-goal-slider trough {
+  background-color: rgba(18, 22, 30, 0.90);
+  border-radius: 3px;
+  min-height: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.study-goal-slider highlight {
+  background: linear-gradient(90deg, #047857, #10b981);
+  border-radius: 3px;
+}
+
+.study-goal-slider slider {
+  background: radial-gradient(circle at 35% 35%, #a7f3d0, #10b981);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  min-width: 11px;
+  min-height: 11px;
+  margin: -3.5px 0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
+}
+
+.study-goal-slider slider:hover {
+  background: radial-gradient(circle at 35% 35%, #d1fae5, #34d399);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+}
+
+/* ── Botão de Trava/Edição de Metas ──────────────────────────────── */
+button.study-goals-lock-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  transition: all 150ms ease;
+}
+
+button.study-goals-lock-btn:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+button.study-goals-lock-btn.unlocked {
+  background: rgba(16, 185, 129, 0.20);
+  border-color: rgba(16, 185, 129, 0.50);
+  color: #10b981;
+}
+
+button.study-goals-lock-btn.unlocked:hover {
+  background: rgba(16, 185, 129, 0.35);
+  color: #ffffff;
+}
+
