@@ -2312,3 +2312,106 @@ button.study-goals-lock-btn.unlocked:hover {
 }
 
 
+/* ── Barra de Progresso Semanal Inteligente (Estilo Slider) ──────── */
+progressbar.topic-progress-bar {
+  min-height: 4px;
+  padding: 0;
+  margin: 0;
+}
+
+progressbar.topic-progress-bar trough {
+  background-color: rgba(18, 22, 30, 0.90);
+  border-radius: 3px;
+  min-height: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+progressbar.topic-progress-bar.pct-red progress {
+  background: #ef4444;
+  border-radius: 3px;
+}
+
+progressbar.topic-progress-bar.pct-orange progress {
+  background: #f97316;
+  border-radius: 3px;
+}
+
+progressbar.topic-progress-bar.pct-yellow progress {
+  background: #eab308;
+  border-radius: 3px;
+}
+
+progressbar.topic-progress-bar.pct-green progress {
+  background: #10b981;
+  border-radius: 3px;
+}
+
+progressbar.topic-progress-bar.pct-blue progress {
+  background: #38bdf8;
+  border-radius: 3px;
+}
+
+.topic-progress-pct {
+  font-size: 9px;
+  font-weight: 800;
+  min-width: 36px;
+}
+
+.topic-progress-pct.pct-red {
+  color: #ef4444;
+}
+
+.topic-progress-pct.pct-orange {
+  color: #f97316;
+}
+
+.topic-progress-pct.pct-yellow {
+  color: #eab308;
+}
+
+.topic-progress-pct.pct-green {
+  color: #10b981;
+}
+
+.topic-progress-pct.pct-cyan {
+  color: #06b6d4;
+}
+
+.topic-progress-pct.pct-royal-blue {
+  color: #60a5fa;
+}
+.topic-progress-pct.pct-blue {
+  color: #38bdf8;
+}
+
+
+/* ── Tags e Badges Organizados do StudyGoalsPanel ─────────────────── */
+.topic-status-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.topic-status-badge.constante {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.topic-status-badge.volatil {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.30);
+}
+
+.study-metric-tag {
+  font-size: 9px;
+  font-weight: 700;
+  color: #94a3b8;
+  min-width: 48px;
+}
+
+.study-telemetry-row {
+  margin-top: 2px;
+}
