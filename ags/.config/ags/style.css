@@ -2302,3 +2302,13 @@ button.study-goals-lock-btn.unlocked:hover {
   color: #ffffff;
 }
 
+/* ── Sliders bloqueados mantendo o visual e cor intactos ──────────── */
+.study-goal-slider:disabled,
+.study-goal-slider:disabled highlight,
+.study-goal-slider:disabled slider,
+.study-goal-slider:disabled trough {
+  opacity: 1.0;
+  filter: none;
+}
+
+
