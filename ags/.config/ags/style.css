@@ -2169,3 +2169,75 @@ switch slider {
   font-weight: 800;
 }
 
+.topic-badge-toggle {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #ffffff;
+  transition: all 120ms ease;
+}
+
+.topic-badge-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.20);
+  color: #f1f5f9;
+}
+
+.topic-badge-toggle.volatil {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.30);
+  color: #fbbf24;
+}
+
+.topic-badge-toggle.constante {
+  background: rgba(56, 189, 248, 0.10);
+  border-color: rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+}
+
+.topic-day-pills-box {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  padding: 0px 1px;
+}
+
+.topic-day-pill {
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  padding: 0px 3px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #ffffff;
+  min-width: 20px;
+  min-height: 16px;
+  transition: all 100ms ease;
+}
+
+.topic-day-pill:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.topic-day-pill.active {
+  background: rgba(245, 158, 11, 0.40);
+  color: #fef08a;
+  font-weight: 900;
+}
+
+.study-topic-progress {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.study-goal-value {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #ffffff;
+  min-width: 44px;
+}
+
