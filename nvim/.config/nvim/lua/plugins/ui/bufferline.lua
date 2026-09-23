@@ -11,6 +11,7 @@ return {
       local c = T.colors
       local mode_color = T.mode_color
       local theme = T.theme
+      local WB = require("config.window_buffers")
 
       opts.options = vim.tbl_deep_extend("force", opts.options or {}, {
         globalstatus = true,
@@ -23,48 +24,8 @@ return {
 
       vim.o.cmdheight = 2
       opts.tabline = nil
-
-      opts.winbar = {
-        lualine_c = {
-          {
-            "buffers",
-            cond = function()
-              for _, b in ipairs(vim.api.nvim_list_bufs()) do
-                if vim.bo[b].buflisted then
-                  local name = vim.api.nvim_buf_get_name(b)
-                  local bt = vim.bo[b].buftype
-                  if name ~= "" and bt ~= "terminal" and vim.fn.isdirectory(name) == 0 then
-                    return true
-                  end
-                end
-              end
-              return false
-            end,
-            show_filename_only = true,
-            show_modified_status = true,
-            mode = 0,
-            max_length = function()
-              return vim.o.columns * 0.9
-            end,
-            filetype_names = {
-              snacks_dashboard = " Home",
-              snacks_explorer = " Files",
-              ["neo-tree"] = " Tree",
-            },
-            symbols = {
-              modified = " ●",
-              alternate_file = "",
-              directory = " ",
-            },
-            buffers_color = {
-              active = { fg = c.base, bg = c.blue, gui = "bold" },
-              inactive = { fg = c.subtext0, bg = c.bg3 },
-            },
-            separator = { left = "", right = "" },
-            padding = 1,
-          },
-        },
-      }
+      opts.winbar = WB.get_winbar(c)
+      opts.inactive_winbar = WB.get_inactive_winbar(c)
 
       opts.sections = {
         lualine_a = {

@@ -138,10 +138,15 @@ return {
       map("v", "<M-Down>", ":m '>+1<cr>gv=gv", opts_key)
       map("v", "<M-Up>", ":m '<-2<cr>gv=gv", opts_key)
 
-      map({ "n", "v" }, "<C-Tab>", "<cmd>bnext<cr>", { desc = "Proximo Buffer" })
-      map({ "n", "v" }, "<C-S-Tab>", "<cmd>bprevious<cr>", { desc = "Buffer Anterior" })
-      map("i", "<C-Tab>", "<cmd>stopinsert<cr><cmd>bnext<cr>", { desc = "Proximo Buffer" })
-      map("i", "<C-S-Tab>", "<cmd>stopinsert<cr><cmd>bprevious<cr>", { desc = "Buffer Anterior" })
+      local function cycle_tabs(dir)
+        require("config.window_buffers").cycle_window_tabs(dir)
+      end
+
+      map({ "n", "v", "t" }, "<C-Tab>", function() cycle_tabs("next") end, { desc = "Proxima Aba da Janela" })
+      map({ "n", "v", "t" }, "<C-S-Tab>", function() cycle_tabs("prev") end, { desc = "Aba Anterior da Janela" })
+      map("i", "<C-Tab>", function() vim.cmd("stopinsert"); cycle_tabs("next") end, { desc = "Proxima Aba da Janela" })
+      map("i", "<C-S-Tab>", function() vim.cmd("stopinsert"); cycle_tabs("prev") end, { desc = "Aba Anterior da Janela" })
+
 
       map("i", "<C-H>", "<C-w>", opts_key)
       map("i", "<C-h>", "<C-w>", opts_key)
