@@ -97,10 +97,12 @@ return {
         },
         pickers = {
           find_files = {
+            prompt_title = "Buscar Arquivos no Projeto",
             previewer = true,
             layout_config = { height = 0.90, width = 0.90 },
           },
           live_grep = {
+            prompt_title = "Buscar String no Projeto",
             previewer = true,
             layout_config = { height = 0.90, width = 0.90 },
           },
@@ -158,7 +160,7 @@ return {
         end
 
         local picker = pickers.new({
-          prompt_title = "   Busca no Arquivo: " .. display_name .. " (" .. #entries .. " linhas)",
+          prompt_title = "Buscar String no Arquivo",
           finder = finders.new_table({
             results = entries,
             entry_maker = function(entry)
@@ -227,7 +229,7 @@ return {
         end
 
         local picker = pickers.new({
-          prompt_title = "   Passo 1: Digite a busca no arquivo " .. display_name .. " e aperte ENTER",
+          prompt_title = "Substituir String no Arquivo",
           finder = finders.new_table({
             results = entries,
             entry_maker = function(entry)
@@ -326,12 +328,12 @@ return {
 
                 if current_picker.prompt_border and current_picker.prompt_border.change_title then
                   pcall(function()
-                    current_picker.prompt_border:change_title("   Passo 2: Digite a substituição em " .. display_name .. " (ENTER no trecho = substitui 1 | Ctrl+ENTER = substitui TODOS)")
+                    current_picker.prompt_border:change_title("Substituir String no Arquivo")
                   end)
                 end
 
                 local diff_previewer = previewers.new_buffer_previewer({
-                  title = "Prévia da Alteração no Trecho (Diff)",
+                  title = "Prévia da Substituição",
                   define_preview = function(self, entry)
                     local lnum = entry.lnum or (entry.value and entry.value.lnum) or 1
                     local file_lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
@@ -453,7 +455,7 @@ return {
         end
 
         builtin.live_grep({
-          prompt_title = "   Passo 1: Digite a busca no trecho e aperte ENTER",
+          prompt_title = "Substituir String no Projeto",
           attach_mappings = function(prompt_bufnr, map)
             vim.keymap.set({ "i", "n" }, "<Esc>", function()
               force_close_telescope(prompt_bufnr)
@@ -538,12 +540,12 @@ return {
 
                 if current_picker.prompt_border and current_picker.prompt_border.change_title then
                   pcall(function()
-                    current_picker.prompt_border:change_title("   Passo 2: Digite a substituição (ENTER no trecho = substitui 1 | Ctrl+ENTER = substitui TODOS)")
+                    current_picker.prompt_border:change_title("Substituir String no Projeto")
                   end)
                 end
 
                 local diff_previewer = previewers.new_buffer_previewer({
-                  title = "Prévia da Alteração no Trecho (Diff)",
+                  title = "Prévia da Substituição",
                   define_preview = function(self, entry)
                     local filename = entry.filename or (entry.value and entry.value.filename)
                     local lnum = entry.lnum or (entry.value and entry.value.lnum) or 1
@@ -727,7 +729,7 @@ return {
               local path = vim.fn.system("zoxide query " .. vim.fn.shellescape(input)):gsub("[\n\r]", "")
               if vim.v.shell_error ~= 0 or not path or path == "" then path = input end
               pcall(function()
-                builtin.find_files({ cwd = path })
+                builtin.find_files({ prompt_title = "Buscar Arquivos (Zoxide)", cwd = path })
               end)
             end
           end)
