@@ -428,14 +428,20 @@ function NetworkWidget() {
   return (
     <button
       class="hub-stat network"
-      tooltipText="Gerenciar redes"
+      tooltipText={createComputed(() => `${connType()}: ${connName()}`)}
       onClicked={() => trySpawn("omarchy-launch-wifi")}
     >
-      <box spacing={10} valign={Gtk.Align.CENTER}>
+      <box spacing={5} valign={Gtk.Align.CENTER}>
         <label class="stat-icon" label={icon} valign={Gtk.Align.CENTER} />
-        <label class="stat-value" label={connName} hexpand={true} halign={Gtk.Align.START} valign={Gtk.Align.CENTER} />
+        <label
+          class="stat-value"
+          label={connName}
+          hexpand={true}
+          halign={Gtk.Align.START}
+          valign={Gtk.Align.CENTER}
+          ellipsize={Pango.EllipsizeMode.END}
+        />
         <label class="stat-sub net-sig" label={sigText} halign={Gtk.Align.END} valign={Gtk.Align.CENTER} />
-        <label class="stat-arrow" label="󰅂" valign={Gtk.Align.CENTER} />
       </box>
     </button>
   )
