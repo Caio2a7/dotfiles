@@ -755,7 +755,8 @@ return {
             vim.cmd("stopinsert")
           end
           pcall(function()
-            builtin.lsp_document_symbols(conf.grep_previewer({}), {
+            builtin.lsp_document_symbols({
+              prompt_title = "Símbolos do Arquivo",
               bufnr = bufnr,
             })
           end)
