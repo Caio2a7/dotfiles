@@ -52,9 +52,18 @@ return {
 
       vim.schedule(function()
         map("c", "<CR>", function()
-          if _G.strict_search_mode and vim.fn.getcmdtype() == "/" then
+          local cmdtype = vim.fn.getcmdtype()
+          if _G.strict_search_mode and cmdtype == "/" then
             _G.strict_search_mode = false
             return "<CR><Cmd>nohl<CR>"
+          end
+          if _G.SmartTerm and cmdtype == ":" then
+            local intercept, term_cmd = _G.SmartTerm.should_intercept(vim.fn.getcmdline())
+            if intercept then
+              _G.SmartTerm.pending = term_cmd
+              vim.fn.histadd("cmd", vim.fn.getcmdline())
+              return "<C-u><Esc>:lua _G.SmartTerm.run_pending()<CR>"
+            end
           end
           return "<CR>"
         end, { expr = true })
