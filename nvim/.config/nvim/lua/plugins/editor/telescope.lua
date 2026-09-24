@@ -692,31 +692,35 @@ return {
 
       local map = vim.keymap.set
 
-      -- Alt+Shift+S: Busca no Trecho/Arquivo Atual (Com Preview Lateral)
-      for _, k in ipairs({ "<M-S-s>", "<M-S>", "<M-s>", "<A-S-s>", "<A-S>", "<A-s>" }) do
-        map({ "n", "v", "i" }, k, search_current_buffer, { desc = "Busca no Arquivo Atual" })
+      -- Ctrl+1: Buscar String no Arquivo
+      for _, k in ipairs({ "<C-1>", "<C-k1>", "<C-kEnd>", "<Esc>[49;5u", "\x1b[49;5u" }) do
+        map({ "n", "v", "i" }, k, search_current_buffer, { desc = "Buscar String no Arquivo" })
       end
 
-      -- Alt+Shift+J: Substituir Trechos Apenas no ARQUIVO ATUAL
-      for _, k in ipairs({ "<M-S-j>", "<M-J>", "<M-j>", "<A-S-j>", "<A-J>", "<A-j>" }) do
-        map({ "n", "v", "i" }, k, search_and_replace_current_buffer, { desc = "Substituir no Arquivo Atual" })
+      -- Ctrl+2: Substituir String no Arquivo
+      for _, k in ipairs({ "<C-2>", "<C-k2>", "<C-kDown>", "<Esc>[50;5u", "\x1b[50;5u" }) do
+        map({ "n", "v", "i" }, k, search_and_replace_current_buffer, { desc = "Substituir String no Arquivo" })
       end
 
-      -- Alt+Shift+R: Substituir Trechos no PROJETO INTEIRO
-      for _, k in ipairs({ "<M-S-r>", "<M-R>", "<M-r>", "<A-S-r>", "<A-R>", "<A-r>" }) do
-        map({ "n", "v", "i" }, k, telescope_project_replace, { desc = "Substituir em Todo o Projeto" })
-      end
-
-      -- Alt+Shift+F: Buscar Arquivos (Todos)
-      for _, k in ipairs({ "<M-S-f>", "<M-F>", "<M-f>", "<A-S-f>", "<A-F>", "<A-f>" }) do
+      -- Ctrl+3: Buscar String no Projeto
+      for _, k in ipairs({ "<C-3>", "<C-k3>", "<C-kPageDown>", "<Esc>[51;5u", "\x1b[51;5u" }) do
         map({ "n", "v", "i" }, k, function()
-          builtin.find_files({ no_ignore = true, hidden = true })
-        end, { desc = "Find Files (All)" })
+          if vim.fn.mode() == "i" then vim.cmd("stopinsert") end
+          builtin.live_grep({ prompt_title = "Buscar String no Projeto" })
+        end, { desc = "Buscar String no Projeto" })
       end
 
-      -- Alt+Shift+W: Buscar Trechos nos Arquivos
-      for _, k in ipairs({ "<M-S-w>", "<M-W>", "<M-w>", "<A-S-w>", "<A-W>", "<A-w>" }) do
-        map({ "n", "v", "i" }, k, builtin.live_grep, { desc = "Find Text in Files" })
+      -- Ctrl+4: Substituir String no Projeto
+      for _, k in ipairs({ "<C-4>", "<C-k4>", "<C-kLeft>", "<Esc>[52;5u", "\x1b[52;5u" }) do
+        map({ "n", "v", "i" }, k, telescope_project_replace, { desc = "Substituir String no Projeto" })
+      end
+
+      -- Ctrl+5: Buscar Arquivos no Projeto
+      for _, k in ipairs({ "<C-5>", "<C-k5>", "<C-kOrigin>", "<C-kClear>", "<Esc>[53;5u", "\x1b[53;5u" }) do
+        map({ "n", "v", "i" }, k, function()
+          if vim.fn.mode() == "i" then vim.cmd("stopinsert") end
+          builtin.find_files({ prompt_title = "Buscar Arquivos no Projeto", no_ignore = true, hidden = true })
+        end, { desc = "Buscar Arquivos no Projeto" })
       end
 
       -- Alt+Shift+Z: Zoxide Find
@@ -753,8 +757,6 @@ return {
 
       -- Bookmarks & Ctrl+F
       map({ "n", "v", "i" }, "<M-b>", "<cmd>Telescope bookmarks<cr>", { desc = "Browser Bookmarks" })
-      map({ "n", "v", "i" }, "<C-F>", builtin.find_files, { desc = "Find Files" })
-      map({ "n", "v", "i" }, "<C-S-f>", builtin.find_files, { desc = "Find Files" })
     end,
   },
 }
