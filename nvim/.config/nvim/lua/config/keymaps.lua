@@ -40,45 +40,6 @@ end
 
 vim.keymap.set({ "n", "i", "v" }, "<C-b>", open_buffers, { desc = "Buffers", nowait = true, noremap = true, silent = true })
 
--- Ctrl+T: Toggle Terminal Bottom
-local function toggle_term_bottom()
-  if vim.fn.mode() == "i" then
-    vim.cmd("stopinsert")
-  end
-  pcall(vim.cmd, "ToggleTerm direction=horizontal")
-end
-
--- Ctrl+Shift+T: Toggle Terminal Fullscreen
-local function toggle_term_fullscreen()
-  if vim.fn.mode() == "i" then
-    vim.cmd("stopinsert")
-  end
-  pcall(function()
-    local toggleterm = require("toggleterm.terminal")
-    local term = toggleterm.get(1)
-    if not term or not term:is_open() then
-      vim.cmd("ToggleTerm direction=horizontal")
-      vim.schedule(function()
-        local t = toggleterm.get(1)
-        if t and t.bufnr then
-          local win = vim.fn.bufwinid(t.bufnr)
-          if win ~= -1 then
-            vim.api.nvim_win_call(win, function()
-              vim.cmd("resize " .. vim.o.lines)
-              vim.cmd("vertical resize " .. vim.o.columns)
-            end)
-          end
-        end
-      end)
-    else
-      term:close()
-    end
-  end)
-end
-
-vim.keymap.set({ "n", "i", "v", "t" }, "<C-t>", toggle_term_bottom, { desc = "Toggle Terminal Bottom", nowait = true, noremap = true, silent = true })
-vim.keymap.set({ "n", "i", "v", "t" }, "<C-S-t>", toggle_term_fullscreen, { desc = "Toggle Terminal Fullscreen", nowait = true, noremap = true, silent = true })
-vim.keymap.set({ "n", "i", "v", "t" }, "<C-S-T>", toggle_term_fullscreen, { desc = "Toggle Terminal Fullscreen", nowait = true, noremap = true, silent = true })
 
 
 vim.keymap.set("n", "<C-z>", "u", { desc = "Desfazer", noremap = true, silent = true })
