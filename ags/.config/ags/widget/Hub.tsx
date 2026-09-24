@@ -493,24 +493,36 @@ function Media() {
 
   const titleText = createComputed(() => {
     const t = parts().title
-    return t.length > 24 ? t.slice(0, 22) + "…" : t
+    return t.length > 16 ? t.slice(0, 14) + "…" : t
   })
 
   const artistText = createComputed(() => {
     const a = parts().artist
-    return a.length > 26 ? a.slice(0, 24) + "…" : a
+    return a.length > 16 ? a.slice(0, 14) + "…" : a
   })
 
   return (
-    <box class="hub-stat media-box" orientation={V} spacing={8}>
-      <box spacing={10} valign={Gtk.Align.CENTER}>
+    <box class="hub-stat media-box" orientation={V} spacing={6}>
+      <box spacing={8} valign={Gtk.Align.CENTER}>
         <label class="stat-icon media-icon" label="󰎈" valign={Gtk.Align.CENTER} />
         <box orientation={V} spacing={1} hexpand={true}>
-          <label class="media-title" label={titleText} halign={Gtk.Align.START} />
-          <label class="media-artist" label={artistText} halign={Gtk.Align.START} />
+          <label
+            class="media-title"
+            label={titleText}
+            halign={Gtk.Align.START}
+            ellipsize={Pango.EllipsizeMode.END}
+            maxWidthChars={16}
+          />
+          <label
+            class="media-artist"
+            label={artistText}
+            halign={Gtk.Align.START}
+            ellipsize={Pango.EllipsizeMode.END}
+            maxWidthChars={16}
+          />
         </box>
       </box>
-      <box spacing={14} halign={Gtk.Align.CENTER} class="media-controls">
+      <box spacing={12} halign={Gtk.Align.CENTER} class="media-controls">
         <button
           class="media-btn"
           tooltipText="Música Anterior"
