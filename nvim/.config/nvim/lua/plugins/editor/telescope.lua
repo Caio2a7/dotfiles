@@ -763,8 +763,12 @@ return {
         end, { desc = "Símbolos e Funções do Arquivo" })
       end
 
-      -- Bookmarks & Ctrl+F
-      map({ "n", "v", "i" }, "<M-b>", "<cmd>Telescope bookmarks<cr>", { desc = "Browser Bookmarks" })
+      -- Bookmarks
+      map({ "n", "v", "i" }, "<M-b>", function()
+        pcall(function()
+          telescope.extensions.bookmarks.bookmarks({ prompt_title = "Favoritos do Navegador" })
+        end)
+      end, { desc = "Browser Bookmarks" })
     end,
   },
 }
