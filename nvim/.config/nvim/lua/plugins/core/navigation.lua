@@ -72,22 +72,28 @@ return {
       map({ "n", "i" }, "<C-Left>", "<C-o>b", { desc = "Palavra Ant" })
 
       -- Fechar Buffer Inteligente (Ctrl+w)
-      map({ "n", "i", "v" }, "<C-w>", function()
+      local function smart_close_buf()
         local current_buf = vim.api.nvim_get_current_buf()
+        local is_term = vim.bo[current_buf].buftype == "terminal" or vim.bo[current_buf].buftype == "nofile"
+        if _G.SmartTerm and (is_term or current_buf == _G.SmartTerm.term_buf or current_buf == _G.SmartTerm.out_buf) then
+          _G.SmartTerm.safe_close_buffer(current_buf)
+          return
+        end
         local file_name = vim.fn.expand("%:t")
         if file_name == "" then file_name = "Sem Titulo" end
         local perform_close = function(buf, force)
           if #vim.fn.getbufinfo({ buflisted = 1 }) > 1 then vim.cmd("bprevious") else vim.cmd("enew") end
           pcall(vim.cmd, (force and "bdelete! " or "bdelete ") .. buf)
         end
-        if vim.bo[current_buf].modified then
+        if vim.bo[current_buf].modified and not is_term then
           local choice = vim.fn.confirm("Salvar alteracoes em '" .. file_name .. "'?", "&Sim\n&Nao\n&Cancelar", 1)
           if choice == 1 then vim.cmd("write"); perform_close(current_buf, false)
           elseif choice == 2 then perform_close(current_buf, true) end
         else
-          perform_close(current_buf, false)
+          perform_close(current_buf, is_term)
         end
-      end, { desc = "Fechar Buffer (Smart)" })
+      end
+      map({ "n", "i", "v" }, "<C-w>", smart_close_buf, { desc = "Fechar Buffer (Smart)" })
 
       map("i", "<C-S-Left>", "<Esc>lvb", opts_key)
       map("i", "<C-S-Right>", "<C-o>ve", opts_key)
