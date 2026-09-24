@@ -223,4 +223,33 @@ return {
       })
     end,
   },
+
+  -- 2. Correção do crash de semanticTokens do gopls no LazyVim
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      setup = {
+        gopls = function(_, opts)
+          Snacks.util.lsp.on({ name = "gopls" }, function(_, client)
+            if not client.server_capabilities.semanticTokensProvider then
+              local caps = client.config and client.config.capabilities
+              local textDoc = caps and caps.textDocument
+              local semantic = textDoc and textDoc.semanticTokens
+              if semantic and semantic.tokenTypes and semantic.tokenModifiers then
+                client.server_capabilities.semanticTokensProvider = {
+                  full = true,
+                  legend = {
+                    tokenTypes = semantic.tokenTypes,
+                    tokenModifiers = semantic.tokenModifiers,
+                  },
+                  range = true,
+                }
+              end
+            end
+          end)
+          return false
+        end,
+      },
+    },
+  },
 }
