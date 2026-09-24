@@ -125,6 +125,34 @@ local function apply_vim_syntax(hl, c)
   hl("ErrorMsg", { fg = c.rosa_magenta_vibrante, bold = true })
 end
 
+local function apply_txt_syntax(hl, c)
+  hl("txtComment", { fg = c.verde_coment, italic = true })
+  hl("txtString", { fg = c.marrom_str })
+  hl("txtNumber", { fg = c.limao_num })
+  hl("txtBoolean", { fg = c.limao_num, bold = true })
+  hl("txtGoKeyword", { fg = c.azul_tipo, bold = true })
+  hl("txtGoStorage", { fg = c.verde_struct, bold = true })
+  hl("txtCond", { fg = c.rosa_magenta_vibrante, bold = true })
+  hl("txtRepeat", { fg = c.rosa_suave, bold = true })
+  hl("txtReturn", { fg = c.rosa_suave, bold = true })
+  hl("txtOperator", { fg = c.branco_pont })
+  hl("txtFunction", { fg = c.amarelo_func, bold = true })
+  hl("txtShell", { fg = c.rosa_suave, bold = true })
+  hl("txtEnvVar", { fg = c.azul_claro_var, bold = true })
+  hl("txtShellVar", { fg = c.azul_claro_var })
+  hl("txtFlag", { fg = c.cyan })
+  hl("txtJavaKeyword", { fg = c.azul_tipo, bold = true })
+  hl("txtCKeyword", { fg = c.azul_tipo, bold = true })
+  hl("txtAnnotation", { fg = c.rosa_suave, bold = true })
+  hl("txtPreProc", { fg = c.rosa_suave, bold = true })
+  hl("txtType", { fg = c.verde_struct, bold = true })
+  hl("txtTypeParen", { fg = c.verde_struct, bold = true })
+  hl("txtTypeBuiltin", { fg = c.azul_tipo, bold = true })
+  hl("txtUrl", { fg = c.cyan, underline = true })
+  hl("txtBug", { fg = c.rosa_magenta_vibrante, bold = true })
+  hl("txtTodo", { fg = c.amarelo_func, bold = true })
+end
+
 local function apply_snacks(hl, c)
   for _, grp in ipairs({
     "SnacksNormal", "SnacksBackdrop", "SnacksPicker", "SnacksPickerList", "SnacksPickerInput",
@@ -157,6 +185,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     apply_types_and_vars(hl, colors)
     apply_literals_and_comments(hl, colors)
     apply_vim_syntax(hl, colors)
+    apply_txt_syntax(hl, colors)
     apply_snacks(hl, colors)
   end,
 })
