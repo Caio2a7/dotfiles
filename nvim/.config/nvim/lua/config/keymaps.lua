@@ -547,3 +547,36 @@ for _, lhs in ipairs({ "<C-/>", "<c-/>", "<C-_>", "<c-_>" }) do
   end
 end
 
+-- Alternar / Esconder Terminal Inteligente (Ctrl+h)
+local function toggle_smart_terminal()
+  if _G.SmartTerm and _G.SmartTerm.hide_terminal then
+    _G.SmartTerm.hide_terminal()
+  else
+    pcall(function()
+      require("plugins.terminal.smart_terminal")
+      if _G.SmartTerm and _G.SmartTerm.hide_terminal then
+        _G.SmartTerm.hide_terminal()
+      end
+    end)
+  end
+end
+
+local term_toggle_keys = { "<C-h>", "<C-H>", "<Esc>[104;5u", "\x1b[104;5u" }
+local function register_term_toggle()
+  for _, k in ipairs(term_toggle_keys) do
+    vim.keymap.set({ "n", "v", "x", "t" }, k, toggle_smart_terminal, { desc = "Terminal: Esconder / Alternar", noremap = true, silent = true, nowait = true })
+    vim.keymap.set("i", k, function()
+      vim.cmd("stopinsert")
+      toggle_smart_terminal()
+    end, { desc = "Terminal: Esconder / Alternar", noremap = true, silent = true, nowait = true })
+  end
+end
+
+register_term_toggle()
+
+vim.api.nvim_create_autocmd("User", {
+  pattern = "VeryLazy",
+  callback = register_term_toggle,
+})
+
+

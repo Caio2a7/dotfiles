@@ -147,11 +147,43 @@ return {
       map("i", "<C-Tab>", function() vim.cmd("stopinsert"); cycle_tabs("next") end, { desc = "Proxima Aba da Janela" })
       map("i", "<C-S-Tab>", function() vim.cmd("stopinsert"); cycle_tabs("prev") end, { desc = "Aba Anterior da Janela" })
 
+      local function toggle_terminal()
+        if _G.SmartTerm and _G.SmartTerm.hide_terminal then
+          _G.SmartTerm.hide_terminal()
+        else
+          pcall(function()
+            require("plugins.terminal.smart_terminal")
+            if _G.SmartTerm and _G.SmartTerm.hide_terminal then
+              _G.SmartTerm.hide_terminal()
+            end
+          end)
+        end
+      end
 
-      map("i", "<C-H>", "<C-w>", opts_key)
-      map("i", "<C-h>", "<C-w>", opts_key)
+      local term_toggle_keys = { "<C-h>", "<C-H>", "<Esc>[104;5u", "\x1b[104;5u" }
+      for _, k in ipairs(term_toggle_keys) do
+        map({ "n", "v", "t" }, k, toggle_terminal, { desc = "Terminal: Esconder / Alternar", noremap = true, silent = true, nowait = true })
+        map("i", k, function()
+          vim.cmd("stopinsert")
+          toggle_terminal()
+        end, { desc = "Terminal: Esconder / Alternar", noremap = true, silent = true, nowait = true })
+      end
+
       map("i", "<C-BS>", "<C-w>", opts_key)
       map("i", "<C-Backspace>", "<C-w>", opts_key)
+
+      if type(opts) == "table" and opts.mappings then
+        for _, m in ipairs({ "n", "v", "t" }) do
+          opts.mappings[m] = opts.mappings[m] or {}
+          for _, k in ipairs(term_toggle_keys) do
+            opts.mappings[m][k] = { toggle_terminal, desc = "Terminal: Esconder / Alternar" }
+          end
+        end
+        opts.mappings.i = opts.mappings.i or {}
+        for _, k in ipairs(term_toggle_keys) do
+          opts.mappings.i[k] = { function() vim.cmd("stopinsert"); toggle_terminal() end, desc = "Terminal: Esconder / Alternar" }
+        end
+      end
 
       return opts
     end,
