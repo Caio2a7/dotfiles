@@ -723,6 +723,13 @@ return {
         end, { desc = "Buscar Arquivos no Projeto" })
       end
 
+      -- Ctrl+6: Renomear Arquivos no Projeto
+      for _, k in ipairs({ "<C-6>", "<C-k6>", "<C-kRight>", "<Esc>[54;5u", "\x1b[54;5u" }) do
+        map({ "n", "v", "i" }, k, function()
+          require("config.file_rename").telescope_batch_rename()
+        end, { desc = "Renomear Arquivos no Projeto" })
+      end
+
       -- Alt+Shift+Z: Zoxide Find
       for _, k in ipairs({ "<M-S-z>", "<M-Z>", "<A-S-z>", "<A-Z>" }) do
         map({ "n", "v", "i" }, k, function()
