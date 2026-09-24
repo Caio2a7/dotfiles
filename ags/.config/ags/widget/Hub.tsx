@@ -245,7 +245,7 @@ function StatCard({ icon, name, rawValue, cls, unit = "%" }: {
   })
 
   return (
-    <box class={cardClass} orientation={V} spacing={3} halign={Gtk.Align.CENTER}>
+    <box class={cardClass} orientation={V} spacing={3} hexpand={true} halign={Gtk.Align.FILL}>
       <box orientation={V} spacing={1} halign={Gtk.Align.CENTER}>
         <label class="syscard-icon" label={icon} halign={Gtk.Align.CENTER} />
         <label class="syscard-value"
@@ -285,13 +285,13 @@ function SystemStats() {
   })
 
   return (
-    <box orientation={V} spacing={8} class="hub-sysgrid" halign={Gtk.Align.START}>
-      <box spacing={8} halign={Gtk.Align.START}>
+    <box orientation={V} spacing={4} class="hub-sysgrid" hexpand={true}>
+      <box spacing={4} hexpand={true} homogeneous={true}>
         <StatCard icon="󰘚" name="CPU"  rawValue={cpu}  cls="cpu"  />
         <StatCard icon="󰍛" name="RAM"  rawValue={ram}  cls="ram"  />
         <StatCard icon="󰋊" name="DISK" rawValue={disk} cls="disk" />
       </box>
-      <box spacing={8} halign={Gtk.Align.START}>
+      <box spacing={4} hexpand={true} homogeneous={true}>
         <StatCard icon="󰢮" name="GPU"  rawValue={gpu}  cls="gpu"  />
         <StatCard icon="󰖩" name="REDE" rawValue={net}  cls="net"  />
         <StatCard icon="󰔏" name="TEMP" rawValue={temp} cls={tempCls} unit="°C" />
