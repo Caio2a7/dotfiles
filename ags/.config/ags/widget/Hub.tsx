@@ -7,6 +7,7 @@ import WirePlumber from "gi://AstalWp"
 import Battery from "gi://AstalBattery"
 import Mpris from "gi://AstalMpris"
 import GLib from "gi://GLib"
+import Pango from "gi://Pango"
 
 const V = Gtk.Orientation.VERTICAL
 
@@ -202,7 +203,7 @@ function ActiveWindow() {
 
   const title = createComputed(() => {
     const t = rawTitle()
-    return t.length > 24 ? t.slice(0, 22) + "…" : t
+    return t.length > 14 ? t.slice(0, 12) + "…" : t
   })
 
   const appIcon = createComputed(() => getAppIcon(appName(), rawTitle()))
@@ -210,14 +211,25 @@ function ActiveWindow() {
   const fullText = createComputed(() => {
     const app = appName()
     const t = title()
-    if (!t || t.toLowerCase() === app.toLowerCase() || app === "Desktop") return app
-    return `${app} — ${t}`
+    if (!t || t.toLowerCase() === app.toLowerCase() || app === "Desktop") {
+      return app.length > 14 ? app.slice(0, 12) + "…" : app
+    }
+    const combined = `${app} — ${t}`
+    return combined.length > 15 ? combined.slice(0, 13) + "…" : combined
   })
 
   return (
     <box class="hub-window-single" spacing={6} valign={Gtk.Align.CENTER}>
       <label class="window-icon" label={appIcon} valign={Gtk.Align.CENTER} />
-      <label class="window-single-text" label={fullText} halign={Gtk.Align.START} valign={Gtk.Align.CENTER} hexpand={true} />
+      <label
+        class="window-single-text"
+        label={fullText}
+        halign={Gtk.Align.START}
+        valign={Gtk.Align.CENTER}
+        hexpand={true}
+        ellipsize={Pango.EllipsizeMode.END}
+        maxWidthChars={13}
+      />
     </box>
   )
 }
