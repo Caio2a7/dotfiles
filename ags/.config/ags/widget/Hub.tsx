@@ -12,7 +12,8 @@ const V = Gtk.Orientation.VERTICAL
 
 function trySpawn(cmd: string): boolean {
   try {
-    const safeCmd = cmd.includes("bash -c") ? cmd : `bash -c "${cmd.replace(/"/g, '\\"')} 2>/dev/null || true"`
+    const cleanCmd = cmd.replace(/"/g, '\\"')
+    const safeCmd = `bash -c "${cleanCmd} >/dev/null 2>&1 &"`
     GLib.spawn_command_line_async(safeCmd)
     return true
   } catch {
@@ -376,8 +377,8 @@ function Brightness() {
           }
           debounceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
             const cmd = val >= 100
-              ? `bash -c 'pkill -9 hyprsunset'`
-              : `bash -c 'pkill -9 hyprsunset; sleep 0.05; hyprsunset --gamma ${gamma} &'`
+              ? `pkill -9 hyprsunset`
+              : `pkill -9 hyprsunset; sleep 0.05; hyprsunset --gamma ${gamma}`
             trySpawn(cmd)
             debounceId = null
             return GLib.SOURCE_REMOVE
