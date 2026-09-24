@@ -589,8 +589,9 @@ export function Hub(monitor = 0) {
       exclusivity={Astal.Exclusivity.NORMAL}
       anchor={LEFT | TOP | BOTTOM}
       layer={Astal.Layer.OVERLAY}
+      widthRequest={250}
     >
-      <box class="hub-inner" orientation={V}>
+      <box class="hub-inner" orientation={V} widthRequest={250} hexpand={true}>
 
         <Section>
           <box orientation={V} spacing={8}>
