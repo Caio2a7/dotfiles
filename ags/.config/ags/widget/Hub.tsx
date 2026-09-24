@@ -137,10 +137,9 @@ function Clock() {
   const dateStr = createPoll("",      60_000, "date '+%a, %d %b'")
 
   return (
-    <box class="hub-clock" spacing={8} valign={Gtk.Align.CENTER}>
-      <label class="hub-clock-time" label={time}    valign={Gtk.Align.CENTER} />
-      <label class="hub-clock-dot"  label="•"       valign={Gtk.Align.CENTER} />
-      <label class="hub-clock-date" label={dateStr} halign={Gtk.Align.START} valign={Gtk.Align.CENTER} />
+    <box class="hub-clock" orientation={V} spacing={1} halign={Gtk.Align.START}>
+      <label class="hub-clock-time" label={time} halign={Gtk.Align.START} />
+      <label class="hub-clock-date" label={dateStr} halign={Gtk.Align.START} />
     </box>
   )
 }
