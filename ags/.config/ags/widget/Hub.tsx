@@ -331,7 +331,7 @@ function Volume() {
   )
 
   return (
-    <box class="hub-stat volume" spacing={10} valign={Gtk.Align.CENTER}>
+    <box class="hub-stat volume" spacing={5} valign={Gtk.Align.CENTER}>
       <button
         class="mute-btn"
         valign={Gtk.Align.CENTER}
@@ -370,7 +370,7 @@ function Brightness() {
   let debounceId: number | null = null
 
   return (
-    <box class="hub-stat brightness" spacing={10} valign={Gtk.Align.CENTER}>
+    <box class="hub-stat brightness" spacing={5} valign={Gtk.Align.CENTER}>
       <label class="stat-icon" label={icon} valign={Gtk.Align.CENTER} />
       <slider
         class="brightness-slider"

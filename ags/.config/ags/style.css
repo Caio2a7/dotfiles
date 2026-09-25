@@ -385,7 +385,7 @@ scale trough,
   background-color: rgba(18, 22, 30, 0.90);
   border-radius: 4px;
   min-height: 5px;
-  min-width: 115px;
+  min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -416,7 +416,7 @@ scale slider:hover,
   background-color: rgba(18, 22, 30, 0.90);
   border-radius: 4px;
   min-height: 5px;
-  min-width: 150px;
+  min-width: 0;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
