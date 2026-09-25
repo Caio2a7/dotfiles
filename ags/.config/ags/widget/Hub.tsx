@@ -460,13 +460,13 @@ function BatteryWidget() {
     return p > 80 ? "󱃁" : p > 60 ? "󰂀" : p > 40 ? "󱊡" : p > 20 ? "󱊠" : "󱊟"
   })
   const value    = createComputed(() => `${Math.round(pct() * 100)}%`)
-  const sublabel = createComputed(() => charging() ? "CARREGANDO" : "BATERIA")
+  const sublabel = createComputed(() => (charging() ? "CARREGANDO" : "BATERIA"))
   const cls      = createComputed(() =>
     pct() < 0.2 ? "hub-stat battery low" : "hub-stat battery"
   )
 
   return (
-    <box class={cls} spacing={10} valign={Gtk.Align.CENTER}>
+    <box class={cls} spacing={8} valign={Gtk.Align.CENTER}>
       <label class="stat-icon" label={icon} valign={Gtk.Align.CENTER} />
       <label class="stat-sub battery-text" label={sublabel} hexpand={true} halign={Gtk.Align.START} valign={Gtk.Align.CENTER} />
       <label class="stat-value battery-val" label={value} halign={Gtk.Align.END} valign={Gtk.Align.CENTER} />
