@@ -356,6 +356,50 @@ function Volume() {
   )
 }
 
+function Microphone() {
+  const wp = WirePlumber.get_default()
+  if (!wp) return <box />
+  const mic = wp.defaultMicrophone
+  if (!mic) return <box />
+
+  const vol   = createBinding(mic, "volume")
+  const muted = createBinding(mic, "mute")
+
+  const icon = createComputed(() => (muted() ? "󰍭" : "󰍬"))
+  const pctLabel = createComputed(() =>
+    muted() ? "Mudo" : `${Math.round(vol() * 100)}%`
+  )
+
+  return (
+    <box class="hub-stat microphone" spacing={5} valign={Gtk.Align.CENTER}>
+      <button
+        class="mute-btn"
+        valign={Gtk.Align.CENTER}
+        tooltipText={createComputed(() => (muted() ? "Desmutar Microfone" : "Mutar Microfone"))}
+        onClicked={() => {
+          mic.mute = !mic.mute
+        }}
+      >
+        <label class="stat-icon" label={icon} valign={Gtk.Align.CENTER} />
+      </button>
+      <slider
+        class="mic-slider"
+        hexpand={true}
+        valign={Gtk.Align.CENTER}
+        min={0}
+        max={1}
+        step={0.02}
+        value={createBinding(mic, "volume")}
+        onValueChanged={(self: any) => {
+          mic.mute = false
+          mic.volume = self.value
+        }}
+      />
+      <label class="stat-value" label={pctLabel} valign={Gtk.Align.CENTER} />
+    </box>
+  )
+}
+
 function Brightness() {
   const adjustment = new Gtk.Adjustment({ value: 100, lower: 0, upper: 100, step_increment: 1 })
   const brightness = createBinding(adjustment, "value")
@@ -653,6 +697,7 @@ export function Hub(monitor = 0) {
         <Section title="CONTROLE">
           <box orientation={V} spacing={8}>
             <Volume />
+            <Microphone />
             <Brightness />
             <BatteryWidget />
             <NetworkWidget />
