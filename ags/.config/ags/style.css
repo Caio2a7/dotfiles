@@ -377,7 +377,7 @@ scale,
 .vol-slider,
 .mic-slider,
 .brightness-slider {
-  min-width: 115px;
+  min-width: 0;
 }
 
 scale trough,
@@ -492,78 +492,650 @@ scale slider:hover,
   opacity: 0;
 }
 
-.WorkPill .pill-hover {
-  padding: 24px 6px 24px 32px;
+/* ------------------------------------------------------------------ */
+/* MODERN APPLE LIQUID GLASS DOCK / WORK LAUNCHER                      */
+/* ------------------------------------------------------------------ */
+.WorkPill {
+  background: transparent;
 }
 
-.pill {
-  border-radius: 999px;
-  background: #080a10;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.dock-wrapper {
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+/* Auto-hide desativado para teste (dock fixa) — descomente para restaurar
+.dock-peek-bar {
+  min-width: 84px;
+  min-height: 4px;
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 4px 4px 0 0;
+  margin: 0;
+  padding: 0;
+  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.40);
+  transition: all 250ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.dock-wrapper:hover .dock-peek-bar {
+  background: rgba(56, 189, 248, 0.80);
+  min-width: 104px;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.60);
+}
+*/
+
+.liquid-dock-container {
+  background: rgba(18, 24, 38, 0.74);
+  backdrop-filter: blur(36px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  /* border-top: 1px solid rgba(255, 255, 255, 0.32); */
+  border-left: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 22px;
+  /* padding: 5px 12px; */
+  /* padding: 12px 5px; */
+  /* padding: 10px 2px; */
+  /* padding: 10px 1px; */
+  /* padding: 10px 0; */
+  padding: 10px 3px; /* barra volta a 48px; cápsulas ficam 30px centradas */
+  /* margin-bottom: 12px; */
+  /* margin-top: 12px; */
+  /* margin-right: 12px; */
+  margin-right: 6px;
   box-shadow:
-    inset 0 1px 2px rgba(255, 255, 255, 0.07),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.50),
-    0 8px 28px rgba(0, 0, 0, 0.60),
-    0 2px 6px rgba(0, 0, 0, 0.40);
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.35),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.06),
+    0 16px 44px rgba(0, 0, 0, 0.60);
+  transition: all 200ms ease;
 }
 
-.work-pill {
-  padding: 8px 6px;
+/* Reset imediato de transformações quando o menu de contexto é acionado */
+.liquid-dock-container.menu-active .dock-app-item,
+.liquid-dock-container.menu-active .dock-app-item:hover,
+.liquid-dock-container.menu-active .dock-app-item:focus,
+.liquid-dock-container.menu-active .dock-app-item:active {
+  transform: none;
+  filter: none;
+  transition: transform 0.12s ease, filter 0.12s ease;
 }
 
-/* ------------------------------------------------------------------ */
-/* WORKSPACE SECTION (PILL)                                             */
-/* ------------------------------------------------------------------ */
-.ws-section {
-  margin-left: -14px;
-  margin-right: -14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.30);
+.liquid-dock-container.menu-active .apple-space-btn,
+.liquid-dock-container.menu-active .apple-space-btn:hover,
+.liquid-dock-container.menu-active .apple-status-btn,
+.liquid-dock-container.menu-active .apple-status-btn:hover {
+  transform: none;
+  transition: transform 0.12s ease;
 }
 
-.ws-num {
+.dock-wing-left {
+  /* padding: 0 4px 0 0; */
+  /* padding: 0 0 4px 0; */
+  padding: 0;
+  margin: 0;
+}
+
+.dock-center-apps {
+  /* padding: 0 4px; */
+  padding: 0;
+  margin: 0;
+}
+
+.dock-wing-right {
+  /* padding: 0 0 0 4px; */
+  /* padding: 4px 0 0 0; */
+  padding: 0;
+  margin: 0;
+}
+
+.dock-vsep {
+  /* min-width: 1px; */
+  /* min-height: 22px; */
   min-width: 22px;
-  min-height: 22px;
-  padding: 1px 2px;
-  border-radius: 8px;
-  background: rgba(18, 22, 30, 0.80);
+  min-height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0;
+}
+
+/* Apple Spaces (Workspaces Capsule) */
+.apple-workspaces-capsule {
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  /* padding: 3px 4px; */
+  /* padding: 4px 3px; */
+  /* padding: 4px 2px; */
+  /* padding: 8px 2px; */
+  /* padding: 10px 2px; */
+  padding: 10px 0;
+}
+
+.apple-space-btn {
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 0;
+  transition: all 160ms ease;
+}
+
+.apple-space-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.apple-space-btn.active {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.40);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 2px 5px rgba(0, 0, 0, 0.35);
-  transition: all 200ms cubic-bezier(0.25, 0.8, 0.25, 1);
+    inset 0 1px 0 rgba(255, 255, 255, 0.40),
+    0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
-.ws-num:hover {
-  background: rgba(32, 40, 56, 0.90);
-  border-color: rgba(255, 255, 255, 0.24);
-  transform: scale(1.08);
+.apple-space-num {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
 }
 
-.ws-num.active {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.35), rgba(168, 85, 247, 0.35));
-  border-color: rgba(56, 189, 248, 0.60);
+.apple-space-btn.active .apple-space-num {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+/* Apple Audio Capsule (Volume & Microfone) */
+.apple-audio-capsule {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  /* padding: 3px 6px; */
+  padding: 3px 0;
+  min-width: 28px;
+}
+
+.apple-vol-label {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.vol-active {
+  color: #38bdf8;
+}
+
+.vol-muted {
+  color: #f87171;
+}
+
+.mic-active {
+  color: #4ade80;
+}
+
+.mic-muted {
+  color: #f87171;
+}
+
+.hub-toggle-btn .battery-ok {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.battery-soft {
+  color: #fff3a3;
+}
+
+.battery-mid {
+  color: #ffd60a;
+}
+
+.battery-low {
+  color: #ff9f0a;
+}
+
+.battery-critical {
+  color: #ff453a;
+}
+
+.battery-empty {
+  color: #c4161c;
+}
+
+.hub-icon {
+  color: #38bdf8;
+}
+
+.hub-toggle-btn:hover {
+  background: rgba(56, 189, 248, 0.20);
+}
+
+/* App Launcher Items - Floating Icons (Sem caixas) */
+.dock-apps-section {
+  /* padding: 0 4px; */
+  /* padding: 4px 0; */
+  padding: 0;
+  /* compensa padding do item (3px) + espaço do dot (6px) p/ gap visual igual ao das cápsulas */
+  /* margin: -6px 0 -17px 0; */
+  /* margin: -3px 0 -13px 0; */
+  /* margin: -4px 0 -14px 0; */
+  /* margin: -4px 0 -12px 0; */
+  /* margin: -4px 0 -13px 0; */
+  margin: -6px 0 -16px 0;
+}
+
+.dock-app-item {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  /* padding: 2px 6px; */
+  /* margin: 0 1px; */
+  /* padding: 6px 2px; */
+  /* margin: 1px 0; */
+  /* padding: 3px 2px; */
+  /* padding: 0 2px; */
+  padding: 0;
+  /* margin: 0; */
+  /* Sem sobreposição: caixas 34px com 1px de margem vertical mantêm ~14px visuais entre ícones */
+  /* margin: -3px 0 -4px 0; */
+  /* margin: -2px 0 -3px 0; */
+  /* margin: 1px 0; */
+  margin: 3px 0 4px 0; /* ~20px visuais entre ícones */
+  border-radius: 12px;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
+}
+
+.dock-app-item.hovered {
+  /* transform: translateY(-8px) scale(1.22); */
+  /* transform: translateY(8px) scale(1.22); */
+  transform: translateX(-8px) scale(1.22);
+  filter: drop-shadow(0 6px 14px rgba(255, 255, 255, 0.40));
+}
+
+/* Brilho envolvente por cor de app */
+.dock-app-item.alacritty.hovered { filter: drop-shadow(0 6px 16px rgba(56, 189, 248, 0.70)); }
+.dock-app-item.helium.hovered { filter: drop-shadow(0 6px 16px rgba(251, 146, 60, 0.70)); }
+.dock-app-item.nvim.hovered { filter: drop-shadow(0 6px 16px rgba(74, 222, 128, 0.70)); }
+.dock-app-item.nautilus.hovered { filter: drop-shadow(0 6px 16px rgba(96, 165, 250, 0.70)); }
+.dock-app-item.dbeaver.hovered { filter: drop-shadow(0 6px 16px rgba(192, 132, 252, 0.70)); }
+.dock-app-item.insomnia.hovered { filter: drop-shadow(0 6px 16px rgba(244, 114, 182, 0.70)); }
+.dock-app-item.lazygit.hovered { filter: drop-shadow(0 6px 16px rgba(251, 113, 133, 0.70)); }
+.dock-app-item.lazydocker.hovered { filter: drop-shadow(0 6px 16px rgba(56, 189, 248, 0.70)); }
+.dock-app-item.btop.hovered { filter: drop-shadow(0 6px 16px rgba(250, 204, 21, 0.70)); }
+.dock-app-item.opencode.hovered { filter: drop-shadow(0 6px 16px rgba(216, 180, 254, 0.70)); }
+
+.dock-app-item.dock-drop-hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-radius: 10px;
+}
+
+.dock-app-icon {
+  /* min-width: 36px; */
+  /* min-height: 36px; */
+  /* min-width: 32px; */
+  /* min-height: 32px; */
+  /* Caixa fixa 40x40 (38 + 2 de borda) para todos os apps: o tile de foco não desloca nada */
+  /* min-width: 38px; */
+  /* min-height: 38px; */
+  /* border-radius: 12px; */
+  /* Caixa fixa 34x34 (32 + 2 de borda): ícone 28px + 3px de folga por lado */
+  min-width: 32px;
+  min-height: 32px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.dock-app-dot {
+  min-width: 4px;
+  min-height: 4px;
+  border-radius: 999px;
+  background: transparent;
+  /* margin-top: 2px; */
+  margin-top: 0;
+  transition: all 200ms ease;
+}
+
+.dock-app-dot.active {
+  background: #38bdf8;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.9);
+}
+
+/* Altura fixa da faixa de dots (4px + margin 2px) mantém o gap vertical igual mesmo sem janelas */
+.dock-app-dots {
+  /* min-height: 6px; */
+  min-height: 4px;
+}
+
+/* Dots sem janela ocupam espaço mas ficam invisíveis; app focado: dots mais claros + leve fundo */
+/* .dock-app-item.focused {
+  background: rgba(255, 255, 255, 0.08);
+} */
+
+/* Destaque só no ícone: tile 40x40 (ícone 28px + 6px de folga), raio 12px */
+.dock-app-item.focused .dock-app-icon {
+  /* background: rgba(255, 255, 255, 0.08); */
+  /* border-radius: 9px; */
+  /* background: rgba(255, 255, 255, 0.12); */
+  /* border-color: rgba(255, 255, 255, 0.06); */
+}
+
+.dock-app-item.focused .dock-app-dot.active {
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+}
+
+/* Status Section - Apple Liquid Glass Capsule */
+.apple-status-capsule {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  /* border-radius: 14px; */
+  border-radius: 12px;
+  /* padding: 2px 8px; */
+  /* min-height: 28px; */
+  /* padding: 8px 2px; */
+  /* min-width: 28px; */
+  /* padding: 8px 0; */
+  padding: 10px 0;
+  /* box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14); */
+}
+
+/* Mesma largura para todas as cápsulas (workspaces, volume/mic, wifi/bateria/relógio) */
+.apple-workspaces-capsule,
+.apple-status-capsule {
+  /* min-width: 32px; */
+  min-width: 28px;
+}
+
+.apple-status-sep {
+  /* min-width: 1px; */
+  /* min-height: 14px; */
+  /* margin: 0 1px; */
+  min-width: 14px;
+  min-height: 1px;
+  background: rgba(255, 255, 255, 0.14);
+  margin: 1px 0;
+}
+
+.apple-status-item {
+  /* padding: 0 4px; */
+  /* min-height: 26px; */
+  /* min-width: 26px; */
+  padding: 4px 0;
+}
+
+.apple-status-btn {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  /* padding: 0 4px; */
+  /* min-height: 26px; */
+  padding: 4px 0;
+  margin: 0;
+  /* min-width: 26px; */
+  border-radius: 6px;
+  transition: all 150ms ease;
+}
+
+.apple-status-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.apple-icon {
+  font-family: "Symbols Nerd Font", monospace;
+  /* font-size: 15px; */
+  font-size: 16px;
+  /* min-width: 24px; */
+  color: #f1f5f9;
+  margin: 0;
+  padding: 0;
+}
+
+.vol-active {
+  color: #cbd5e1;
+}
+
+.vol-muted {
+  color: #f87171;
+}
+
+.mic-active {
+  color: #cbd5e1;
+}
+
+.mic-muted {
+  color: #f87171;
+}
+
+.wifi-on {
+  color: #f1f5f9;
+}
+
+.wifi-off {
+  color: #f87171;
+}
+
+.bat-normal {
+  color: #4ade80;
+}
+
+.bat-charging {
+  color: #38bdf8;
+}
+
+.bat-low {
+  color: #f87171;
+}
+
+.hub-icon {
+  color: #38bdf8;
+}
+
+.apple-status-text {
+  /* font-family: "JetBrainsMono Nerd Font", monospace; */
+  /* font-size: 12.5px; */
+  /* font-weight: 700; */
+  /* color: #f8fafc; */
+  font-family: "SF Pro Text", "Inter", "Noto Sans", sans-serif;
+  font-size: 10.5px;
+  font-weight: 500;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.1px;
+  color: rgba(255, 255, 255, 0.62);
+  margin: 0;
+  padding: 0;
+}
+
+.apple-time-text {
+  /* font-family: "JetBrainsMono Nerd Font", monospace; */
+  font-family: "SF Pro Text", "Inter", "Noto Sans", sans-serif;
+  /* font-size: 13px; */
+  /* font-size: 17px; */
+  font-size: 13px;
+  /* font-weight: 800; */
+  /* font-weight: 600; */
+  font-weight: 700;
+  font-feature-settings: "tnum";
+  line-height: 1.05;
+  /* min-width: 24px; */
+  color: #ffffff;
+  /* letter-spacing: 0.3px; */
+  letter-spacing: -0.2px;
+  margin: 0;
+  padding: 0;
+}
+
+.apple-date-text {
+  /* font-family: "JetBrainsMono Nerd Font", monospace; */
+  font-family: "SF Pro Text", "Inter", "Noto Sans", sans-serif;
+  /* font-size: 11.5px; */
+  /* color: #94a3b8; */
+  /* font-size: 13.5px; */
+  /* font-size: 10.5px; */
+  font-size: 13px;
+  /* font-weight: 700; */
+  /* font-weight: 500; */
+  /* font-weight: 600; */
+  font-weight: 700;
+  font-feature-settings: "tnum";
+  line-height: 1.05;
+  /* letter-spacing: -0.1px; */
+  letter-spacing: -0.2px;
+  /* color: rgba(255, 255, 255, 0.78); */
+  /* color: rgba(255, 255, 255, 0.62); */
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0;
+  padding: 0;
+}
+
+.apple-clock-dot {
+  min-width: 3px;
+  min-height: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  /* margin: 0 1px; */
+  margin: 1px 0;
+}
+
+.dock-habit-btn label {
+  font-family: "Symbols Nerd Font", monospace;
+  font-size: 13px;
+  color: #38bdf8;
+}
+
+.dock-clock-pill {
+  border-radius: 10px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.dock-clock-time {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.dock-clock-date {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+/* Dock Context Menu */
+.dock-menu-box {
+  background: rgba(15, 20, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.dock-menu-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  transition: all 150ms ease;
+}
+
+.dock-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+
+.dock-menu-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.20);
+}
+
+.dock-menu-btn label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.dock-menu-btn.danger label {
+  color: #f87171;
+}
+
+/* App Picker Modal */
+.AppPickerModal {
+  background: transparent;
+}
+
+.picker-scrim {
+  background: rgba(0, 0, 0, 0.60);
+}
+
+.picker-card {
+  background: rgba(15, 20, 30, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 20px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    0 0 10px rgba(56, 189, 248, 0.35),
-    0 2px 6px rgba(0, 0, 0, 0.40);
+    0 24px 60px rgba(0, 0, 0, 0.75);
 }
 
-.ws-num-label {
-  font-family: "JetBrainsMono Nerd Font", "Outfit", "Inter", sans-serif;
-  font-size: 11px;
-  font-weight: 800;
-  color: #7a8aa2;
+.picker-header {
+  padding-bottom: 4px;
 }
 
-.ws-num:hover .ws-num-label {
-  color: #e0e8f5;
+.picker-header-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f8fafc;
 }
 
-.ws-num.active .ws-num-label {
-  color: #ffffff;
+.picker-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  border-radius: 8px;
+  padding: 4px 8px;
 }
+
+.picker-close-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+.picker-search-entry {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 8px 12px;
+  color: #f8fafc;
+}
+
+.picker-search-entry:focus {
+  border-color: rgba(56, 189, 248, 0.6);
+}
+
+.picker-apps-list {
+  background: transparent;
+}
+
+.picker-app-row {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: transparent;
+  transition: background 150ms ease;
+}
+
+.picker-app-row:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.picker-app-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.picker-app-desc {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
 
 /* ------------------------------------------------------------------ */
 /* SEPARADORES E CLOCK (PILL)                                           */

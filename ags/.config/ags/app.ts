@@ -1,7 +1,8 @@
 import app from "ags/gtk4/app"
 import GLib from "gi://GLib"
-import {  Work } from "./widget/Work"
-import {  Hub } from "./widget/Hub"
+import { Work } from "./widget/Work"
+import { Hub } from "./widget/Hub"
+import { AppPickerModal } from "./widget/AppPickerModal"
 import {  TodoCards } from "./widget/TodoCards"
 import {  HabitsModal, checkAndPromptUnfilledHabits, openHabitsModal } from "./widget/HabitsModal"
 import {  NewTaskModal, toggleNewTaskModal, openNewTaskModal } from "./widget/NewTaskModal"
@@ -35,6 +36,7 @@ app.start({
   main() {
     Hub(0)
     Work(0)
+    AppPickerModal(0)
     TodoCards(0)
     HabitsModal(0)
     NewTaskModal(0)
