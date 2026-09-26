@@ -2463,3 +2463,25 @@ progressbar.topic-progress-bar.pct-blue progress {
 .study-telemetry-row {
   margin-top: 2px;
 }
+
+/* Anel de foco de estudo (Obsidian): cápsula compartilhada + textos estilo relógio */
+.study-capsule {
+  padding: 8px 0;
+}
+
+.study-time {
+  font-family: "SF Pro Text", "Inter", "Noto Sans", sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  font-feature-settings: "tnum";
+  letter-spacing: -0.2px;
+  color: #ffffff;
+}
+
+.study-subject {
+  font-family: "SF Pro Text", "Inter", "Noto Sans", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: rgba(255, 255, 255, 0.82);
+}
