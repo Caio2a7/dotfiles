@@ -601,7 +601,7 @@ function Media() {
 
 function PowerMenu() {
   return (
-    <box class="hub-power-menu" spacing={8} halign={Gtk.Align.START}>
+    <box class="hub-power-menu" spacing={6} hexpand={true} homogeneous={true}>
       <button
         class="power-btn lock"
         tooltipText="Bloquear tela"

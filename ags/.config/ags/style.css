@@ -1682,11 +1682,10 @@ switch slider {
   background: rgba(16, 20, 28, 0.75);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  min-width: 36px;
-  min-height: 30px;
+  min-height: 34px;
   padding: 4px;
-  font-size: 14px;
-  color: #8a94a8;
+  font-size: 16px;
+  color: #a8b4c8;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
     0 2px 6px rgba(0, 0, 0, 0.35);
@@ -1694,31 +1693,31 @@ switch slider {
 }
 
 .power-btn:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .power-btn.lock:hover {
-  background: rgba(56, 189, 248, 0.18);
-  border-color: rgba(56, 189, 248, 0.40);
+  background: rgba(56, 189, 248, 0.22);
+  border-color: rgba(56, 189, 248, 0.45);
   color: #38bdf8;
 }
 
 .power-btn.suspend:hover {
-  background: rgba(250, 204, 21, 0.18);
-  border-color: rgba(250, 204, 21, 0.40);
+  background: rgba(250, 204, 21, 0.22);
+  border-color: rgba(250, 204, 21, 0.45);
   color: #facc15;
 }
 
 .power-btn.reboot:hover {
-  background: rgba(251, 146, 60, 0.18);
+  background: rgba(251, 146, 60, 0.22);
   border-color: rgba(251, 146, 60, 0.40);
   color: #fb923c;
 }
 
 .power-btn.shutdown:hover {
-  background: rgba(239, 68, 68, 0.20);
-  border-color: rgba(239, 68, 68, 0.45);
-  color: #ef4444;
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.50);
+  color: #f87171;
 }
 
 /* ────────────────────────────────────────────────────────────────── */
