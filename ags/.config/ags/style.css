@@ -1708,6 +1708,12 @@ switch slider {
   color: #facc15;
 }
 
+.power-btn.logout:hover {
+  background: rgba(168, 85, 247, 0.22);
+  border-color: rgba(168, 85, 247, 0.45);
+  color: #c084fc;
+}
+
 .power-btn.reboot:hover {
   background: rgba(251, 146, 60, 0.22);
   border-color: rgba(251, 146, 60, 0.40);

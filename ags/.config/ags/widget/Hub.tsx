@@ -617,6 +617,13 @@ function PowerMenu() {
         <label label="󰤄" />
       </button>
       <button
+        class="power-btn logout"
+        tooltipText="Sair da sessão"
+        onClicked={() => trySpawn("hyprctl dispatch exit")}
+      >
+        <label label="󰍃" />
+      </button>
+      <button
         class="power-btn reboot"
         tooltipText="Reiniciar"
         onClicked={() => trySpawn("systemctl reboot")}
