@@ -3,7 +3,6 @@
   "plugin": [
     "@cortexkit/opencode-antigravity-auth",
     "@mohak34/opencode-notifier",
-    "openslimedit",
     "opencode-linter-hook"
   ],
   "provider": {
