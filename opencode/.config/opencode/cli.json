@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/v2/cli.json",
-  "plugins": ["/home/caio/dev/opencode-claude-quota", "/home/caio/.config/opencode/plugins/cli-notify", "opencode-dir-tree-tui", "/home/caio/dev/opencode-system-monitor"],
+  "plugins": ["/home/caio/dev/opencode-claude-quota", "/home/caio/.config/opencode/plugins/cli-notify", "/home/caio/dev/opencode-system-monitor", "opencode-dir-tree-tui"],
   "theme": {
     "name": "tokyonight"
   },
