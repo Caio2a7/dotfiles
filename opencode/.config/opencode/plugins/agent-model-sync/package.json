@@ -1,0 +1,6 @@
+{
+  "name": "agent-model-sync",
+  "private": true,
+  "type": "module",
+  "main": "index.js"
+}
