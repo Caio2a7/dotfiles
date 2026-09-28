@@ -1,0 +1,6 @@
+{
+  "name": "claude-context-cap",
+  "private": true,
+  "type": "module",
+  "main": "index.js"
+}
