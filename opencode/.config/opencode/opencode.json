@@ -3,46 +3,7 @@
   "plugin": [
     "@openchamber/opencode-claude"
   ],
-  "provider": {
-    "openrouter-free": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "OpenRouter Free",
-      "options": {
-        "baseURL": "https://openrouter.ai/api/v1",
-        "apiKey": "{env:OPENROUTER_FREE_API_KEY}",
-        "timeout": false,
-        "headerTimeout": false,
-        "chunkTimeout": 300000
-      },
-      "models": {
-        "minimax/minimax-m2.5:free": {
-          "name": "MiniMax M2.5 Free",
-          "limit": { "context": 262144, "output": 4096 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "qwen/qwen3-coder:free": {
-          "name": "Qwen3 Coder Free",
-          "limit": { "context": 262144, "output": 4096 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "nousresearch/hermes-3-llama-3.1-405b:free": {
-          "name": "Hermes 3 Llama 405B Free",
-          "limit": { "context": 131072, "output": 4096 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "z-ai/glm-4.5-air:free": {
-          "name": "GLM 4.5 Air Free",
-          "limit": { "context": 131072, "output": 4096 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        },
-        "openai/gpt-oss-120b:free": {
-          "name": "GPT OSS 120B Free",
-          "limit": { "context": 131072, "output": 4096 },
-          "modalities": { "input": ["text"], "output": ["text"] }
-        }
-      }
-    }
-  },
+  "provider": {},
   "permission": {
     "*": "allow",
     "bash": {
