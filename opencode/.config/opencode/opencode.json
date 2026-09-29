@@ -227,10 +227,6 @@
     "custom-black": {
       "command": ["black", "$FILE"],
       "extensions": [".py"]
-    },
-    "biome": {
-      "command": ["biome", "format", "--write", "$FILE"],
-      "extensions": [".js", ".ts", ".jsx", ".tsx", ".json"]
     }
   },
   "mcp": {
