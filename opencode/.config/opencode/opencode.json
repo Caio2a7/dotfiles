@@ -266,14 +266,6 @@
       "enabled": true,
       "environment": {}
     },
-    "sentry": {
-      "type": "local",
-      "command": ["npx", "-y", "@sentry/mcp-server"],
-      "environment": {
-        "SENTRY_AUTH_TOKEN": "{env:SENTRY_AUTH_TOKEN}"
-      },
-      "enabled": false
-    },
     "postgres": {
       "type": "local",
       "command": ["npx", "-y", "@modelcontextprotocol/server-postgres", "{env:DATABASE_URL}"],
