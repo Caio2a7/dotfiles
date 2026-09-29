@@ -389,6 +389,10 @@
     "learn": {
       "description": "Extrai e registra aprendizados técnicos no grafo de memória",
       "template": "Extraia e registre os aprendizados técnicos desta sessão no grafo de memória:\n\n!`python3 ~/.config/opencode/scripts/learn.py $ARGUMENTS`"
+    },
+    "sandbox": {
+      "description": "Executa tarefas em sandbox isolado via Git Worktree (Two-Phase Commit)",
+      "template": "Execute a tarefa em sandbox isolado via Git Worktree (Two-Phase Commit):\n\n!`bash ~/.config/opencode/scripts/worktree-runner.sh $ARGUMENTS`"
     }
   }
 }
