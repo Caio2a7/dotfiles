@@ -265,6 +265,12 @@
       "command": ["npx", "-y", "mcp-docker-server"],
       "enabled": true,
       "environment": {}
+    },
+    "git-repo": {
+      "type": "local",
+      "command": ["uvx", "mcp-server-git"],
+      "enabled": true,
+      "environment": {}
     }
   },
   "command": {
