@@ -193,6 +193,9 @@
           "hyperfine*": "allow"
         }
       }
+    },
+    "title": {
+      "model": "local-gpu/qwen2.5-coder:7b"
     }
   },
   "model": "claude-code/claude-sonnet-5-5",
