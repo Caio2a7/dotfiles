@@ -265,11 +265,6 @@
       "command": ["npx", "-y", "mcp-docker-server"],
       "enabled": true,
       "environment": {}
-    },
-    "postgres": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-postgres", "{env:DATABASE_URL}"],
-      "enabled": false
     }
   },
   "command": {
