@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@mohak34/opencode-notifier": "^0.2.3",
     "opencode-gemini-auth": "^1.4.10",
     "playwright": "^1.63.0"
   }
