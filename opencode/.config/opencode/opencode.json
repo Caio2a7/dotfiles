@@ -348,6 +348,10 @@
       "description": "Exibe cotas e limites determinísticos do modelo em uso e provedores ativos",
       "template": "Apresente o relatório de cota gerado deterministicamente abaixo exatamente como formatado, sem executar ferramentas, comandos adicionais ou introduções:\n\n!`python3 ~/.config/opencode/scripts/quota.py $ARGUMENTS`"
     },
+    "aqei": {
+      "description": "Calcula o índice de qualidade e eficiência (AQEI) da sessão ou audita diretório",
+      "template": "Apresente a avaliação AQEI gerada deterministicamente abaixo sem executar ferramentas adicionais ou introduções:\n\n!`python3 ~/.config/opencode/scripts/aqei-scorer.py $ARGUMENTS`"
+    },
     "graphify": {
       "description": "Gera ou consulta o Knowledge Graph estrutural do repositório (Graphify AST)",
       "agent": "scout",
