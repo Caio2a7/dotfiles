@@ -1,7 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
-    "@cortexkit/opencode-antigravity-auth"
+    "@cortexkit/opencode-antigravity-auth",
+    "@openchamber/opencode-claude"
   ],
   "provider": {
     "google": {
@@ -395,8 +396,7 @@
       }
     }
   },
-  "model": "google/antigravity-gemini-3.8-flash",
-  "small_model": "google/antigravity-gemini-3.8-flash",
+  "model": "claude-code/claude-sonnet-5-5",
   "lsp": true,
   "compaction": {
     "auto": true,
