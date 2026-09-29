@@ -3,7 +3,32 @@
   "plugin": [
     "@openchamber/opencode-claude"
   ],
-  "provider": {},
+  "provider": {
+    "local-gpu": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Local GPU (Ollama / vLLM)",
+      "options": {
+        "timeout": 60000,
+        "chunkTimeout": 30000,
+        "baseURL": "http://127.0.0.1:11434/v1",
+        "apiKey": "ollama"
+      },
+      "models": {
+        "qwen2.5-coder:7b": {
+          "name": "Qwen 2.5 Coder 7B Local (GPU)",
+          "tools": true,
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          },
+          "modalities": {
+            "input": ["text"],
+            "output": ["text"]
+          }
+        }
+      }
+    }
+  },
   "permission": {
     "*": "allow",
     "bash": {
