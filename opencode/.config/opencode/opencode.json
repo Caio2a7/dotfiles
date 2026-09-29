@@ -393,6 +393,10 @@
     "sandbox": {
       "description": "Executa tarefas em sandbox isolado via Git Worktree (Two-Phase Commit)",
       "template": "Execute a tarefa em sandbox isolado via Git Worktree (Two-Phase Commit):\n\n!`bash ~/.config/opencode/scripts/worktree-runner.sh $ARGUMENTS`"
+    },
+    "checkpoint": {
+      "description": "Gera um snapshot de checkpoint do estado da sessão e monitora o teto de 40 turnos",
+      "template": "Apresente o resultado do checkpoint abaixo sem introduções adicionais:\n\n!`python3 ~/.config/opencode/scripts/checkpoint.py $ARGUMENTS`"
     }
   }
 }
