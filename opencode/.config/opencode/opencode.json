@@ -381,6 +381,10 @@
       "description": "Executa comando ou ativa modo 100% agêntico sem confirmações nesta sessão",
       "agent": "agentic",
       "template": "SE $ARGUMENTS tiver texto:\nExecute a tarefa solicitada com autonomia total no modo agêntico (sem solicitar confirmações para rm, git push ou outras ações):\n$ARGUMENTS\n\nSENÃO:\nModo 100% agêntico com permissões totais ativado para esta sessão. Confirme que você está operando com autonomia total sem restrições de permissão (inclusive para comandos destrutivos ou git push quando necessário)."
+    },
+    "status": {
+      "description": "Apresenta o painel unificado de status do sistema e sessão OpenCode",
+      "template": "Apresente o painel unificado de status abaixo sem introduções:\n\n!`python3 ~/.config/opencode/scripts/status.py $ARGUMENTS`"
     }
   }
 }
