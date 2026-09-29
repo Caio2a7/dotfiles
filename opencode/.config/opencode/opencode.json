@@ -275,6 +275,10 @@
     }
   },
   "command": {
+    "semsearch": {
+      "description": "Busca semântica vetorial por intenção de código na GPU local (Ollama / nomic-embed-text)",
+      "template": "Apresente os resultados da busca semântica vetorial abaixo:\n\n!`python3 ~/.config/opencode/scripts/semantic-code-search.py $ARGUMENTS`"
+    },
     "init": {
       "description": "Initialize .aiflow/ exclusion, project AGENTS.md, docs/decisions and gitignore",
       "agent": "plan",
