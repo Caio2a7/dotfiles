@@ -271,6 +271,12 @@
       "command": ["uvx", "mcp-server-git"],
       "enabled": true,
       "environment": {}
+    },
+    "agent-lsp": {
+      "type": "local",
+      "command": ["npx", "-y", "@blackwell-systems/agent-lsp"],
+      "enabled": true,
+      "environment": {}
     }
   },
   "command": {
