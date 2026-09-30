@@ -1,13 +1,15 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": [
+  "model": "claude-code/claude-sonnet-5-5",
+  "default_agent": "agentic",
+  "plugins": [
     "@openchamber/opencode-claude"
   ],
-  "provider": {
+  "providers": {
     "local-gpu": {
-      "npm": "@ai-sdk/openai-compatible",
       "name": "Local GPU (Ollama / vLLM)",
-      "options": {
+      "package": "aisdk:@ai-sdk/openai-compatible",
+      "settings": {
         "timeout": 60000,
         "chunkTimeout": 30000,
         "baseURL": "http://127.0.0.1:11434/v1",
@@ -16,192 +18,886 @@
       "models": {
         "qwen2.5-coder:7b": {
           "name": "Qwen 2.5 Coder 7B Local (GPU)",
-          "tools": true,
+          "capabilities": {
+            "tools": true,
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
           "limit": {
             "context": 32768,
             "output": 8192
-          },
-          "modalities": {
-            "input": ["text"],
-            "output": ["text"]
           }
         }
       }
     }
   },
-  "permission": {
-    "*": "allow",
-    "bash": {
-      "rm *": "ask",
-      "rmdir *": "ask",
-      "git push*": "ask",
-      "git push --force*": "deny",
-      "git reset --hard*": "ask",
-      "su *": "ask",
-      "dd *": "ask",
-      "mkfs*": "ask",
-      "chmod -R *": "ask",
-      "chown -R *": "ask",
-      "shutdown*": "ask",
-      "reboot*": "ask"
-    }
-  },
-  "default_agent": "agentic",
-  "agent": {
+  "agents": {
     "orchestrator": {
       "mode": "primary",
       "color": "#10B981",
-      "permission": {
-        "edit": "deny"
-      }
+      "permissions": [
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "deny"
+        }
+      ]
     },
     "agentic": {
       "mode": "primary",
       "color": "#BB9AF7"
     },
     "build": {
-      "mode": "primary",
       "description": "Modo padrão de desenvolvimento com confirmação para comandos modificadores",
+      "mode": "primary",
       "color": "#7AA2F7",
-      "permission": {
-        "*": "allow",
-        "bash": {
-          "*": "ask",
-          "git push --force*": "deny",
-          "rm -rf /": "deny",
-          "ls": "allow",
-          "ls *": "allow",
-          "cat *": "allow",
-          "head *": "allow",
-          "tail *": "allow",
-          "grep *": "allow",
-          "rg *": "allow",
-          "find *": "allow",
-          "tree": "allow",
-          "tree *": "allow",
-          "file *": "allow",
-          "stat *": "allow",
-          "wc *": "allow",
-          "du *": "allow",
-          "df *": "allow",
-          "diff *": "allow",
-          "bat *": "allow",
-          "pwd": "allow",
-          "which *": "allow",
-          "type *": "allow",
-          "echo *": "allow",
-          "env": "allow",
-          "printenv *": "allow",
-          "uname *": "allow",
-          "id": "allow",
-          "whoami": "allow",
-          "date": "allow",
-          "date *": "allow",
-          "mkdir *": "allow",
-          "git status": "allow",
-          "git status *": "allow",
-          "git diff": "allow",
-          "git diff *": "allow",
-          "git log": "allow",
-          "git log *": "allow",
-          "git branch": "allow",
-          "git branch *": "allow",
-          "git show": "allow",
-          "git show *": "allow",
-          "git remote": "allow",
-          "git remote *": "allow",
-          "git rev-parse *": "allow",
-          "graphify*": "allow",
-          "live-browser inspect*": "allow",
-          "live-browser screenshot*": "allow",
-          "live-browser status*": "allow",
-          "data-query*": "allow",
-          "sec-scan*": "allow",
-          "gitleaks*": "allow",
-          "semgrep*": "allow",
-          "osv-scanner*": "allow",
-          "perf-bench*": "allow",
-          "hyperfine*": "allow"
+      "permissions": [
+        {
+          "action": "*",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "*",
+          "effect": "ask"
+        },
+        {
+          "action": "shell",
+          "resource": "git push --force*",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "rm -rf /",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "ls",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "ls *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "cat *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "head *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "tail *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "grep *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "rg *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "find *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "tree",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "tree *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "file *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "stat *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "wc *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "du *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "df *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "diff *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "bat *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "pwd",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "which *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "type *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "echo *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "env",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "printenv *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "uname *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "id",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "whoami",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "date",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "date *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "mkdir *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git status",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git status *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git diff",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git diff *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git log",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git log *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git branch",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git branch *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git show",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git show *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git remote",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git remote *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git rev-parse *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "graphify*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "live-browser inspect*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "live-browser screenshot*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "live-browser status*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "data-query*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "sec-scan*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "gitleaks*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "semgrep*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "osv-scanner*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "perf-bench*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "hyperfine*",
+          "effect": "allow"
         }
-      }
+      ]
     },
     "plan": {
-      "mode": "primary",
       "description": "Modo de planejamento (somente leitura, pesquisa e análise)",
+      "mode": "primary",
       "color": "#FFFF00",
-      "permission": {
-        "*": "allow",
-        "edit": "deny",
-        "bash": {
-          "*": "deny",
-          "ls": "allow",
-          "ls *": "allow",
-          "cat *": "allow",
-          "head *": "allow",
-          "tail *": "allow",
-          "grep *": "allow",
-          "rg *": "allow",
-          "find *": "allow",
-          "tree": "allow",
-          "tree *": "allow",
-          "file *": "allow",
-          "stat *": "allow",
-          "wc *": "allow",
-          "du *": "allow",
-          "df *": "allow",
-          "diff *": "allow",
-          "bat *": "allow",
-          "pwd": "allow",
-          "which *": "allow",
-          "type *": "allow",
-          "echo *": "allow",
-          "env": "allow",
-          "printenv *": "allow",
-          "uname *": "allow",
-          "id": "allow",
-          "whoami": "allow",
-          "date": "allow",
-          "git status": "allow",
-          "git status *": "allow",
-          "git diff": "allow",
-          "git diff *": "allow",
-          "git log": "allow",
-          "git log *": "allow",
-          "git branch": "allow",
-          "git branch *": "allow",
-          "git show": "allow",
-          "git show *": "allow",
-          "git remote": "allow",
-          "git remote *": "allow",
-          "git rev-parse *": "allow",
-          "graphify*": "allow",
-          "live-browser inspect*": "allow",
-          "live-browser screenshot*": "allow",
-          "live-browser status*": "allow",
-          "data-query*": "allow",
-          "sec-scan*": "allow",
-          "gitleaks*": "allow",
-          "semgrep*": "allow",
-          "osv-scanner*": "allow",
-          "perf-bench*": "allow",
-          "hyperfine*": "allow"
+      "permissions": [
+        {
+          "action": "*",
+          "resource": "*",
+          "effect": "allow"
+        },
+        {
+          "action": "edit",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "*",
+          "effect": "deny"
+        },
+        {
+          "action": "shell",
+          "resource": "ls",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "ls *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "cat *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "head *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "tail *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "grep *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "rg *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "find *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "tree",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "tree *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "file *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "stat *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "wc *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "du *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "df *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "diff *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "bat *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "pwd",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "which *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "type *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "echo *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "env",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "printenv *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "uname *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "id",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "whoami",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "date",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git status",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git status *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git diff",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git diff *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git log",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git log *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git branch",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git branch *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git show",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git show *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git remote",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git remote *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "git rev-parse *",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "graphify*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "live-browser inspect*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "live-browser screenshot*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "live-browser status*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "data-query*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "sec-scan*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "gitleaks*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "semgrep*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "osv-scanner*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "perf-bench*",
+          "effect": "allow"
+        },
+        {
+          "action": "shell",
+          "resource": "hyperfine*",
+          "effect": "allow"
         }
-      }
+      ]
     },
     "title": {
       "model": "local-gpu/qwen2.5-coder:7b"
     }
   },
-  "model": "claude-code/claude-sonnet-5-5",
-  "lsp": true,
+  "commands": {
+    "semsearch": {
+      "template": "Apresente os resultados da busca semântica vetorial abaixo:\n\n!`python3 ~/.config/opencode/scripts/semantic-code-search.py $ARGUMENTS`",
+      "description": "Busca semântica vetorial por intenção de código na GPU local (Ollama / nomic-embed-text)"
+    },
+    "init": {
+      "template": "0. Garanta o exclude no git local:\nmkdir -p .git/info .aiflow\ngrep -qxF \".aiflow\" .git/info/exclude || echo \".aiflow\" >> .git/info/exclude\n\n1. Analise o repositório atual (stack, linter, test runner, estrutura de pastas):\n- Se AGENTS.md já existir no raiz, NÃO o sobrescreva; apenas analise e proponha refinamentos.\n- Se não existir, crie AGENTS.md adaptado à stack (comandos exatos de test/lint/build, convenções, limites de refatoração: funções >40 linhas, arquivos >300 linhas).\n2. Crie o diretório docs/decisions/ com a estrutura base se ausente.\n3. Sugira as entradas recomendadas para o .gitignore e verifica se há suporte a pre-commit hooks (Lefthook / Husky).\n4. Aguarde confirmação do usuário antes de alterar o .gitignore ou instalar hooks.",
+      "description": "Initialize .aiflow/ exclusion, project AGENTS.md, docs/decisions and gitignore",
+      "agent": "build"
+    },
+    "spec": {
+      "template": "0. Garanta o exclude do .aiflow/ no git local:\nmkdir -p .git/info .aiflow\ngrep -qxF \".aiflow\" .git/info/exclude || echo \".aiflow\" >> .git/info/exclude\n\n1. Detecte a branch de trabalho:\n- SE o usuário especificou uma branch em $ARGUMENTS (ex: \"em feat/auth\") → use a branch especificada.\n- SENÃO → execute `git branch --show-current` e use o resultado como branch alvo.\n\n2. Verifique se .aiflow/spec.md já existe:\n- Se existir: leia o conteúdo e compare com $ARGUMENTS.\n  * Se for a mesma tarefa → trate como refinamento e atualize o spec existente.\n  * Se for tarefa diferente → execute `date +%Y%m%d`, arquive em .aiflow/archive/spec-[DATA].md e crie o novo .aiflow/spec.md.\n\n3. Leia docs/decisions/*.md (se existirem) como contexto prévio.\n\n4. Classifique a tarefa:\n- TRIVIAL (doc, typo, cor, config, renomear — sem lógica de negócio):\n  → Não crie .aiflow/spec.md. Responda em 1 linha: \"TRIVIAL: [descrição]. Branch: [branch]. Vá para /plan.\"\n- SIMPLES (bug claro, feature pequena seguindo padrão existente, ≤3 arquivos):\n  → Não faça perguntas. Crie .aiflow/spec.md mínimo (Objetivo 1 parágrafo + 1-3 critérios de done). Responda: \"SIMPLES: .aiflow/spec.md criado. Branch: [branch]. Vá para /plan.\"\n- COMPLEXA (comportamento novo, múltiplos arquivos, decisão de arquitetura):\n  → Faça até 5 perguntas clarificadoras, aguarde respostas e crie .aiflow/spec.md completo. Se envolver decisão arquitetural relevante, sugira executar /adr antes do /plan.",
+      "description": "Adaptive spec generation with branch detection and archiving check",
+      "agent": "build"
+    },
+    "plan": {
+      "template": "0. Verifique se .aiflow/plan.md já existe:\n- Se existir: leia o conteúdo.\n  * Se houver tarefas [ ] pendentes → NÃO sobrescreva. Avise: \"Existem tarefas pendentes no plano atual. Conclua com /task ou confirme explicitamente para arquivar.\"\n  * Se todas as tarefas estiverem [x] → execute `date +%Y%m%d`, arquive em .aiflow/archive/plan-[DATA].md e crie o novo .aiflow/plan.md.\n\n1. Leia .aiflow/spec.md (ou a classificação do /spec) e grave no cabeçalho do .aiflow/plan.md:\n# Classificação: [TRIVIAL/SIMPLES/COMPLEXA]\n# Branch: [branch-detectada]\n# Base: main\n\n2. Verificação de Pré-Condições Executáveis (SWE-planner Gate - Valmeekam et al. / SWE-planner 2024):\nAntes de adicionar qualquer tarefa de mutação no .aiflow/plan.md (ex: \"Modificar função X no arquivo Y\"), o agente é PROIBIDO de planejar no vácuo. Ele DEVE verificar ativamente se o arquivo e o símbolo alvo existem de fato (usando ast-grep_search, grep ou read). Se a pré-condição falhar, o plano deve refletir a criação ou ajuste imediato, eliminando planos quebrados por suposição.\n\n3. Gere a lista de tarefas:\n- TRIVIAL:\n  [ ] 1. [descrição da tarefa trivial]\n     Critério de done: sem regressões nos testes existentes\n  → Responda: \"TRIVIAL: .aiflow/plan.md criado. Execute /task.\"\n- SIMPLES:\n  [ ] 1. Título\n     Critério de done: [teste ou comportamento específico]\n  → Responda: \"SIMPLES: .aiflow/plan.md criado. Execute /task.\"\n- COMPLEXA:\n  Gere a lista detalhada com critérios de done, complexidade S/M, dependências, risco e flag [P].\n  → Responda: \"COMPLEXA: .aiflow/plan.md criado. Execute /task ou /tasks.\"",
+      "description": "Adaptive plan generation with header state persistence",
+      "agent": "build"
+    },
+    "task": {
+      "template": "SE $ARGUMENTS tiver texto (tarefa ad-hoc):\n1. Se .aiflow/plan.md não existir:\n   - Execute `git branch --show-current` para detectar a branch.\n   - Crie .aiflow/plan.md com cabeçalho mínimo:\n     # Classificação: SIMPLES\n     # Branch: [branch-detectada]\n     # Base: main\n2. Leia o cabeçalho do .aiflow/plan.md para herdar a classificação atual.\n3. Classifique a nova tarefa e adicione ao final do .aiflow/plan.md:\n   [ ] N+1. [descrição de $ARGUMENTS]\n      Critério de done: [inferido da descrição]\n      Complexidade: [S/M]\n      Origem: ad-hoc\n4. Execute a tarefa imediatamente seguindo o fluxo TDD normal.\n\nSE $ARGUMENTS estiver vazio:\n1. Leia .aiflow/plan.md e identifique a classificação no cabeçalho e a próxima tarefa [ ].\n\nEXECUÇÃO DA TAREFA:\n- TRIVIAL → Obvious Implementation: implemente diretamente, confirme testes verdes, marque [x] no .aiflow/plan.md. Atualize .aiflow/context.md se houver padrão relevante descoberto. Próxima etapa: /commit.\n- SIMPLES/COMPLEXA → Ciclo TDD:\n  a) Crie sempre e somente .aiflow/task-test.sh com o comando de teste do critério de done (deve falhar agora).\n  b) Implemente o código mínimo.\n  c) Execute: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n  d) SE PASSOU: apague .aiflow/task-test.sh e .aiflow/task-test.log, marque [x] no .aiflow/plan.md, atualize .aiflow/context.md com aprendizados. Recomende /validate (ou /commit se SIMPLES).\n  e) SE FALHOU: mantenha ambos os arquivos, pare e informe: \"Testes falharam. Verifique .aiflow/task-test.log e execute /debug.\"",
+      "description": "Execute single pending task or ad-hoc task with atomic task-test.sh"
+    },
+    "tasks": {
+      "template": "Execute todas as tarefas [ ] do .aiflow/plan.md em sequência.\n\nLeia a classificação no cabeçalho do .aiflow/plan.md.\n\nPara cada tarefa [ ]:\n1. Crie sempre e somente .aiflow/task-test.sh com o teste do critério de done (deve falhar agora).\n2. Implemente o código mínimo para o teste passar.\n3. Execute: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n4. SE PASSOU: apague .aiflow/task-test.sh e .aiflow/task-test.log, marque [x] no .aiflow/plan.md, atualize .aiflow/context.md e prossiga para a próxima tarefa.\n5. SE FALHOU: mantenha ambos os arquivos, interrompa o loop imediatamente e informe:\n   'Tarefa N falhou. Verifique .aiflow/task-test.log e execute /debug.'\n   Não avance para a próxima tarefa.\n\nApós concluir todas as tarefas:\n- Recomende executar /validate.",
+      "description": "Execute all pending tasks from plan.md sequentially with TDD and stop-on-error gate"
+    },
+    "validate": {
+      "template": "Execute o portão de qualidade completo:\n1. Testes: rode a suíte completa e reporte falhas.\n2. Lint: rode o linter configurado e reporte violações.\n3. Type-check: rode o verificador de tipos e reporte erros.\n4. Dependências: verifique vulnerabilidades conhecidas (npm audit / pip-audit).\n5. Cobertura: reporte se a cobertura caiu em relação ao baseline.\n6. AQEI Quality Gate: execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .'. Se o AQEI Global for inferior a 80.0% ou houver stubs críticos (TODO, pass) ou arquivos > 300 linhas, reprove a validação e exija refatoração prévia.\n\nSE APROVADO:\n- Consulte a classificação no cabeçalho do .aiflow/plan.md.\n- Se SIMPLES: recomende executar /commit.\n- Se COMPLEXA: recomende executar /review.\n\nSE REPROVADO:\n- Falha de Teste -> Crie ou sobrescreva .aiflow/debug-context.md com timestamp, comando de teste, testes falhos, output completo e stack trace. Recomende executar /debug.\n- Falha de Lint/Types -> Recomende executar /refactor ou sugira a correção no arquivo.\n- Falha de Cobertura -> Recomende executar /task para adicionar testes ausentes.\n- Falha de Segurança -> Indique a vulnerabilidade e recomende a atualização.\n- Falha de AQEI/Modularidade -> Recomende executar /refactor para decompor arquivos > 300 linhas ou eliminar stubs.",
+      "description": "Run full quality gate with advisory routing and debug context capture",
+      "agent": "tester"
+    },
+    "review": {
+      "template": "Faça code review do diff atual.\n1. Verifique cada critério de aceitação do .aiflow/spec.md — a implementação atende?\n2. Verifique se existe algum ADR em docs/decisions/ relevante para o diff e inclua a seção '## Conformidade com ADRs'.\n3. Segurança: injection, exposição de dados, autenticação.\n4. Performance: N+1, memory leaks, complexidade algorítmica.\n5. Manutenibilidade: duplicação, acoplamento, coesão.\n\nFormato:\n🔴 Crítico (bloqueia merge)\n🟡 Importante (deve ser discutido)\n🟢 Sugestão\n\nResumo final: aprovado/reprovado + motivo.\nSe aprovado: recomende executar /commit.",
+      "description": "Full code review against spec acceptance criteria and ADR compliance",
+      "agent": "reviewer"
+    },
+    "commit": {
+      "template": "Leia .aiflow/plan.md e extraia Branch e Base do cabeçalho.\n\n0. Execute `git status` e `git diff --staged` para entender o que está staged.\n   Se nada estiver staged, execute `git add .` antes de prosseguir.\n\nChecklist antes de commitar:\n1. Todos os testes passam? (verifique se .aiflow/task-test.sh não existe — se existir há testes falhando)\n2. Lint e type-check limpos?\n3. AQEI >= 80.0% limpo sem stubs (TODO/FIXME) ou arquivos > 300L? (execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .')\n4. Nenhum segredo ou API key exposto?\n5. .aiflow/, graphify-out/ e .playwright-cli/ não estão no diff (devem estar no ~/.config/git/ignore)\n\nSE TUDO OK:\n`git add .`\n`git commit -m '[mensagem em português no padrão Conventional Commits]'`\n`git push origin [Branch]`\n(se a branch não existir remotamente: `git push -u origin [Branch]`)\n\nSE ALGO FALHOU: reporte o bloqueio antes de executar qualquer git.\n\nPasso opcional:\nSe a tarefa envolveu resolução de bug não-óbvio ou decisão técnica relevante, registre uma observação concisa no Memory MCP para retenção global de aprendizado.",
+      "description": "Stage, commit and push to target branch from plan.md header"
+    },
+    "mr": {
+      "template": "Leia .aiflow/spec.md e .aiflow/plan.md.\n\nDetermine o nome da branch de MR a partir da classificação e da tarefa:\n- TRIVIAL → chore/[descricao-com-hifens]\n- SIMPLES (fix) → fix/[descricao-com-hifens]\n- SIMPLES (feature) → feat/[descricao-com-hifens]\n- COMPLEXA → feat/[descricao-com-hifens]\n\nExecute os comandos git diretamente:\n`git checkout -b [branch-mr]`\n`git add .`\n`git commit -m '[mensagem Conventional Commits em português]'`\n`git push -u origin [branch-mr]`\n\nApós o push, gere no output da conversa a descrição do MR para copiar e colar:\n---\n## Contexto\n[Por que essa mudança é necessária — baseado no spec]\n## O que mudou\n[Lista por área — baseado no git diff]\n## Como testar\n[Passos específicos]\n## Checklist\n- [ ] Critérios de aceitação do spec implementados\n- [ ] Testes adicionados/atualizados\n- [ ] Sem segredos expostos\n- [ ] Breaking changes documentados\n---\n\nNão crie nenhum arquivo com essa descrição. Apenas exiba no output.",
+      "description": "Create MR branch, commit, push and generate merge request description in output"
+    },
+    "debug": {
+      "template": "0. Identifique automaticamente a origem da falha sem necessitar de argumentos:\n   - SE .aiflow/task-test.sh e .aiflow/task-test.log existirem → Origem: falha no teste atômico da tarefa isolada.\n   - SE .aiflow/debug-context.md existir → Origem: falha no portão de qualidade /validate.\n   - SENÃO → Analise a última saída do test runner ou logs de erro disponíveis no contexto do terminal.\n\n1. Investigação & Resolução:\n   - Leia o arquivo de log/contexto como ponto de partida (erro exato, comando e stack trace já documentados).\n   - Forme hipóteses e teste-as. Se após 3 hipóteses locais falharem, consulte a pesquisa web (`websearch`) para pesquisar a mensagem de erro exata e a versão da dependência.\n   - Se a origem foi task-test.sh, execute novamente: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n   - SE PASSOU nos testes: apague .aiflow/task-test.sh, .aiflow/task-test.log e .aiflow/debug-context.md se existirem. Atualize .aiflow/context.md com o aprendizado da sessão. Recomende /commit ou /validate conforme a classificação no .aiflow/plan.md.\n   - SE FALHOU: atualize o log/contexto, informe o erro e tente nova hipótese.",
+      "description": "Automatic debug from .aiflow/task-test.log, .aiflow/debug-context.md or latest error"
+    },
+    "refactor": {
+      "template": "0. Identificação Automática sem necessitar de argumentos:\n   - Leia .aiflow/plan.md, .aiflow/spec.md e analise o diff atual ou arquivos modificados.\n   - Identifique pontos de refatoração conforme os limites do AGENTS.md (funções > 40 linhas, arquivos > 300 linhas, duplicação de código ou avisos de lint/types do /validate).\n\n1. Execução Segura:\n   - Rode TODOS os testes do projeto antes para capturar o snapshot de aprovação.\n   - Refatore o código focando em: coesão, desacoplamento, SOLID e eliminação de duplicação.\n   - Rode os testes novamente — devem ter exatamente o mesmo resultado verde.\n   - Se qualquer teste quebrar, reverta e tente uma abordagem diferente.\n   - Nenhuma mudança de comportamento externo é permitida.\n\n2. Conclusão:\n   - Atualize .aiflow/context.md com aprendizados ou padrões de refatoração aplicados.\n   - Consulte .aiflow/plan.md: se TRIVIAL/SIMPLES recomende /commit; se COMPLEXA recomende /validate.",
+      "description": "Automatic refactoring from plan.md, git diff, and AGENTS.md thresholds",
+      "agent": "refactorer"
+    },
+    "adr": {
+      "template": "Primeiro, execute `date +%Y%m%d` para obter a data atual.\nCrie o arquivo docs/decisions/ADR-[DATA]-[ARGUMENTS-COM-HIFENS].md contendo:\n# ADR: $ARGUMENTS\nData: [DATA]\nStatus: Aceito\n\n## Contexto\nQual problema estamos resolvendo?\n## Decisão\nO que decidimos fazer?\n## Alternativas consideradas\nO que foi descartado e por quê?\n## Consequências\nPositivas, negativas e trade-offs que aceitamos.",
+      "description": "Create an Architecture Decision Record for a technical decision",
+      "agent": "architect"
+    },
+    "map": {
+      "template": "Execute mapeamento estrutural dos paths: $ARGUMENTS\n\n1. Execute tree ou find em cada path\n2. Liste arquivos por diretório com tamanho e data\n3. Identifique padrões (naming, extensões, organização)\n4. Se um diretório tiver mais de 20 arquivos, agrupe por tipo\n\nNão leia conteúdo de nenhum arquivo.\nSalve o resultado em .aiflow/map.md\nFinalize com: 'Mapa gerado. Execute /analyze <foco> para continuar.'",
+      "description": "Map repository structure without reading file content",
+      "agent": "build"
+    },
+    "analyze": {
+      "template": "Leia .aiflow/map.md para entender o que existe.\n\nFoco da análise: $ARGUMENTS\n\nCom base no foco:\n1. Selecione apenas os arquivos que respondem à pergunta — liste-os com justificativa\n2. Ignore: testes unitários, vendor/, node_modules/, locks, arquivos gerados\n3. Se um diretório tiver mais de 20 relevantes, leia os 5 mais representativos\n4. Leia apenas o selecionado e produza síntese estruturada\n\nSe o escopo for amplo demais, proponha quebrar em análises menores.",
+      "description": "Read and synthesize selected files based on map and focus",
+      "agent": "plan"
+    },
+    "quota": {
+      "template": "Apresente o relatório de cota gerado deterministicamente abaixo exatamente como formatado, sem executar ferramentas, comandos adicionais ou introduções:\n\n!`python3 ~/.config/opencode/scripts/quota.py $ARGUMENTS`",
+      "description": "Exibe cotas e limites determinísticos do modelo em uso e provedores ativos"
+    },
+    "aqei": {
+      "template": "Apresente a avaliação AQEI gerada deterministicamente abaixo sem executar ferramentas adicionais ou introduções:\n\n!`python3 ~/.config/opencode/scripts/aqei-scorer.py $ARGUMENTS`",
+      "description": "Calcula o índice de qualidade e eficiência (AQEI) da sessão ou audita diretório"
+    },
+    "graphify": {
+      "template": "SE $ARGUMENTS tiver texto:\nExecute: graphify query \"$ARGUMENTS\"\nSENÃO SE existir graphify-out/graph.json:\nExecute: graphify god-nodes --top 10\nSENÃO:\nExecute: graphify extract . --code-only\nExiba o resumo arquitetural.",
+      "description": "Gera ou consulta o Knowledge Graph estrutural do repositório (Graphify AST)",
+      "agent": "scout"
+    },
+    "playwright": {
+      "template": "SE $ARGUMENTS contiver 'ui' ou 'dashboard':\nExecute em background: `npx playwright test --ui &` e confirme ao usuário que o Playwright UI Dashboard foi iniciado.\nSENÃO SE $ARGUMENTS contiver 'report':\nExecute em background: `npx playwright show-report &` e confirme abertura do relatório HTML.\nSENÃO SE $ARGUMENTS contiver 'trace':\nExecute em background: `npx playwright show-trace $ARGUMENTS &`\nSENÃO:\nExecute: `npx playwright test --project=chromium --reporter=list $ARGUMENTS`",
+      "description": "Abre o Playwright UI Mode (Dashboard), relatórios HTML ou executa testes E2E",
+      "agent": "browser"
+    },
+    "data": {
+      "template": "SE $ARGUMENTS começar com 'schema ':\nExecute: data-query schema $ARGUMENTS[7:]\nSENÃO SE $ARGUMENTS começar com 'summary ':\nExecute: data-query summary $ARGUMENTS[8:]\nSENÃO SE $ARGUMENTS começar com 'query ':\nExecute: data-query query \"$ARGUMENTS[6:]\"\nSENÃO:\nAnalise o arquivo ou execute a consulta informada usando `data-query`:\n$ARGUMENTS\nProduza síntese de dados e insights com base nos resultados computados.",
+      "description": "Executa análise de dados, estatísticas ou consultas SQL analíticas em arquivos locais via DuckDB",
+      "agent": "data-engineer"
+    },
+    "audit": {
+      "template": "SE $ARGUMENTS contiver 'secrets':\nExecute: sec-scan secrets\nSENÃO SE $ARGUMENTS contiver 'sast' ou 'code':\nExecute: sec-scan sast\nSENÃO SE $ARGUMENTS contiver 'deps':\nExecute: sec-scan deps\nSENÃO SE $ARGUMENTS contiver 'threat' ou 'red':\nInvoque @red-team para modelagem de ameaças STRIDE e análise de superfície de ataque em $ARGUMENTS.\nSENÃO:\nExecute auditoria completa (segredos, SAST e dependências): `sec-scan all`\nApresente a síntese dos achados e plano de remediação.",
+      "description": "Auditoria de segurança de código (Semgrep SAST), segredos (Gitleaks) ou dependências (OSV-Scanner CVEs)",
+      "agent": "blue-team"
+    },
+    "perf": {
+      "template": "SE $ARGUMENTS começar com 'http ' ou contiver 'http://' ou 'https://':\nExecute: perf-bench http $ARGUMENTS\nSENÃO SE $ARGUMENTS começar com 'cli ':\nExecute: perf-bench cli $ARGUMENTS[4:]\nSENÃO:\nExecute o benchmark de performance solicitado usando `perf-bench`:\n$ARGUMENTS\nApresente a tabela com percentis (p50, p95, p99) e análise do resultado.",
+      "description": "Benchmark estatístico de performance (Hyperfine) ou teste de carga HTTP (Autocannon)",
+      "agent": "performance"
+    },
+    "agentic": {
+      "template": "SE $ARGUMENTS tiver texto:\nExecute a tarefa solicitada no modo agêntico, de forma direta e autônoma:\n$ARGUMENTS\n\nSENÃO:\nConfirme em uma linha que o modo agêntico está ativo nesta sessão.",
+      "description": "Executa um comando ou ativa o modo agêntico nesta sessão",
+      "agent": "agentic"
+    },
+    "status": {
+      "template": "Apresente o painel unificado de status abaixo sem introduções:\n\n!`python3 ~/.config/opencode/scripts/status.py $ARGUMENTS`",
+      "description": "Apresenta o painel unificado de status do sistema e sessão OpenCode"
+    },
+    "learn": {
+      "template": "Extraia e registre os aprendizados técnicos desta sessão no grafo de memória:\n\n!`python3 ~/.config/opencode/scripts/learn.py $ARGUMENTS`",
+      "description": "Extrai e registra aprendizados técnicos no grafo de memória"
+    },
+    "sandbox": {
+      "template": "Execute a tarefa em sandbox isolado via Git Worktree (Two-Phase Commit):\n\n!`bash ~/.config/opencode/scripts/worktree-runner.sh $ARGUMENTS`",
+      "description": "Executa tarefas em sandbox isolado via Git Worktree (Two-Phase Commit)"
+    },
+    "checkpoint": {
+      "template": "Apresente o resultado do checkpoint abaixo sem introduções adicionais:\n\n!`python3 ~/.config/opencode/scripts/checkpoint.py $ARGUMENTS`",
+      "description": "Gera um snapshot de checkpoint do estado da sessão e monitora o teto de 40 turnos"
+    }
+  },
+  "mcp": {
+    "servers": {
+      "context7": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@upstash/context7-mcp"
+        ],
+        "environment": {},
+        "disabled": false
+      },
+      "sequential-thinking": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@modelcontextprotocol/server-sequential-thinking"
+        ],
+        "environment": {},
+        "disabled": false
+      },
+      "memory": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@modelcontextprotocol/server-memory"
+        ],
+        "environment": {
+          "MEMORY_FILE_PATH": "/home/caio/.config/opencode/memory.jsonl"
+        },
+        "disabled": false
+      },
+      "ast-grep": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "ast-grep-mcp"
+        ],
+        "environment": {},
+        "disabled": false
+      },
+      "docker": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "mcp-docker-server"
+        ],
+        "environment": {},
+        "disabled": false
+      },
+      "git-repo": {
+        "type": "local",
+        "command": [
+          "uvx",
+          "mcp-server-git"
+        ],
+        "environment": {},
+        "disabled": false
+      },
+      "agent-lsp": {
+        "type": "local",
+        "command": [
+          "npx",
+          "-y",
+          "@blackwell-systems/agent-lsp"
+        ],
+        "environment": {},
+        "disabled": false
+      }
+    }
+  },
+  "permissions": [
+    {
+      "action": "*",
+      "resource": "*",
+      "effect": "allow"
+    },
+    {
+      "action": "shell",
+      "resource": "rm *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "rmdir *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "git push*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "git push --force*",
+      "effect": "deny"
+    },
+    {
+      "action": "shell",
+      "resource": "git reset --hard*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "su *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "dd *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "mkfs*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "chmod -R *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "chown -R *",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "shutdown*",
+      "effect": "ask"
+    },
+    {
+      "action": "shell",
+      "resource": "reboot*",
+      "effect": "ask"
+    }
+  ],
   "compaction": {
     "auto": true,
-    "prune": true,
-    "reserved": 15000
+    "buffer": 15000
   },
-  "snapshot": true,
+  "snapshots": true,
   "share": "manual",
-  "autoupdate": true,
+  "update": "auto",
   "watcher": {
     "ignore": [
       "node_modules/**",
@@ -218,179 +914,14 @@
   "formatter": {
     "prettier": {},
     "custom-black": {
-      "command": ["black", "$FILE"],
-      "extensions": [".py"]
+      "command": [
+        "black",
+        "$FILE"
+      ],
+      "extensions": [
+        ".py"
+      ]
     }
   },
-  "mcp": {
-    "context7": {
-      "type": "local",
-      "command": ["npx", "-y", "@upstash/context7-mcp"],
-      "enabled": true,
-      "environment": {}
-    },
-    "sequential-thinking": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "enabled": true,
-      "environment": {}
-    },
-    "memory": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
-      "environment": {
-        "MEMORY_FILE_PATH": "/home/caio/.config/opencode/memory.jsonl"
-      },
-      "enabled": true
-    },
-    "ast-grep": {
-      "type": "local",
-      "command": ["npx", "-y", "ast-grep-mcp"],
-      "enabled": true,
-      "environment": {}
-    },
-    "docker": {
-      "type": "local",
-      "command": ["npx", "-y", "mcp-docker-server"],
-      "enabled": true,
-      "environment": {}
-    },
-    "git-repo": {
-      "type": "local",
-      "command": ["uvx", "mcp-server-git"],
-      "enabled": true,
-      "environment": {}
-    },
-    "agent-lsp": {
-      "type": "local",
-      "command": ["npx", "-y", "@blackwell-systems/agent-lsp"],
-      "enabled": true,
-      "environment": {}
-    }
-  },
-  "command": {
-    "semsearch": {
-      "description": "Busca semântica vetorial por intenção de código na GPU local (Ollama / nomic-embed-text)",
-      "template": "Apresente os resultados da busca semântica vetorial abaixo:\n\n!`python3 ~/.config/opencode/scripts/semantic-code-search.py $ARGUMENTS`"
-    },
-    "init": {
-      "description": "Initialize .aiflow/ exclusion, project AGENTS.md, docs/decisions and gitignore",
-      "agent": "build",
-      "template": "0. Garanta o exclude no git local:\nmkdir -p .git/info .aiflow\ngrep -qxF \".aiflow\" .git/info/exclude || echo \".aiflow\" >> .git/info/exclude\n\n1. Analise o repositório atual (stack, linter, test runner, estrutura de pastas):\n- Se AGENTS.md já existir no raiz, NÃO o sobrescreva; apenas analise e proponha refinamentos.\n- Se não existir, crie AGENTS.md adaptado à stack (comandos exatos de test/lint/build, convenções, limites de refatoração: funções >40 linhas, arquivos >300 linhas).\n2. Crie o diretório docs/decisions/ com a estrutura base se ausente.\n3. Sugira as entradas recomendadas para o .gitignore e verifica se há suporte a pre-commit hooks (Lefthook / Husky).\n4. Aguarde confirmação do usuário antes de alterar o .gitignore ou instalar hooks."
-    },
-    "spec": {
-      "description": "Adaptive spec generation with branch detection and archiving check",
-      "agent": "build",
-      "template": "0. Garanta o exclude do .aiflow/ no git local:\nmkdir -p .git/info .aiflow\ngrep -qxF \".aiflow\" .git/info/exclude || echo \".aiflow\" >> .git/info/exclude\n\n1. Detecte a branch de trabalho:\n- SE o usuário especificou uma branch em $ARGUMENTS (ex: \"em feat/auth\") → use a branch especificada.\n- SENÃO → execute `git branch --show-current` e use o resultado como branch alvo.\n\n2. Verifique se .aiflow/spec.md já existe:\n- Se existir: leia o conteúdo e compare com $ARGUMENTS.\n  * Se for a mesma tarefa → trate como refinamento e atualize o spec existente.\n  * Se for tarefa diferente → execute `date +%Y%m%d`, arquive em .aiflow/archive/spec-[DATA].md e crie o novo .aiflow/spec.md.\n\n3. Leia docs/decisions/*.md (se existirem) como contexto prévio.\n\n4. Classifique a tarefa:\n- TRIVIAL (doc, typo, cor, config, renomear — sem lógica de negócio):\n  → Não crie .aiflow/spec.md. Responda em 1 linha: \"TRIVIAL: [descrição]. Branch: [branch]. Vá para /plan.\"\n- SIMPLES (bug claro, feature pequena seguindo padrão existente, ≤3 arquivos):\n  → Não faça perguntas. Crie .aiflow/spec.md mínimo (Objetivo 1 parágrafo + 1-3 critérios de done). Responda: \"SIMPLES: .aiflow/spec.md criado. Branch: [branch]. Vá para /plan.\"\n- COMPLEXA (comportamento novo, múltiplos arquivos, decisão de arquitetura):\n  → Faça até 5 perguntas clarificadoras, aguarde respostas e crie .aiflow/spec.md completo. Se envolver decisão arquitetural relevante, sugira executar /adr antes do /plan."
-    },
-    "plan": {
-      "description": "Adaptive plan generation with header state persistence",
-      "agent": "build",
-      "template": "0. Verifique se .aiflow/plan.md já existe:\n- Se existir: leia o conteúdo.\n  * Se houver tarefas [ ] pendentes → NÃO sobrescreva. Avise: \"Existem tarefas pendentes no plano atual. Conclua com /task ou confirme explicitamente para arquivar.\"\n  * Se todas as tarefas estiverem [x] → execute `date +%Y%m%d`, arquive em .aiflow/archive/plan-[DATA].md e crie o novo .aiflow/plan.md.\n\n1. Leia .aiflow/spec.md (ou a classificação do /spec) e grave no cabeçalho do .aiflow/plan.md:\n# Classificação: [TRIVIAL/SIMPLES/COMPLEXA]\n# Branch: [branch-detectada]\n# Base: main\n\n2. Verificação de Pré-Condições Executáveis (SWE-planner Gate - Valmeekam et al. / SWE-planner 2024):\nAntes de adicionar qualquer tarefa de mutação no .aiflow/plan.md (ex: \"Modificar função X no arquivo Y\"), o agente é PROIBIDO de planejar no vácuo. Ele DEVE verificar ativamente se o arquivo e o símbolo alvo existem de fato (usando ast-grep_search, grep ou read). Se a pré-condição falhar, o plano deve refletir a criação ou ajuste imediato, eliminando planos quebrados por suposição.\n\n3. Gere a lista de tarefas:\n- TRIVIAL:\n  [ ] 1. [descrição da tarefa trivial]\n     Critério de done: sem regressões nos testes existentes\n  → Responda: \"TRIVIAL: .aiflow/plan.md criado. Execute /task.\"\n- SIMPLES:\n  [ ] 1. Título\n     Critério de done: [teste ou comportamento específico]\n  → Responda: \"SIMPLES: .aiflow/plan.md criado. Execute /task.\"\n- COMPLEXA:\n  Gere a lista detalhada com critérios de done, complexidade S/M, dependências, risco e flag [P].\n  → Responda: \"COMPLEXA: .aiflow/plan.md criado. Execute /task ou /tasks.\""
-    },
-    "task": {
-      "description": "Execute single pending task or ad-hoc task with atomic task-test.sh",
-      "template": "SE $ARGUMENTS tiver texto (tarefa ad-hoc):\n1. Se .aiflow/plan.md não existir:\n   - Execute `git branch --show-current` para detectar a branch.\n   - Crie .aiflow/plan.md com cabeçalho mínimo:\n     # Classificação: SIMPLES\n     # Branch: [branch-detectada]\n     # Base: main\n2. Leia o cabeçalho do .aiflow/plan.md para herdar a classificação atual.\n3. Classifique a nova tarefa e adicione ao final do .aiflow/plan.md:\n   [ ] N+1. [descrição de $ARGUMENTS]\n      Critério de done: [inferido da descrição]\n      Complexidade: [S/M]\n      Origem: ad-hoc\n4. Execute a tarefa imediatamente seguindo o fluxo TDD normal.\n\nSE $ARGUMENTS estiver vazio:\n1. Leia .aiflow/plan.md e identifique a classificação no cabeçalho e a próxima tarefa [ ].\n\nEXECUÇÃO DA TAREFA:\n- TRIVIAL → Obvious Implementation: implemente diretamente, confirme testes verdes, marque [x] no .aiflow/plan.md. Atualize .aiflow/context.md se houver padrão relevante descoberto. Próxima etapa: /commit.\n- SIMPLES/COMPLEXA → Ciclo TDD:\n  a) Crie sempre e somente .aiflow/task-test.sh com o comando de teste do critério de done (deve falhar agora).\n  b) Implemente o código mínimo.\n  c) Execute: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n  d) SE PASSOU: apague .aiflow/task-test.sh e .aiflow/task-test.log, marque [x] no .aiflow/plan.md, atualize .aiflow/context.md com aprendizados. Recomende /validate (ou /commit se SIMPLES).\n  e) SE FALHOU: mantenha ambos os arquivos, pare e informe: \"Testes falharam. Verifique .aiflow/task-test.log e execute /debug.\""
-    },
-    "tasks": {
-      "description": "Execute all pending tasks from plan.md sequentially with TDD and stop-on-error gate",
-      "template": "Execute todas as tarefas [ ] do .aiflow/plan.md em sequência.\n\nLeia a classificação no cabeçalho do .aiflow/plan.md.\n\nPara cada tarefa [ ]:\n1. Crie sempre e somente .aiflow/task-test.sh com o teste do critério de done (deve falhar agora).\n2. Implemente o código mínimo para o teste passar.\n3. Execute: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n4. SE PASSOU: apague .aiflow/task-test.sh e .aiflow/task-test.log, marque [x] no .aiflow/plan.md, atualize .aiflow/context.md e prossiga para a próxima tarefa.\n5. SE FALHOU: mantenha ambos os arquivos, interrompa o loop imediatamente e informe:\n   'Tarefa N falhou. Verifique .aiflow/task-test.log e execute /debug.'\n   Não avance para a próxima tarefa.\n\nApós concluir todas as tarefas:\n- Recomende executar /validate."
-    },
-    "validate": {
-      "description": "Run full quality gate with advisory routing and debug context capture",
-      "agent": "tester",
-      "template": "Execute o portão de qualidade completo:\n1. Testes: rode a suíte completa e reporte falhas.\n2. Lint: rode o linter configurado e reporte violações.\n3. Type-check: rode o verificador de tipos e reporte erros.\n4. Dependências: verifique vulnerabilidades conhecidas (npm audit / pip-audit).\n5. Cobertura: reporte se a cobertura caiu em relação ao baseline.\n6. AQEI Quality Gate: execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .'. Se o AQEI Global for inferior a 80.0% ou houver stubs críticos (TODO, pass) ou arquivos > 300 linhas, reprove a validação e exija refatoração prévia.\n\nSE APROVADO:\n- Consulte a classificação no cabeçalho do .aiflow/plan.md.\n- Se SIMPLES: recomende executar /commit.\n- Se COMPLEXA: recomende executar /review.\n\nSE REPROVADO:\n- Falha de Teste -> Crie ou sobrescreva .aiflow/debug-context.md com timestamp, comando de teste, testes falhos, output completo e stack trace. Recomende executar /debug.\n- Falha de Lint/Types -> Recomende executar /refactor ou sugira a correção no arquivo.\n- Falha de Cobertura -> Recomende executar /task para adicionar testes ausentes.\n- Falha de Segurança -> Indique a vulnerabilidade e recomende a atualização.\n- Falha de AQEI/Modularidade -> Recomende executar /refactor para decompor arquivos > 300 linhas ou eliminar stubs."
-    },
-    "review": {
-      "description": "Full code review against spec acceptance criteria and ADR compliance",
-      "agent": "reviewer",
-      "template": "Faça code review do diff atual.\n1. Verifique cada critério de aceitação do .aiflow/spec.md — a implementação atende?\n2. Verifique se existe algum ADR em docs/decisions/ relevante para o diff e inclua a seção '## Conformidade com ADRs'.\n3. Segurança: injection, exposição de dados, autenticação.\n4. Performance: N+1, memory leaks, complexidade algorítmica.\n5. Manutenibilidade: duplicação, acoplamento, coesão.\n\nFormato:\n🔴 Crítico (bloqueia merge)\n🟡 Importante (deve ser discutido)\n🟢 Sugestão\n\nResumo final: aprovado/reprovado + motivo.\nSe aprovado: recomende executar /commit."
-    },
-    "commit": {
-      "description": "Stage, commit and push to target branch from plan.md header",
-      "template": "Leia .aiflow/plan.md e extraia Branch e Base do cabeçalho.\n\n0. Execute `git status` e `git diff --staged` para entender o que está staged.\n   Se nada estiver staged, execute `git add .` antes de prosseguir.\n\nChecklist antes de commitar:\n1. Todos os testes passam? (verifique se .aiflow/task-test.sh não existe — se existir há testes falhando)\n2. Lint e type-check limpos?\n3. AQEI >= 80.0% limpo sem stubs (TODO/FIXME) ou arquivos > 300L? (execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .')\n4. Nenhum segredo ou API key exposto?\n5. .aiflow/, graphify-out/ e .playwright-cli/ não estão no diff (devem estar no ~/.config/git/ignore)\n\nSE TUDO OK:\n`git add .`\n`git commit -m '[mensagem em português no padrão Conventional Commits]'`\n`git push origin [Branch]`\n(se a branch não existir remotamente: `git push -u origin [Branch]`)\n\nSE ALGO FALHOU: reporte o bloqueio antes de executar qualquer git.\n\nPasso opcional:\nSe a tarefa envolveu resolução de bug não-óbvio ou decisão técnica relevante, registre uma observação concisa no Memory MCP para retenção global de aprendizado."
-    },
-    "mr": {
-      "description": "Create MR branch, commit, push and generate merge request description in output",
-      "template": "Leia .aiflow/spec.md e .aiflow/plan.md.\n\nDetermine o nome da branch de MR a partir da classificação e da tarefa:\n- TRIVIAL → chore/[descricao-com-hifens]\n- SIMPLES (fix) → fix/[descricao-com-hifens]\n- SIMPLES (feature) → feat/[descricao-com-hifens]\n- COMPLEXA → feat/[descricao-com-hifens]\n\nExecute os comandos git diretamente:\n`git checkout -b [branch-mr]`\n`git add .`\n`git commit -m '[mensagem Conventional Commits em português]'`\n`git push -u origin [branch-mr]`\n\nApós o push, gere no output da conversa a descrição do MR para copiar e colar:\n---\n## Contexto\n[Por que essa mudança é necessária — baseado no spec]\n## O que mudou\n[Lista por área — baseado no git diff]\n## Como testar\n[Passos específicos]\n## Checklist\n- [ ] Critérios de aceitação do spec implementados\n- [ ] Testes adicionados/atualizados\n- [ ] Sem segredos expostos\n- [ ] Breaking changes documentados\n---\n\nNão crie nenhum arquivo com essa descrição. Apenas exiba no output."
-    },
-    "debug": {
-      "description": "Automatic debug from .aiflow/task-test.log, .aiflow/debug-context.md or latest error",
-      "template": "0. Identifique automaticamente a origem da falha sem necessitar de argumentos:\n   - SE .aiflow/task-test.sh e .aiflow/task-test.log existirem → Origem: falha no teste atômico da tarefa isolada.\n   - SE .aiflow/debug-context.md existir → Origem: falha no portão de qualidade /validate.\n   - SENÃO → Analise a última saída do test runner ou logs de erro disponíveis no contexto do terminal.\n\n1. Investigação & Resolução:\n   - Leia o arquivo de log/contexto como ponto de partida (erro exato, comando e stack trace já documentados).\n   - Forme hipóteses e teste-as. Se após 3 hipóteses locais falharem, consulte a pesquisa web (`websearch`) para pesquisar a mensagem de erro exata e a versão da dependência.\n   - Se a origem foi task-test.sh, execute novamente: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n   - SE PASSOU nos testes: apague .aiflow/task-test.sh, .aiflow/task-test.log e .aiflow/debug-context.md se existirem. Atualize .aiflow/context.md com o aprendizado da sessão. Recomende /commit ou /validate conforme a classificação no .aiflow/plan.md.\n   - SE FALHOU: atualize o log/contexto, informe o erro e tente nova hipótese."
-    },
-    "refactor": {
-      "description": "Automatic refactoring from plan.md, git diff, and AGENTS.md thresholds",
-      "agent": "refactorer",
-      "template": "0. Identificação Automática sem necessitar de argumentos:\n   - Leia .aiflow/plan.md, .aiflow/spec.md e analise o diff atual ou arquivos modificados.\n   - Identifique pontos de refatoração conforme os limites do AGENTS.md (funções > 40 linhas, arquivos > 300 linhas, duplicação de código ou avisos de lint/types do /validate).\n\n1. Execução Segura:\n   - Rode TODOS os testes do projeto antes para capturar o snapshot de aprovação.\n   - Refatore o código focando em: coesão, desacoplamento, SOLID e eliminação de duplicação.\n   - Rode os testes novamente — devem ter exatamente o mesmo resultado verde.\n   - Se qualquer teste quebrar, reverta e tente uma abordagem diferente.\n   - Nenhuma mudança de comportamento externo é permitida.\n\n2. Conclusão:\n   - Atualize .aiflow/context.md com aprendizados ou padrões de refatoração aplicados.\n   - Consulte .aiflow/plan.md: se TRIVIAL/SIMPLES recomende /commit; se COMPLEXA recomende /validate."
-    },
-    "adr": {
-      "description": "Create an Architecture Decision Record for a technical decision",
-      "agent": "architect",
-      "template": "Primeiro, execute `date +%Y%m%d` para obter a data atual.\nCrie o arquivo docs/decisions/ADR-[DATA]-[ARGUMENTS-COM-HIFENS].md contendo:\n# ADR: $ARGUMENTS\nData: [DATA]\nStatus: Aceito\n\n## Contexto\nQual problema estamos resolvendo?\n## Decisão\nO que decidimos fazer?\n## Alternativas consideradas\nO que foi descartado e por quê?\n## Consequências\nPositivas, negativas e trade-offs que aceitamos."
-    },
-    "map": {
-      "description": "Map repository structure without reading file content",
-      "agent": "build",
-      "template": "Execute mapeamento estrutural dos paths: $ARGUMENTS\n\n1. Execute tree ou find em cada path\n2. Liste arquivos por diretório com tamanho e data\n3. Identifique padrões (naming, extensões, organização)\n4. Se um diretório tiver mais de 20 arquivos, agrupe por tipo\n\nNão leia conteúdo de nenhum arquivo.\nSalve o resultado em .aiflow/map.md\nFinalize com: 'Mapa gerado. Execute /analyze <foco> para continuar.'"
-    },
-    "analyze": {
-      "description": "Read and synthesize selected files based on map and focus",
-      "agent": "plan",
-      "template": "Leia .aiflow/map.md para entender o que existe.\n\nFoco da análise: $ARGUMENTS\n\nCom base no foco:\n1. Selecione apenas os arquivos que respondem à pergunta — liste-os com justificativa\n2. Ignore: testes unitários, vendor/, node_modules/, locks, arquivos gerados\n3. Se um diretório tiver mais de 20 relevantes, leia os 5 mais representativos\n4. Leia apenas o selecionado e produza síntese estruturada\n\nSe o escopo for amplo demais, proponha quebrar em análises menores."
-    },
-    "quota": {
-      "description": "Exibe cotas e limites determinísticos do modelo em uso e provedores ativos",
-      "template": "Apresente o relatório de cota gerado deterministicamente abaixo exatamente como formatado, sem executar ferramentas, comandos adicionais ou introduções:\n\n!`python3 ~/.config/opencode/scripts/quota.py $ARGUMENTS`"
-    },
-    "aqei": {
-      "description": "Calcula o índice de qualidade e eficiência (AQEI) da sessão ou audita diretório",
-      "template": "Apresente a avaliação AQEI gerada deterministicamente abaixo sem executar ferramentas adicionais ou introduções:\n\n!`python3 ~/.config/opencode/scripts/aqei-scorer.py $ARGUMENTS`"
-    },
-    "graphify": {
-      "description": "Gera ou consulta o Knowledge Graph estrutural do repositório (Graphify AST)",
-      "agent": "scout",
-      "template": "SE $ARGUMENTS tiver texto:\nExecute: graphify query \"$ARGUMENTS\"\nSENÃO SE existir graphify-out/graph.json:\nExecute: graphify god-nodes --top 10\nSENÃO:\nExecute: graphify extract . --code-only\nExiba o resumo arquitetural."
-    },
-    "playwright": {
-      "description": "Abre o Playwright UI Mode (Dashboard), relatórios HTML ou executa testes E2E",
-      "agent": "browser",
-      "template": "SE $ARGUMENTS contiver 'ui' ou 'dashboard':\nExecute em background: `npx playwright test --ui &` e confirme ao usuário que o Playwright UI Dashboard foi iniciado.\nSENÃO SE $ARGUMENTS contiver 'report':\nExecute em background: `npx playwright show-report &` e confirme abertura do relatório HTML.\nSENÃO SE $ARGUMENTS contiver 'trace':\nExecute em background: `npx playwright show-trace $ARGUMENTS &`\nSENÃO:\nExecute: `npx playwright test --project=chromium --reporter=list $ARGUMENTS`"
-    },
-    "data": {
-      "description": "Executa análise de dados, estatísticas ou consultas SQL analíticas em arquivos locais via DuckDB",
-      "agent": "data-engineer",
-      "template": "SE $ARGUMENTS começar com 'schema ':\nExecute: data-query schema $ARGUMENTS[7:]\nSENÃO SE $ARGUMENTS começar com 'summary ':\nExecute: data-query summary $ARGUMENTS[8:]\nSENÃO SE $ARGUMENTS começar com 'query ':\nExecute: data-query query \"$ARGUMENTS[6:]\"\nSENÃO:\nAnalise o arquivo ou execute a consulta informada usando `data-query`:\n$ARGUMENTS\nProduza síntese de dados e insights com base nos resultados computados."
-    },
-    "audit": {
-      "description": "Auditoria de segurança de código (Semgrep SAST), segredos (Gitleaks) ou dependências (OSV-Scanner CVEs)",
-      "agent": "blue-team",
-      "template": "SE $ARGUMENTS contiver 'secrets':\nExecute: sec-scan secrets\nSENÃO SE $ARGUMENTS contiver 'sast' ou 'code':\nExecute: sec-scan sast\nSENÃO SE $ARGUMENTS contiver 'deps':\nExecute: sec-scan deps\nSENÃO SE $ARGUMENTS contiver 'threat' ou 'red':\nInvoque @red-team para modelagem de ameaças STRIDE e análise de superfície de ataque em $ARGUMENTS.\nSENÃO:\nExecute auditoria completa (segredos, SAST e dependências): `sec-scan all`\nApresente a síntese dos achados e plano de remediação."
-    },
-    "perf": {
-      "description": "Benchmark estatístico de performance (Hyperfine) ou teste de carga HTTP (Autocannon)",
-      "agent": "performance",
-      "template": "SE $ARGUMENTS começar com 'http ' ou contiver 'http://' ou 'https://':\nExecute: perf-bench http $ARGUMENTS\nSENÃO SE $ARGUMENTS começar com 'cli ':\nExecute: perf-bench cli $ARGUMENTS[4:]\nSENÃO:\nExecute o benchmark de performance solicitado usando `perf-bench`:\n$ARGUMENTS\nApresente a tabela com percentis (p50, p95, p99) e análise do resultado."
-    },
-    "agentic": {
-      "description": "Executa um comando ou ativa o modo agêntico nesta sessão",
-      "agent": "agentic",
-      "template": "SE $ARGUMENTS tiver texto:\nExecute a tarefa solicitada no modo agêntico, de forma direta e autônoma:\n$ARGUMENTS\n\nSENÃO:\nConfirme em uma linha que o modo agêntico está ativo nesta sessão."
-    },
-    "status": {
-      "description": "Apresenta o painel unificado de status do sistema e sessão OpenCode",
-      "template": "Apresente o painel unificado de status abaixo sem introduções:\n\n!`python3 ~/.config/opencode/scripts/status.py $ARGUMENTS`"
-    },
-    "learn": {
-      "description": "Extrai e registra aprendizados técnicos no grafo de memória",
-      "template": "Extraia e registre os aprendizados técnicos desta sessão no grafo de memória:\n\n!`python3 ~/.config/opencode/scripts/learn.py $ARGUMENTS`"
-    },
-    "sandbox": {
-      "description": "Executa tarefas em sandbox isolado via Git Worktree (Two-Phase Commit)",
-      "template": "Execute a tarefa em sandbox isolado via Git Worktree (Two-Phase Commit):\n\n!`bash ~/.config/opencode/scripts/worktree-runner.sh $ARGUMENTS`"
-    },
-    "checkpoint": {
-      "description": "Gera um snapshot de checkpoint do estado da sessão e monitora o teto de 40 turnos",
-      "template": "Apresente o resultado do checkpoint abaixo sem introduções adicionais:\n\n!`python3 ~/.config/opencode/scripts/checkpoint.py $ARGUMENTS`"
-    }
-  }
+  "lsp": true
 }
