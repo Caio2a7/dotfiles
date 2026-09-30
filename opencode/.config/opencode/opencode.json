@@ -378,9 +378,9 @@
       "template": "SE $ARGUMENTS começar com 'http ' ou contiver 'http://' ou 'https://':\nExecute: perf-bench http $ARGUMENTS\nSENÃO SE $ARGUMENTS começar com 'cli ':\nExecute: perf-bench cli $ARGUMENTS[4:]\nSENÃO:\nExecute o benchmark de performance solicitado usando `perf-bench`:\n$ARGUMENTS\nApresente a tabela com percentis (p50, p95, p99) e análise do resultado."
     },
     "agentic": {
-      "description": "Executa comando ou ativa modo 100% agêntico sem confirmações nesta sessão",
+      "description": "Executa um comando ou ativa o modo agêntico nesta sessão",
       "agent": "agentic",
-      "template": "SE $ARGUMENTS tiver texto:\nExecute a tarefa solicitada com autonomia total no modo agêntico (sem solicitar confirmações para rm, git push ou outras ações):\n$ARGUMENTS\n\nSENÃO:\nModo 100% agêntico com permissões totais ativado para esta sessão. Confirme que você está operando com autonomia total sem restrições de permissão (inclusive para comandos destrutivos ou git push quando necessário)."
+      "template": "SE $ARGUMENTS tiver texto:\nExecute a tarefa solicitada no modo agêntico, de forma direta e autônoma:\n$ARGUMENTS\n\nSENÃO:\nConfirme em uma linha que o modo agêntico está ativo nesta sessão."
     },
     "status": {
       "description": "Apresenta o painel unificado de status do sistema e sessão OpenCode",
