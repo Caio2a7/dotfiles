@@ -281,17 +281,17 @@
     },
     "init": {
       "description": "Initialize .aiflow/ exclusion, project AGENTS.md, docs/decisions and gitignore",
-      "agent": "plan",
+      "agent": "build",
       "template": "0. Garanta o exclude no git local:\nmkdir -p .git/info .aiflow\ngrep -qxF \".aiflow\" .git/info/exclude || echo \".aiflow\" >> .git/info/exclude\n\n1. Analise o repositório atual (stack, linter, test runner, estrutura de pastas):\n- Se AGENTS.md já existir no raiz, NÃO o sobrescreva; apenas analise e proponha refinamentos.\n- Se não existir, crie AGENTS.md adaptado à stack (comandos exatos de test/lint/build, convenções, limites de refatoração: funções >40 linhas, arquivos >300 linhas).\n2. Crie o diretório docs/decisions/ com a estrutura base se ausente.\n3. Sugira as entradas recomendadas para o .gitignore e verifica se há suporte a pre-commit hooks (Lefthook / Husky).\n4. Aguarde confirmação do usuário antes de alterar o .gitignore ou instalar hooks."
     },
     "spec": {
       "description": "Adaptive spec generation with branch detection and archiving check",
-      "agent": "plan",
+      "agent": "build",
       "template": "0. Garanta o exclude do .aiflow/ no git local:\nmkdir -p .git/info .aiflow\ngrep -qxF \".aiflow\" .git/info/exclude || echo \".aiflow\" >> .git/info/exclude\n\n1. Detecte a branch de trabalho:\n- SE o usuário especificou uma branch em $ARGUMENTS (ex: \"em feat/auth\") → use a branch especificada.\n- SENÃO → execute `git branch --show-current` e use o resultado como branch alvo.\n\n2. Verifique se .aiflow/spec.md já existe:\n- Se existir: leia o conteúdo e compare com $ARGUMENTS.\n  * Se for a mesma tarefa → trate como refinamento e atualize o spec existente.\n  * Se for tarefa diferente → execute `date +%Y%m%d`, arquive em .aiflow/archive/spec-[DATA].md e crie o novo .aiflow/spec.md.\n\n3. Leia docs/decisions/*.md (se existirem) como contexto prévio.\n\n4. Classifique a tarefa:\n- TRIVIAL (doc, typo, cor, config, renomear — sem lógica de negócio):\n  → Não crie .aiflow/spec.md. Responda em 1 linha: \"TRIVIAL: [descrição]. Branch: [branch]. Vá para /plan.\"\n- SIMPLES (bug claro, feature pequena seguindo padrão existente, ≤3 arquivos):\n  → Não faça perguntas. Crie .aiflow/spec.md mínimo (Objetivo 1 parágrafo + 1-3 critérios de done). Responda: \"SIMPLES: .aiflow/spec.md criado. Branch: [branch]. Vá para /plan.\"\n- COMPLEXA (comportamento novo, múltiplos arquivos, decisão de arquitetura):\n  → Faça até 5 perguntas clarificadoras, aguarde respostas e crie .aiflow/spec.md completo. Se envolver decisão arquitetural relevante, sugira executar /adr antes do /plan."
     },
     "plan": {
       "description": "Adaptive plan generation with header state persistence",
-      "agent": "plan",
+      "agent": "build",
       "template": "0. Verifique se .aiflow/plan.md já existe:\n- Se existir: leia o conteúdo.\n  * Se houver tarefas [ ] pendentes → NÃO sobrescreva. Avise: \"Existem tarefas pendentes no plano atual. Conclua com /task ou confirme explicitamente para arquivar.\"\n  * Se todas as tarefas estiverem [x] → execute `date +%Y%m%d`, arquive em .aiflow/archive/plan-[DATA].md e crie o novo .aiflow/plan.md.\n\n1. Leia .aiflow/spec.md (ou a classificação do /spec) e grave no cabeçalho do .aiflow/plan.md:\n# Classificação: [TRIVIAL/SIMPLES/COMPLEXA]\n# Branch: [branch-detectada]\n# Base: main\n\n2. Verificação de Pré-Condições Executáveis (SWE-planner Gate - Valmeekam et al. / SWE-planner 2024):\nAntes de adicionar qualquer tarefa de mutação no .aiflow/plan.md (ex: \"Modificar função X no arquivo Y\"), o agente é PROIBIDO de planejar no vácuo. Ele DEVE verificar ativamente se o arquivo e o símbolo alvo existem de fato (usando ast-grep_search, grep ou read). Se a pré-condição falhar, o plano deve refletir a criação ou ajuste imediato, eliminando planos quebrados por suposição.\n\n3. Gere a lista de tarefas:\n- TRIVIAL:\n  [ ] 1. [descrição da tarefa trivial]\n     Critério de done: sem regressões nos testes existentes\n  → Responda: \"TRIVIAL: .aiflow/plan.md criado. Execute /task.\"\n- SIMPLES:\n  [ ] 1. Título\n     Critério de done: [teste ou comportamento específico]\n  → Responda: \"SIMPLES: .aiflow/plan.md criado. Execute /task.\"\n- COMPLEXA:\n  Gere a lista detalhada com critérios de done, complexidade S/M, dependências, risco e flag [P].\n  → Responda: \"COMPLEXA: .aiflow/plan.md criado. Execute /task ou /tasks.\""
     },
     "task": {
@@ -336,7 +336,7 @@
     },
     "map": {
       "description": "Map repository structure without reading file content",
-      "agent": "plan",
+      "agent": "build",
       "template": "Execute mapeamento estrutural dos paths: $ARGUMENTS\n\n1. Execute tree ou find em cada path\n2. Liste arquivos por diretório com tamanho e data\n3. Identifique padrões (naming, extensões, organização)\n4. Se um diretório tiver mais de 20 arquivos, agrupe por tipo\n\nNão leia conteúdo de nenhum arquivo.\nSalve o resultado em .aiflow/map.md\nFinalize com: 'Mapa gerado. Execute /analyze <foco> para continuar.'"
     },
     "analyze": {
