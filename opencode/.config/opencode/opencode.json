@@ -104,6 +104,8 @@
           "id": "allow",
           "whoami": "allow",
           "date": "allow",
+          "date *": "allow",
+          "mkdir *": "allow",
           "git status": "allow",
           "git status *": "allow",
           "git diff": "allow",
