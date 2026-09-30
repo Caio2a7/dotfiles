@@ -364,7 +364,7 @@
     },
     "data": {
       "description": "Executa análise de dados, estatísticas ou consultas SQL analíticas em arquivos locais via DuckDB",
-      "agent": "analyst",
+      "agent": "data-engineer",
       "template": "SE $ARGUMENTS começar com 'schema ':\nExecute: data-query schema $ARGUMENTS[7:]\nSENÃO SE $ARGUMENTS começar com 'summary ':\nExecute: data-query summary $ARGUMENTS[8:]\nSENÃO SE $ARGUMENTS começar com 'query ':\nExecute: data-query query \"$ARGUMENTS[6:]\"\nSENÃO:\nAnalise o arquivo ou execute a consulta informada usando `data-query`:\n$ARGUMENTS\nProduza síntese de dados e insights com base nos resultados computados."
     },
     "audit": {
