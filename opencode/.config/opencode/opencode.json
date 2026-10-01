@@ -37,6 +37,7 @@
   },
   "agents": {
     "orchestrator": {
+      "model": "claude-code/claude-opus-5-5[1m]#high",
       "mode": "primary",
       "color": "#10B981",
       "permissions": [
@@ -48,6 +49,7 @@
       ]
     },
     "agentic": {
+      "model": "claude-code/claude-sonnet-5-5#low",
       "mode": "primary",
       "color": "#BB9AF7"
     },
@@ -341,7 +343,8 @@
           "resource": "hyperfine*",
           "effect": "allow"
         }
-      ]
+      ],
+      "model": "claude-code/claude-opus-5-5[1m]"
     },
     "plan": {
       "description": "Modo de planejamento (somente leitura, pesquisa e análise)",
@@ -618,7 +621,8 @@
           "resource": "hyperfine*",
           "effect": "allow"
         }
-      ]
+      ],
+      "model": "claude-code/claude-opus-5-5[1m]"
     },
     "title": {
       "model": "local-gpu/qwen2.5-coder:7b"
