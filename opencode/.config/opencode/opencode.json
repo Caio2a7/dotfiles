@@ -3,7 +3,8 @@
   "model": "claude-code/claude-sonnet-5-5",
   "default_agent": "agentic",
   "plugins": [
-    "@openchamber/opencode-claude"
+    "@openchamber/opencode-claude",
+    "./plugins/agent-model-sync"
   ],
   "providers": {
     "local-gpu": {
