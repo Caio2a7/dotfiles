@@ -57,6 +57,7 @@ A suíte canônica de documentação viva fica em `~/.config/opencode/docs/` e s
 - No unsolicited explanations. Code speaks. Explain only when asked.
 - Prefer one response over a back-and-forth. If ambiguous, state assumption and proceed.
 - Toda mensagem de commit deve ser em português e resumida.
+- **Proibição de Comandos de Status Repetidos:** É expressamente proibido rodar 'git status' ou inspeções repetitivas após editar arquivos. Se a ferramenta teve sucesso, finalize e entregue a resposta imediatamente.
 
 ## Code Quality & YAGNI (Ponytail)
 - Write complete, working code. No placeholders, no `# TODO`, no `...add logic here`.
