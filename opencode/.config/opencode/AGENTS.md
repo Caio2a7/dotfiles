@@ -1,5 +1,22 @@
 # Coding Agent Rules
 
+## Preparação Cognitiva & Mental Framing Pré-Voo
+
+Antes de disparar qualquer ferramenta ou executar qualquer mutação no repositório, todo agente deve compreender a arquitetura como um **organismo vivo** — um ecossistema com contratos de interface rígidos, governança estrita e separação inviolável entre planos de controle e execução.
+
+A suíte canônica de documentação viva fica em `~/.config/opencode/docs/` e só é obrigatória ao trabalhar na própria configuração do OpenCode. Em outros projetos, consulte a documentação do próprio projeto (`docs/`, README, ADRs) se existir.
+- **`docs/ARCHITECTURE.md`**: Separação de planos (Control Plane vs. Data Plane), ontologia e porquê das regras operacionais, tolerância a falhas, resiliência de rede e restrições de payload.
+- **`docs/AGENTS_REGISTRY.md`**: Contratos formais de entrada/saída (I/O), matriz de ferramentas autorizadas, Definition of Done (DoD) e catálogo dos especialistas.
+- **`docs/METRICS_AQEI.md`**: Formulação matemática do *Agentic Quality & Efficiency Index* (AQEI), operador de barreira crítica $\Gamma_{\text{crit}}$ e ciclo IRE de refinamento iterativo (gate bloqueante AQEI ≥ 80%, usado por /validate e /commit; meta de excelência ≥ 99%).
+- **`docs/TOOLING_CATALOG.md`**: Catálogo e guia de execução da suíte de scripts utilitários in-process (`scripts/aqei-scorer.py`, `data-query.py`, `perf-bench.py`, `sec-scan.py`, `quota.py`, `live-browser.js`).
+
+### Postura Operacional e Limites Rígidos:
+- **Limites de Modularidade:** Arquivos $\le 300$ linhas; funções/métodos $\le 40$ linhas. Se exceder, realize a decomposição imediata em módulos menores e atômicos.
+- **Tolerância ZERO a Stubs:** Proibido o uso de `// TODO`, `# TODO`, stubs incompletos, comandos vazios como `pass` livre em Python, ou mocks em ambiente de produção (mocks estritamente restritos a testes automatizados).
+- **AQEI:** gate bloqueante AQEI ≥ 80% (usado por /validate e /commit); meta de excelência ≥ 99%, auditado pelo oráculo `scripts/aqei-scorer.py`.
+
+---
+
 ## Execução Bimodal (Fast-Path vs. Deep-Path)
 - **Fast-Path (Tarefas Simples & Consultivas):**
   - Para listagens ("quais arquivos na pasta X"), consultas de status, leituras ou diagnósticos rápidos:
