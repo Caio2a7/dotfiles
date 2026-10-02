@@ -2,7 +2,7 @@
 name: architect
 description: Systems architecture, distributed design, and technical specification specialist. Produces schemas, interface contracts, sequence diagrams, and ADRs.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-opus-5-5[1m]
 permission:
   edit: deny
   bash:

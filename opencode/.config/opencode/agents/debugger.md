@@ -2,7 +2,7 @@
 name: debugger
 description: Systematic debugging specialist. Employs empirical root-cause analysis, hypothesis elimination, and execution tracing.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-opus-5-5[1m]
 permission:
   edit: deny
   bash: allow
