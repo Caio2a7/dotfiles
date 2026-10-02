@@ -2,7 +2,7 @@
 name: agentic
 description: Fast, direct execution agent for quick edits, configs, scripts, and single-pass fixes. Zero overthinking, single-pass reads, instant edits, and concise responses.
 mode: primary
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 variant: low
 color: "#BB9AF7"
 permission: allow

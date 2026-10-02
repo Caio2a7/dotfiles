@@ -2,7 +2,8 @@
 name: orchestrator
 description: Lead Orchestrator with bimodal execution. Handles simple queries with instant zero-overhead responses, routes complex engineering, senior backend development, database modeling, performance profiling, living documentation, data analytics, and cybersecurity tasks through specialized parallel workers with YAGNI discipline and empirical rigor.
 mode: primary
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-opus-5-5[1m]
+variant: high
 color: "#10B981"
 permission:
   "*": allow
