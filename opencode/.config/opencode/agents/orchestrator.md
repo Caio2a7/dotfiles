@@ -6,7 +6,6 @@ model: claude-code/claude-opus-5-5[1m]
 variant: high
 color: "#10B981"
 permission:
-  "*": allow
   edit: deny
 ---
 
