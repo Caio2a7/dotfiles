@@ -835,66 +835,6 @@
       "action": "*",
       "resource": "*",
       "effect": "allow"
-    },
-    {
-      "action": "shell",
-      "resource": "rm *",
-      "effect": "ask"
-    },
-    {
-      "action": "shell",
-      "resource": "rmdir *",
-      "effect": "ask"
-    },
-    {
-      "action": "shell",
-      "resource": "git push*",
-      "effect": "ask"
-    },
-    {
-      "action": "shell",
-      "resource": "git push --force*",
-      "effect": "deny"
-    },
-    {
-      "action": "shell",
-      "resource": "git reset --hard*",
-      "effect": "ask"
-    },
-    {
-      "action": "shell",
-      "resource": "su *",
-      "effect": "ask"
-    },
-    {
-      "action": "shell",
-      "resource": "dd *",
-      "effect": "ask"
-    },
-    {
-      "action": "shell",
-      "resource": "mkfs*",
-      "effect": "ask"
-    },
-    {
-      "action": "shell",
-      "resource": "chmod -R *",
-      "effect": "ask"
-    },
-    {
-      "action": "shell",
-      "resource": "chown -R *",
-      "effect": "ask"
-    },
-    {
-      "action": "shell",
-      "resource": "shutdown*",
-      "effect": "ask"
-    },
-    {
-      "action": "shell",
-      "resource": "reboot*",
-      "effect": "ask"
     }
   ],
   "compaction": {
