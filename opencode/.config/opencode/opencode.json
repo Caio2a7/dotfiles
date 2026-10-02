@@ -936,5 +936,39 @@
       ]
     }
   },
-  "lsp": true
+  "lsp": true,
+  "experimental": {
+    "policies": [
+      {
+        "action": "permission",
+        "resource": "shell:git push --force *",
+        "effect": "deny"
+      },
+      {
+        "action": "permission",
+        "resource": "shell:git push -f *",
+        "effect": "deny"
+      },
+      {
+        "action": "permission",
+        "resource": "shell:git push * --force",
+        "effect": "deny"
+      },
+      {
+        "action": "permission",
+        "resource": "shell:rm -rf / *",
+        "effect": "deny"
+      },
+      {
+        "action": "permission",
+        "resource": "shell:rm -rf ~ *",
+        "effect": "deny"
+      },
+      {
+        "action": "permission",
+        "resource": "shell:rm -rf $HOME *",
+        "effect": "deny"
+      }
+    ]
+  }
 }
