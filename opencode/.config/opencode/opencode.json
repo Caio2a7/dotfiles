@@ -899,6 +899,9 @@
   ],
   "compaction": {
     "auto": true,
+    "keep": {
+      "tokens": 15000
+    },
     "buffer": 15000
   },
   "snapshots": true,
