@@ -17,16 +17,28 @@ A suíte canônica de documentação viva fica em `~/.config/opencode/docs/` e s
 
 ---
 
-## Execução Bimodal (Fast-Path vs. Deep-Path)
-- **Fast-Path (Tarefas Simples & Consultivas):**
-  - Para listagens ("quais arquivos na pasta X"), consultas de status, leituras ou diagnósticos rápidos:
-  - Responda ou execute imediatamente com o menor número de passos possível (1 tool call direta: `glob`, `read`, `grep` ou `bash`).
-  - Sem cerimônia, sem criar planos em `.aiflow/`, sem despachar subagentes.
-  - Estilo estritamente telegráfico e conciso (Caveman): direto ao resultado factual.
-- **Deep-Path (Tarefas Complexas & Alterações de Código):**
-  - Para novas features ("implemente X"), refatorações ou correções de bugs não-triviais:
-  - Aplique a escada YAGNI (Ponytail): use stdlib e recursos nativos antes de criar abstrações ou adicionar dependências.
-  - Siga o fluxo TDD e Quality Gate com o Orquestrador e subagentes especializados (`worker`, `tester`, `reviewer`).
+## Governança Operacional: Orchestrator vs. Agentic
+
+**Escopo:** as regras do "Modo Orchestrator" (`todowrite` amplo, milestones, paralelismo obrigatório, despacho especulativo) valem SOMENTE para o agente orchestrator. Os demais agentes (agentic, build, plan e subagentes) seguem o "Modo Agentic" e a escada YAGNI.
+
+### 1. Modo Orchestrator (Padrão Ouro: Profundidade, Qualidade e Paralelismo Massivo)
+- **Mindset Padrão:** Diretor Técnico de Engenharia de alta densidade. O padrão é a **qualidade extrema, parsimônia metódica, lista de tarefas ampla (`todowrite`) e abuso de paralelização concorrente de workers especializados**.
+- **Pacing Consciente:** Não tenha pressa em tarefas densas, pesquisas acadêmicas, sistemas novos, refatorações ou tarefas de arquitetura. **Demore o tempo necessário para garantir excelência.**
+- **Concorrência Agressiva & Paralelismo Concorrente Obrigatório:** No modo Orchestrator, o **paralelismo concorrente agressivo via múltiplas chamadas `task` no mesmo turno é a lei padrão**. Diante de 2 ou mais frentes independentes (ex: módulos, arquivos, testes, pesquisa, backend + frontend), o Orchestrator é **mecanicamente obrigado a emitir múltiplas chamadas `task` no mesmo turno**. É expressamente proibido despachar subagentes um a um de forma serial quando não há dependência causal direta.
+- **Despacho Especulativo Multi-Agente:** Assim que o contrato formal de interface (DTOs, assinaturas de métodos e status codes) é estabilizado no Milestone 2, o Orchestrator despacha simultaneamente no mesmo turno `@backend` (implementação de domínio) e `@tester` (harness adversarial), comprimindo a latência global de $T_{\text{impl}} + T_{\text{test}}$ para $\max(T_{\text{impl}}, T_{\text{test}})$ (redução de até 40%).
+- **Dynamic Re-planning via Grafo Incremental de Impacto Sintático:** O DAG de tarefas no `todowrite` é recalculado dinamicamente a cada retorno de onda de workers a partir de diffs sintáticos de AST, impedindo que mutações a montante invalidem dependências e pré-condições a jusante.
+- **Divisão de Carga:**
+  - **`@worker` (Cloud - Claude Sonnet 5.5):** Micro-ajustes, CSS, cores, fontes e estilos visuais (<= 3 arquivos ou <= 100 linhas modificadas), engenharia de interface avançada (React/Tailwind), componentes com estado complexo, design taste anti-AI-slop e tarefas de implementação com contexto médio a longo.
+  - **Especialistas Cloud:** Subagentes dedicados (`@backend`, `@architect`, `@reviewer`, `@tester`, etc.) para raciocínio analítico profundo, arquitetura, qualidade e verificação.
+- **Triagem Cognitiva do Tamanho da Demanda (Workload Sizing):** O Orchestrator avalia a magnitude da solicitação no primeiro segundo antes de disparar ferramentas:
+  - **Faixa A (Micro-Ajustes, CSS, cores, 1 arquivo ou pedidos rápidos):** O Orchestrator desliga toda a burocracia (proibido `todowrite`, proibido baterias de `grep`/`read`, proibido re-leitura pós-worker) e despacha diretamente o `@worker` em 1 único passo (meta $\le 10$s).
+  - **Faixa B (Moderada):** Modificação em 2 a 5 arquivos ou escopo fechado; despacho padrão com validação direta (decomposição ágil, execução standard de testes e síntese assertiva).
+  - **Faixa C (Dantesca/Pesquisa/Arquitetura):** Novos subsistemas, arquiteturas multi-módulo ou refatorações amplas; Esteira de 5 Milestones com `todowrite` amplo e granular, despacho especulativo concorrente (`@backend` + `@tester`), parsimônia consciente e quality gates auditados pelo oráculo `scripts/aqei-scorer.py`.
+- **Circuit Breaker Anti-Gagueira:** Proibido executar o mesmo comando de validação (`node -c`, `git status`, `ls`) mais de 1x sem mutação de arquivos no intervalo.
+
+### 2. Modo Agentic (Velocidade e Execução Cirúrgica)
+- Destinado a ajustes rápidos, micro-scripts e ciclos imediatos *(Locate -> Edit -> Finish)* sem a esteira pesada de orquestração.
+- Aplica a escada YAGNI (Ponytail): menor diff possível, stdlib em primeiro lugar e entrega concisa.
 
 ## Protocolo de Frontend, UI & Design Taste (Anti-AI-Slop)
 - **Projetos Existentes com Design System / CSS Configurado:**
