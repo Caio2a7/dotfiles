@@ -4,6 +4,7 @@
   "default_agent": "agentic",
   "plugins": [
     "@openchamber/opencode-claude",
+    "./plugins/claude-context-cap",
     "./plugins/agent-model-sync"
   ],
   "providers": {
