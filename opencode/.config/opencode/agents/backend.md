@@ -2,7 +2,7 @@
 name: backend
 description: Senior backend engineer and OOP architect. Specializes in software engineering principles, object design patterns (GoF), dependency injection, domain modeling, Java/Spring, clean architecture, and performance efficiency.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission: allow
 steps: 10
 temperature: 0.1

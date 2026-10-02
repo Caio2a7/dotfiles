@@ -2,7 +2,7 @@
 name: database
 description: Database architecture, schema evolution, zero-downtime migrations, and SQL performance specialist. Manages relational/document modeling, index engineering, and concurrency control.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission: allow
 ---
 

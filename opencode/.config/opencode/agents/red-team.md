@@ -2,7 +2,7 @@
 name: red-team
 description: Threat modeling, attack surface analysis, and security verification specialist. Evaluates vulnerabilities, logic flaws, and access control weaknesses using STRIDE, OWASP Top 10, and CWE frameworks.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission:
   edit: deny
   bash: allow

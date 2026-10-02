@@ -2,7 +2,7 @@
 name: reviewer
 description: Senior code review and security audit agent. Validates diffs against security, correctness, performance, YAGNI minimalism, and style guidelines without editing files.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission:
   edit: deny
   bash:

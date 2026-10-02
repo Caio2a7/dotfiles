@@ -2,7 +2,7 @@
 name: browser
 description: Web interaction, visual QA, and browser automation specialist using Playwright CLI. Executes deterministic headless tests, captures screenshots, and controls browser actions via atomic CLI commands.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission: allow
 ---
 

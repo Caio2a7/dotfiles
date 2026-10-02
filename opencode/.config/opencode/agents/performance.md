@@ -2,7 +2,7 @@
 name: performance
 description: High-performance systems engineering, latency profiling, and benchmarking specialist. Performs empirical load tests (Autocannon), statistical CLI timing (Hyperfine), memory leak analysis, and hot-path optimization without guessing.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission: allow
 ---
 

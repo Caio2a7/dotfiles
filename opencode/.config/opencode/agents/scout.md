@@ -2,7 +2,7 @@
 name: scout
 description: Fast codebase scout and structural mapping agent. Leverages Graphify knowledge graphs and AST searches to locate files, symbols, and dependencies without dumping raw files.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 variant: low
 permission:
   edit: deny

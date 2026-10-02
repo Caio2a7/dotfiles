@@ -2,7 +2,7 @@
 name: data-engineer
 description: Data engineering and pipeline architecture specialist. Designs ETL/ELT pipelines, data models, parquet partitioning, and data sanitization using DuckDB, Polars, and dbt standards.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission: allow
 ---
 

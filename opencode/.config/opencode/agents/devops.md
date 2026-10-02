@@ -2,7 +2,7 @@
 name: devops
 description: DevOps, containerization, and CI/CD specialist. Writes and maintains Dockerfiles, docker-compose configurations, GitHub Actions workflows, and deployment scripts.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission: allow
 ---
 

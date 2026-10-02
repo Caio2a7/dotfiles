@@ -2,7 +2,7 @@
 name: refactorer
 description: Clean code and refactoring specialist. Enhances cohesion, eliminates duplication, and applies SOLID principles while keeping external behavior 100% stable.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission:
   edit: allow
   bash:

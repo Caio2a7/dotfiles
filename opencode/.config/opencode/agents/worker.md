@@ -2,7 +2,7 @@
 name: worker
 description: Specialized code implementation worker. Executes atomic code modifications following the Ponytail/YAGNI minimalist principle with high-end frontend taste (anti-AI-slop).
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission: allow
 steps: 8
 temperature: 0.1

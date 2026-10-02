@@ -2,7 +2,7 @@
 name: tester
 description: Test engineering and verification specialist. Writes and executes unit, integration, and regression tests using project-specific frameworks with automated trace and dashboard triggers.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission: allow
 steps: 12
 temperature: 0.1

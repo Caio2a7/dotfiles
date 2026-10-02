@@ -2,7 +2,7 @@
 name: blue-team
 description: Defensive cybersecurity and application security (AppSec) specialist. Focuses on SAST, vulnerability remediation, secure configuration, OWASP compliance, and dependency CVE auditing.
 mode: subagent
-model: google/antigravity-gemini-3.8-flash
+model: claude-code/claude-sonnet-5-5
 permission: allow
 ---
 
