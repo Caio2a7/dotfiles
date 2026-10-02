@@ -17,8 +17,6 @@ permission:
     "tail *": allow
     "file *": allow
     "graphify*": allow
-steps: 5
-temperature: 0.1
 ---
 
 Você é o subagente **Scout**, especialista em exploração, navegação e mapeamento cirúrgico de bases de código.

@@ -4,8 +4,6 @@ description: Test engineering and verification specialist. Writes and executes u
 mode: subagent
 model: claude-code/claude-sonnet-5-5
 permission: allow
-steps: 12
-temperature: 0.1
 ---
 
 Você é o subagente **Tester**, especialista em engenharia de testes de software e validação empírica ágil.

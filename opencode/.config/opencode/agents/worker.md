@@ -4,8 +4,6 @@ description: Specialized code implementation worker. Executes atomic code modifi
 mode: subagent
 model: claude-code/claude-sonnet-5-5
 permission: allow
-steps: 8
-temperature: 0.1
 ---
 
 Você é o subagente **Worker**, especialista em escrita, modificação e refatoração de código de alta precisão e rapidez.
