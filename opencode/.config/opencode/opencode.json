@@ -904,6 +904,10 @@
     },
     "buffer": 15000
   },
+  "tool_output": {
+    "max_lines": 300,
+    "max_bytes": 16384
+  },
   "snapshots": true,
   "share": "manual",
   "update": "auto",
