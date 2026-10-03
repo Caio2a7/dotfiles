@@ -1,11 +1,11 @@
 ---
 name: git-advanced-workflows
-description: Advanced Git workflows, rebase conflict resolution, bisect bug hunting, stash management, and reflog rescue. Use when dealing with tricky merge conflicts, rebasing, recovering lost commits, or hunting regressions ('conflito git', 'rebase', 'git bisect', 'reflog', 'recuperar commit').
+description: Operações avançadas e resgate do Git: resolução de conflitos em rebase, bisect para caça a bugs, reflog para recuperação de commits e gerenciamento de stash.
 ---
 
 # Advanced Git Workflows & Emergency Operations
 
-Guia técnico para resolução de conflitos, rastreamento de regressões com bisect e resgate de histórico.
+Guia técnico para resolução de conflitos em rebase, busca binária de bugs com bisect, recuperação de commits perdidos com reflog e gerenciamento do stash.
 
 ---
 
@@ -59,13 +59,45 @@ git bisect reset
 ---
 
 ## 3. Resgate de Emergência com Git Reflog
-Quando um commit parecer ter sido "perdido" após um reset acidental (`git reset --hard`):
-1. O Git nunca apaga commits imediatamente; o ponteiro fica no `reflog`:
+Quando um commit parecer ter sido "perdido" após um reset acidental (`git reset --hard`) ou rebase mal-sucedido:
+1. O Git registra todas as movimentações do ponteiro `HEAD` no `reflog`:
    ```bash
    git reflog
    ```
-2. Localize o commit antes do desastre (ex: `HEAD@{2}`).
-3. Crie uma branch de recuperação ou restaure o ponteiro:
+2. Localize o hash ou identificador do commit anterior à operação (ex: `HEAD@{2}`).
+3. Crie uma branch de recuperação a partir desse ponto:
    ```bash
    git branch rescue-branch HEAD@{2}
    ```
+4. Ou restaure o ponteiro atual com segurança:
+   ```bash
+   git reset --hard HEAD@{2}
+   ```
+
+---
+
+## 4. Gerenciamento Avançado de Stash
+Para isolar alterações temporárias sem poluir o histórico de commits:
+- **Guardar alterações (incluindo untracked):**
+  ```bash
+  git stash push -u -m "wip: feature em andamento"
+  ```
+- **Listar e inspecionar conteúdo do stash:**
+  ```bash
+  git stash list
+  git stash show -p stash@{0}
+  ```
+- **Aplicar e remover o stash mais recente:**
+  ```bash
+  git stash pop
+  ```
+- **Criar uma branch diretamente de um stash:**
+  ```bash
+  git stash branch feature-recuperada stash@{0}
+  ```
+- **Limpar stashes obsoletos:**
+  ```bash
+  git stash drop stash@{0}
+  # ou limpar todo o stash:
+  git stash clear
+  ```
