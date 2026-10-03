@@ -12,7 +12,7 @@ Diretrizes práticas para hardening, remediação de código e defesa em profund
   - Utilize parâmetros nomeados ou ORMs com tipagem segura (Prisma, Drizzle, SQLAlchemy).
   - Nunca interpole strings de variáveis em queries raw (`SELECT * FROM users WHERE id = ${id}` é expressamente proibido).
 - **Command Injection:**
-  - Prefira APIs nativas de linguagem em vez de `child_process.exec()` ou `os.system()`.
+  - Prefira APIs nativas da linguagem em vez de `child_process.exec()` ou `os.system()`.
   - Se precisar executar processos, use arrays de argumentos sem shell (`execFile(['ls', path])` em vez de `exec('ls ' + path)`).
 - **Sanitização de Saída (XSS):**
   - Use bibliotecas de escape contextual (`DOMPurify` para HTML inserido dinamicamente).
