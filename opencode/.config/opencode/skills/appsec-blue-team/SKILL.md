@@ -1,11 +1,13 @@
 ---
 name: appsec-blue-team
-description: Defensive application security, secure configuration, OWASP hardening, and CVE remediation. Use when auditing code security, hardening APIs, fixing vulnerabilities, or applying defense-in-depth ('blue team', 'segurança defensiva', 'hardening', 'corrija vulnerabilidade').
+description: Remediação de vulnerabilidades, hardening ativo de código/APIs e arquitetura de defesa em profundidade (Blue Team Playbook). Use para corrigir brechas, aplicar patches, configurar headers defensivos e endurecer sistemas.
 ---
 
 # Defensive Application Security (Blue Team Playbook)
 
-Diretrizes práticas para hardening, remediação de código e defesa em profundidade baseadas em OWASP ASVS e CIS Benchmarks.
+Diretrizes práticas para hardening ativo, remediação de código e defesa em profundidade baseadas em OWASP ASVS e CIS Benchmarks.
+
+---
 
 ## 1. Defesas Contra Injeções & Manipulação de Dados
 - **SQL / NoSQL Injection:**
@@ -23,6 +25,8 @@ Diretrizes práticas para hardening, remediação de código e defesa em profund
     X-Frame-Options: DENY
     Strict-Transport-Security: max-age=31536000; includeSubDomains
     ```
+
+---
 
 ## 2. Controle de Acesso & Autorização (Prevenção de IDOR/BOLA)
 - Toda consulta a recursos do banco de dados DEVE incluir a cláusula de posse do usuário autenticado:
@@ -43,8 +47,10 @@ Diretrizes práticas para hardening, remediação de código e defesa em profund
 - Implemente pre-commit hooks para detectar chaves vazadas (ex: detect-secrets, gitleaks).
 - Certifique-se de que arquivos `.env*` locais estão no `.gitignore`.
 
-## 4. Auditoria de CVEs de Terceiros (SCA)
-- Para Node.js: `npm audit` ou `pnpm audit`.
+---
+
+## 4. Auditoria e Remediação de CVEs de Terceiros (SCA)
+- Para Node.js: `npm audit` ou `pnpm audit` e resolução imediata com `npm update` / overrides.
 - Para Python: `pip-audit` ou `safety check`.
 - Para Rust: `cargo audit`.
 - Atualize pacotes com vulnerabilidades conhecidas para as versões estáveis que contenham o patch.
