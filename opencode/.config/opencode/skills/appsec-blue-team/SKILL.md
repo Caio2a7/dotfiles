@@ -36,6 +36,8 @@ Diretrizes práticas para hardening, remediação de código e defesa em profund
   });
   ```
 
+---
+
 ## 3. Gestão de Segredos & Variáveis de Ambiente
 - Segredos devem ser injetados exclusivamente via variáveis de ambiente (`process.env.VAR`), nunca em código.
 - Implemente pre-commit hooks para detectar chaves vazadas (ex: detect-secrets, gitleaks).
