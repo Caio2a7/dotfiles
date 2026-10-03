@@ -60,11 +60,13 @@ A suíte canônica de documentação viva fica em `~/.config/opencode/docs/` e s
 - **Proibição de Comandos de Status Repetidos:** É expressamente proibido rodar 'git status' ou inspeções repetitivas após editar arquivos. Se a ferramenta teve sucesso, finalize e entregue a resposta imediatamente.
 
 ## Code Quality & YAGNI (Ponytail)
-- Write complete, working code. No placeholders, no `# TODO`, no `...add logic here`.
-- Anti-overengineering: Use standard library and existing dependencies before creating custom wrappers or installing new libraries.
-- No mocks or stubs unless explicitly asked for tests.
-- Handle errors explicitly. No silent fails.
-- Smallest diff possible. Don't touch what isn't broken.
+- **Tolerância ZERO a Stubs:** Escreva código completo e funcional. Nenhum placeholder, nenhum `// TODO` ou `# TODO`, nenhum `...add logic here`, nenhum `pass` livre e nenhum mock em código de produção. Mocks são permitidos única e exclusivamente em testes unitários/integrados quando solicitado.
+- **Limites de Modularidade:** Arquivos $\le 300$ linhas; funções/métodos $\le 40$ linhas.
+- **AQEI:** gate bloqueante AQEI ≥ 80% (usado por /validate e /commit); meta de excelência ≥ 99%, auditado pelo oráculo `scripts/aqei-scorer.py`.
+- **Anti-overengineering:** Use bibliotecas padrão e dependências existentes antes de criar wrappers customizados ou instalar novas bibliotecas.
+- **Tratamento Explícito de Erros:** Trate todos os erros de forma explícita. Falhas silenciosas são proibidas.
+- **Proibição de Loops de Status:** Não execute `git status` após alterações de arquivos. O resultado do edit é suficiente. Não gaste turnos em loops de inspeção.
+- **Menor Diff Possível:** Não altere código funcional que não esteja no escopo da tarefa.
 
 ## Token Efficiency
 - Read only files you need. Don't explore speculatively.
@@ -114,5 +116,6 @@ A suíte canônica de documentação viva fica em `~/.config/opencode/docs/` e s
 
 ## Critérios de Parada e Safeguards
 - Se a implementação exigir mais de 20 etapas lógicas, interrompa e crie/atualize o `docs/plan.md` antes de prosseguir.
-- Limites de Refatoração: funções > 40 linhas (dividir em menores) e arquivos > 300 linhas (propor decomposição em módulos).
+- **Limites de Modularidade e Refatoração:** Funções $> 40$ linhas (dividir em menores) e arquivos $> 300$ linhas (decomposição mandatória em submódulos).
+- **Auditoria de Qualidade:** Validar entregas críticas via `scripts/aqei-scorer.py`: gate bloqueante AQEI ≥ 80% (usado por /validate e /commit); meta de excelência ≥ 99%.
 - Em caso de incerteza ou travamento no diagnóstico de bugs, invoque o agente `@debugger` ou `@reviewer`.
