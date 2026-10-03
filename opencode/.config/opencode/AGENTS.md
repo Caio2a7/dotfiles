@@ -79,11 +79,12 @@ A suíte canônica de documentação viva fica em `~/.config/opencode/docs/` e s
 1. `/init`: Garante `.aiflow` no `.git/info/exclude`, gera/refina `AGENTS.md` e estrutura base.
 2. `/spec`: Detecta branch, verifica `.aiflow/spec.md` (refina se mesma tarefa, arquiva em `.aiflow/archive/spec-[DATA].md` se diferente) e lê `docs/decisions/*.md`.
 3. `/plan`: Verifica `.aiflow/plan.md` (bloqueia se houver `[ ]` pendente; arquiva em `.aiflow/archive/plan-[DATA].md` se 100% `[x]`). Grava `# Classificação`, `# Branch` e `# Base`. Aplica obrigatoriamente o **Gate de pré-condições**: antes de persistir qualquer tarefa de mutação no `.aiflow/plan.md`, audita ativamente a existência física dos arquivos e símbolos alvo via `ast-grep_search`, `grep` ou `read`, eliminando planos formulados no vácuo.
-4. `/task` / `/tasks`: Executa a próxima tarefa `[ ]` (ou tarefa ad-hoc `/task <texto>`). Valida via `.aiflow/task-test.sh` + `.aiflow/task-test.log` em TDD. Apaga arquivos ao passar; retém em caso de falha.
+4. `/task` / `/tasks`: Executa a próxima tarefa `[ ]` (ou tarefa ad-hoc `/task <texto>`). Valida via `.aiflow/task-test.sh` + `.aiflow/task-test.log` em TDD. Em caso de bloqueio, regressões ou falhas complexas, consulta o `@debugger` como **Oráculo de Localização Hierárquica de Falhas** (localização hierárquica de falhas: filtragem em 4 níveis e emissão do `Fault Localization DTO` antes de intervenções cegas). Apaga arquivos ao passar; retém em caso de falha.
 5. `/validate`: Portão de qualidade. Se reprovar por teste, cria `.aiflow/debug-context.md` e recomenda `/debug`.
-6. `/review`: Valida diff contra critérios de aceitação do `.aiflow/spec.md` e conformidade com ADRs em `docs/decisions/`.
-7. `/commit`: Executa `git status` e `git diff --staged`, valida testes (garante que `task-test.sh` não existe), commita e faz push na branch do cabeçalho.
-8. `/mr`: Cria branch de MR (`chore/`, `fix/`, `feat/`), commita, envia push remoto `-u` e exibe o template formatado no chat.
+6. `/debug`: Diagnóstico cirúrgico de causa-raiz a partir de `.aiflow/task-test.log` ou `.aiflow/debug-context.md`. Consulta obrigatoriamente o `@debugger` como **Oráculo de Localização Hierárquica de Falhas** (localização hierárquica de falhas) para emitir o `Fault Localization DTO` (arquivo, símbolo, intervalo exato de linhas) antes de qualquer intervenção no código.
+7. `/review`: Valida diff contra critérios de aceitação do `.aiflow/spec.md` e conformidade com ADRs em `docs/decisions/`.
+8. `/commit`: Executa `git status` e `git diff --staged`, valida testes (garante que `task-test.sh` não existe), commita e faz push na branch do cabeçalho.
+9. `/mr`: Cria branch de MR (`chore/`, `fix/`, `feat/`), commita, envia push remoto `-u` e exibe o template formatado no chat.
 
 ## Fluxo Analítico Separado (.aiflow/map.md)
 - `/map <paths>`: Mapeia estrutura de diretórios e arquivos (sem ler conteúdo) e salva em `.aiflow/map.md`.
