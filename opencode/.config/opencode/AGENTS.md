@@ -95,12 +95,21 @@ A suíte canônica de documentação viva fica em `~/.config/opencode/docs/` e s
 - Ao concluir `/task`, `/tasks` ou `/debug` com sucesso, registre padrões descobertos, anti-padrões evitados e comportamentos não-óbvios de libs no `.aiflow/context.md`.
 - **Retenção Global (Memory MCP):** Ao resolver um bug complexo, anti-padrão sutil ou decisão arquitetural relevante que tenha valor transversal, o agente deve registrar a descoberta não apenas no `.aiflow/context.md` local, mas também persistir uma entidade ou observação no **Memory MCP** (`memory_create_entities` / `memory_add_observations`), garantindo que o aprendizado seja compartilhado globalmente entre diferentes sessões e repositórios da máquina.
 
-## Memória Estrutural & Ferramentas MCP
+## Memória Estrutural, Ferramental Mandatório & MCPs
 - **Graphify**: Em projetos médios/grandes, utilize `graphify query` ou `graphify god-nodes` para travessia estrutural rápida.
-- **AST-Grep MCP**: Prefira AST-grep para localização sintática de componentes e estruturas de código.
-- **Context7 MCP**: Antes de implementar chamadas a bibliotecas externas, consulte a API atual via Context7 MCP.
-- **Memory MCP**: Persistência de decisões de arquitetura e padrões recorrentes entre sessões.
-- **Sequential Thinking MCP**: Em tarefas de classificação COMPLEXA, utilize raciocínio encadeado antes de alterar qualquer arquivo.
+- **AST-Grep MCP (`ast-grep`)**: Mandatório para localização sintática de componentes, busca estruturada por AST e refatorações seguras sem danos sintáticos. Utilize caminhos relativos ao diretório do workspace. Se a busca cruzar links simbólicos (symlinks) e o servidor MCP rejeitar, faça a busca estrutural via CLI ast-grep no terminal ou ast-linter-hook.py.
+- **Context7 MCP (`context7`)**: Mandatório antes de implementar chamadas ou integrações a bibliotecas externas (`context7_resolve-library-id` e `context7_query-docs`). Jamais presuma assinaturas de pacotes externos por memória.
+- **Docker MCP (`docker`)**: Mandatório para o subagente `@devops` na inspeção, depuração e ciclo de vida de contêineres e imagens.
+- **Sequential Thinking MCP (`sequentialthinking`)**: Mandatório exclusivamente para @architect e @debugger em diagnósticos complexos e decomposição de DAGs. PROIBIDO o uso em subagentes de implementação atômica (@worker, @tester) para evitar a queima do orçamento de passos em meta-loops de pensamento.
+- **Memory MCP (`memory`)**: Persistência de decisões de arquitetura e padrões recorrentes entre sessões via `memory_create_entities` / `memory_add_observations`. Utilize preferencialmente memory_search_nodes (busca cirúrgica focada) em vez de memory_read_graph (para não despejar o grafo inteiro na janela de contexto).
+- **Suíte de Scripts Locais In-Process (Uso Mandatório pelos Especialistas):**
+  - `scripts/sec-scan.py`: Auditoria completa de segurança (Gitleaks, Semgrep, OSV-Scanner) pelo `@blue-team`.
+  - `scripts/data-query.py`: Consultas e transformações relacionais SQL in-process (DuckDB) pelo `@data-engineer`.
+  - `scripts/perf-bench.py`: Benchmarking estatístico CLI (Hyperfine) e teste de carga HTTP (Autocannon) pelo `@performance`.
+  - `scripts/live-browser.js`: Inspeção via CDP e controle atômico em navegador ativo pelo `@browser` e `@tester`.
+  - `scripts/aqei-scorer.py`: Auditoria matemática do índice AQEI (gate bloqueante AQEI ≥ 80%, usado por /validate e /commit; meta de excelência ≥ 99%) pelo `@reviewer` e gates de validação.
+  - `scripts/ast-linter-hook.py`: Hook de linter AST pré/pós-escrita pelo `@refactorer` e `@reviewer`.
+  - `scripts/quota.py` & `scripts/status.py`: Monitoramento determinístico de cotas dos modelos e saúde operacional.
 
 ## Diagnósticos de LSP
 - Verifique os diagnósticos do LSP após editar cada arquivo.
