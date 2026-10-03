@@ -33,7 +33,7 @@ Quando ocorrer conflito durante `git rebase main`:
 ---
 
 ## 2. Caça a Regressões com Git Bisect (Busca Binária no Histórico)
-Para encontrar automaticamente qual commit exato introduziu um bug em 10 passos em vez de 1.000:
+Para encontrar automaticamente qual commit exato introduziu um bug:
 ```bash
 # Iniciar o bisect
 git bisect start
@@ -52,7 +52,7 @@ git bisect good
 git bisect bad
 
 # O Git apontará o commit causador com precisão matemática.
-# Para finalizar:
+# Para finalizar e retornar à branch de origem:
 git bisect reset
 ```
 
