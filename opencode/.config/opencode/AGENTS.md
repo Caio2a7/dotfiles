@@ -78,7 +78,7 @@ A suíte canônica de documentação viva fica em `~/.config/opencode/docs/` e s
 ## Workflow Obrigatório para Features/Bugs (Spec-Driven Development + TDD em .aiflow/)
 1. `/init`: Garante `.aiflow` no `.git/info/exclude`, gera/refina `AGENTS.md` e estrutura base.
 2. `/spec`: Detecta branch, verifica `.aiflow/spec.md` (refina se mesma tarefa, arquiva em `.aiflow/archive/spec-[DATA].md` se diferente) e lê `docs/decisions/*.md`.
-3. `/plan`: Verifica `.aiflow/plan.md` (bloqueia se houver `[ ]` pendente; arquiva em `.aiflow/archive/plan-[DATA].md` se 100% `[x]`). Grava `# Classificação`, `# Branch` e `# Base`.
+3. `/plan`: Verifica `.aiflow/plan.md` (bloqueia se houver `[ ]` pendente; arquiva em `.aiflow/archive/plan-[DATA].md` se 100% `[x]`). Grava `# Classificação`, `# Branch` e `# Base`. Aplica obrigatoriamente o **Gate de pré-condições**: antes de persistir qualquer tarefa de mutação no `.aiflow/plan.md`, audita ativamente a existência física dos arquivos e símbolos alvo via `ast-grep_search`, `grep` ou `read`, eliminando planos formulados no vácuo.
 4. `/task` / `/tasks`: Executa a próxima tarefa `[ ]` (ou tarefa ad-hoc `/task <texto>`). Valida via `.aiflow/task-test.sh` + `.aiflow/task-test.log` em TDD. Apaga arquivos ao passar; retém em caso de falha.
 5. `/validate`: Portão de qualidade. Se reprovar por teste, cria `.aiflow/debug-context.md` e recomenda `/debug`.
 6. `/review`: Valida diff contra critérios de aceitação do `.aiflow/spec.md` e conformidade com ADRs em `docs/decisions/`.

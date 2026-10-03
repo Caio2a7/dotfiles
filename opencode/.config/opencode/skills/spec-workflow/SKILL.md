@@ -17,6 +17,7 @@ Antes de escrever qualquer código, estruture os requisitos e decisões em `docs
 Alimente a spec em um modelo de raciocínio alto e quebre a implementação em tarefas atômicas:
 - Cada tarefa deve ser independente e testável.
 - Mantenha sessões focadas em uma única tarefa por vez.
+- **Verificação de Pré-Condições Executáveis (SWE-planner Gate - Valmeekam et al. / SWE-planner 2024):** Antes de planejar qualquer mutação (ex: "Modificar função X no arquivo Y"), o agente é estritamente proibido de planejar no vácuo. Ele DEVE verificar ativamente a existência física do arquivo e do símbolo alvo (`ast-grep_search`, `grep` ou `read`). Se a pré-condição falhar, o plano deve refletir a criação ou ajuste imediato, eliminando planos quebrados por suposição.
 
 ### Passo 3: Construção & Teste em Loop
 - Implemente uma tarefa por vez.
