@@ -93,6 +93,7 @@ A suíte canônica de documentação viva fica em `~/.config/opencode/docs/` e s
 ## Contexto Dinâmico (.aiflow/context.md)
 - Se `.aiflow/context.md` existir no projeto, leia-o obrigatoriamente antes de qualquer ação.
 - Ao concluir `/task`, `/tasks` ou `/debug` com sucesso, registre padrões descobertos, anti-padrões evitados e comportamentos não-óbvios de libs no `.aiflow/context.md`.
+- **Retenção Global (Memory MCP):** Ao resolver um bug complexo, anti-padrão sutil ou decisão arquitetural relevante que tenha valor transversal, o agente deve registrar a descoberta não apenas no `.aiflow/context.md` local, mas também persistir uma entidade ou observação no **Memory MCP** (`memory_create_entities` / `memory_add_observations`), garantindo que o aprendizado seja compartilhado globalmente entre diferentes sessões e repositórios da máquina.
 
 ## Memória Estrutural & Ferramentas MCP
 - **Graphify**: Em projetos médios/grandes, utilize `graphify query` ou `graphify god-nodes` para travessia estrutural rápida.
