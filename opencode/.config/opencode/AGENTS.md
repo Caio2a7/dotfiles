@@ -68,11 +68,12 @@ A suíte canônica de documentação viva fica em `~/.config/opencode/docs/` e s
 - **Proibição de Loops de Status:** Não execute `git status` após alterações de arquivos. O resultado do edit é suficiente. Não gaste turnos em loops de inspeção.
 - **Menor Diff Possível:** Não altere código funcional que não esteja no escopo da tarefa.
 
-## Token Efficiency
+## Token Efficiency & Prompt Caching Economics
 - Read only files you need. Don't explore speculatively.
 - Don't repeat code back to me before editing it.
 - Don't summarize what you just did after doing it.
 - Prefer editing existing files over creating new ones.
+- **Alerta de Higiene de Sessão (Teto de 40 Turnos):** Se uma sessão atingir 40 turnos de interação, recomende formalmente ao usuário descarregar o estado com `/plan` ou `/commit` e iniciar uma sessão limpa via `opencode` consumindo `.aiflow/context.md`, evitando a degradação de atenção (*Lost in the Middle*).
 
 ## Workflow Obrigatório para Features/Bugs (Spec-Driven Development + TDD em .aiflow/)
 1. `/init`: Garante `.aiflow` no `.git/info/exclude`, gera/refina `AGENTS.md` e estrutura base.
