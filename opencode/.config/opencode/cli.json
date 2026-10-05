@@ -1,0 +1,69 @@
+{
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "plugins": ["/home/caio/dev/opencode-claude-quota", "/home/caio/.config/opencode/plugins/cli-notify", "opencode-dir-tree-tui", "/home/caio/dev/opencode-system-monitor"],
+  "theme": {
+    "name": "tokyonight"
+  },
+  "keybinds": {
+    "leader": "ctrl+x",
+    "agent.cycle": "tab",
+    "agent.cycle.reverse": "shift+tab",
+    "variant.cycle": ["alt+tab", "ctrl+t"],
+    "model.list": ["ctrl+m", "<leader>m"],
+    "session.page.up": [
+      "pageup",
+      "ctrl+u"
+    ],
+    "session.page.down": [
+      "pagedown",
+      "ctrl+d"
+    ],
+    "session.line.up": [
+      "ctrl+up",
+      "ctrl+alt+y"
+    ],
+    "session.line.down": [
+      "ctrl+down",
+      "ctrl+alt+e"
+    ],
+    "session.half.page.up": [
+      "shift+up",
+      "ctrl+alt+u"
+    ],
+    "session.half.page.down": [
+      "shift+down",
+      "ctrl+alt+d"
+    ],
+    "session.first": [
+      "home",
+      "ctrl+home"
+    ],
+    "session.last": [
+      "end",
+      "ctrl+end"
+    ]
+  },
+  "scroll": {
+    "speed": 3,
+    "acceleration": false
+  },
+  "attention": {
+    "notifications": true,
+    "sound": true,
+    "volume": 0.3
+  },
+  "diffs": {
+    "wrap": "word"
+  },
+  "session": {
+    "sidebar": "auto",
+    "scrollbar": true,
+    "thinking": "show"
+  },
+  "animations": true,
+  "mouse": true,
+  "cursor": {
+    "style": "line",
+    "blinking": true
+  }
+}
