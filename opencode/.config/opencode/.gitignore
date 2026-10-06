@@ -1,0 +1,5 @@
+*.log
+*.tmp
+__pycache__/
+*.pyc
+opencode-notifier-state.json
