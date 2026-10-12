@@ -14,6 +14,28 @@ import { StudySection } from "./StudySection"
 import { DockApp, removeDockApp, reorderDockApps, subscribeDockApps } from "./dockStore"
 import { windowsFor, isFocusedApp, focusOrCycle } from "./dockWindows"
 
+class CustomStackBox extends Gtk.Box {
+  static {
+    GObject.registerClass(this)
+  }
+
+  vfunc_snapshot(snapshot: any) {
+    const hoveredChildren: Gtk.Widget[] = []
+    let child = this.get_first_child()
+    while (child) {
+      if (child.has_css_class && child.has_css_class("hovered")) {
+        hoveredChildren.push(child)
+      } else {
+        this.snapshot_child(child, snapshot)
+      }
+      child = child.get_next_sibling()
+    }
+    for (const h of hoveredChildren) {
+      this.snapshot_child(h, snapshot)
+    }
+  }
+}
+
 function renderAppIcon(icon: string): Gtk.Widget {
   if (icon.startsWith("/") || icon.endsWith(".png") || icon.endsWith(".svg")) {
     const img = Gtk.Image.new_from_file(icon)
@@ -134,6 +156,7 @@ function setupAppItemDnd(itemBox: Gtk.Widget, getIndex: () => number): void {
   dragSource.connect("drag-begin", () => {
     isDraggingApp = true
     itemBox.remove_css_class("hovered")
+    itemBox.get_parent()?.queue_draw()
   })
   dragSource.connect("drag-end", () => {
     endAppDrag()
@@ -212,10 +235,12 @@ function AppItem({
   hoverMotion.connect("enter", () => {
     if (!dockPillWidget?.has_css_class("menu-active")) {
       btn.add_css_class("hovered")
+      btn.get_parent()?.queue_draw()
     }
   })
   hoverMotion.connect("leave", () => {
     btn.remove_css_class("hovered")
+    btn.get_parent()?.queue_draw()
   })
   btn.add_controller(hoverMotion)
 
@@ -247,6 +272,7 @@ function AppItem({
   rightClick.set_button(3)
   rightClick.connect("pressed", (gesture) => {
     btn.remove_css_class("hovered")
+    btn.get_parent()?.queue_draw()
     openContextMenu(gesture, popover)
   })
   btn.add_controller(rightClick)
@@ -256,7 +282,7 @@ function AppItem({
 }
 
 function AppsSection({ hypr }: { hypr: Hyprland.Hyprland }) {
-  const container = new Gtk.Box({
+  const container = new CustomStackBox({
     // orientation: Gtk.Orientation.HORIZONTAL,
     orientation: Gtk.Orientation.VERTICAL,
     // spacing: 6,
