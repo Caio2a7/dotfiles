@@ -229,6 +229,7 @@ function AppItem({
       </box>
     </button>
   ) as Gtk.Widget
+  btn.overflow = Gtk.Overflow.VISIBLE
 
   // Hover gerenciado explicitamente para reset limpo no clique direito
   const hoverMotion = new Gtk.EventControllerMotion()
@@ -292,6 +293,7 @@ function AppsSection({ hypr }: { hypr: Hyprland.Hyprland }) {
     valign: Gtk.Align.CENTER,
     cssClasses: ["dock-apps-section"],
   })
+  container.overflow = Gtk.Overflow.VISIBLE
 
   const widgetMap = new Map<string, Gtk.Widget>()
   let currentApps: DockApp[] = []
@@ -409,6 +411,7 @@ function DockContainer({
   rightClick.connect("pressed", (gesture) => openContextMenu(gesture, popover))
   pillBox.add_controller(rightClick)
 
+  pillBox.overflow = Gtk.Overflow.VISIBLE
   dockPillWidget = pillBox
 
   return pillBox
@@ -517,6 +520,8 @@ export function Work(monitor = 0) {
   const wp = WirePlumber.get_default()
 
   const dockContainer = (<DockContainer hypr={hypr} bat={bat} net={net} wp={wp} />) as Gtk.Widget
+  dockContainer.overflow = Gtk.Overflow.VISIBLE
+
   const revealer = new Gtk.Revealer({
     // transition_type: Gtk.RevealerTransitionType.SLIDE_UP,
     // transition_type: Gtk.RevealerTransitionType.SLIDE_DOWN,
@@ -525,6 +530,7 @@ export function Work(monitor = 0) {
     reveal_child: true, // Auto-hide desativado para teste (dock fixa); original: false
     child: dockContainer,
   })
+  revealer.overflow = Gtk.Overflow.VISIBLE
 
   const peekBar = (
     <box class="dock-peek-bar" widthRequest={84} heightRequest={3} halign={Gtk.Align.CENTER} valign={Gtk.Align.END} visible={false} />
@@ -537,6 +543,7 @@ export function Work(monitor = 0) {
       {peekBar}
     </box>
   ) as Gtk.Widget
+  outerBox.overflow = Gtk.Overflow.VISIBLE
 
   const win = (
     <window
@@ -560,6 +567,7 @@ export function Work(monitor = 0) {
       {outerBox}
     </window>
   ) as Astal.Window
+  win.overflow = Gtk.Overflow.VISIBLE
 
   // Auto-hide desativado para teste (dock fixa) — descomente para restaurar
   // setupAutoHide(win, outerBox, revealer, peekBar)
