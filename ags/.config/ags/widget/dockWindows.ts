@@ -9,7 +9,7 @@ interface MatchKeys {
 }
 
 const keyCache = new Map<string, MatchKeys>()
-const CMD_WRAPPERS = new Set(["flatpak", "uwsm-app", "uwsm", "env", "sh", "bash", "omarchy-launch-webapp"])
+const CMD_WRAPPERS = new Set(["flatpak", "uwsm-app", "uwsm", "env", "sh", "bash", "run", "omarchy-launch-webapp"])
 
 const norm = (s: string | null | undefined): string => (s ?? "").toLowerCase()
 
