@@ -176,7 +176,13 @@ function AppItem({
   hypr: Hyprland.Hyprland
 }) {
   // anterior: matcher por regex (class/initial_class/title) + ponto único "active"
-  const launch = () => GLib.spawn_command_line_async(appItem.cmd)
+  const launch = () => {
+    try {
+      GLib.spawn_command_line_async(appItem.cmd)
+    } catch (err) {
+      console.error(`Falha ao lançar ${appItem.name} (${appItem.cmd}):`, err)
+    }
+  }
   const dots = [0, 1, 2].map(() => new Gtk.Box({ cssClasses: ["dock-app-dot"] }))
 
   const btn = (
