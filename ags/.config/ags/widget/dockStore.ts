@@ -221,7 +221,8 @@ export function scanSystemApps(): DesktopApp[] {
         blocked.add(id)
         continue
       }
-      let exec = app.get_executable() || ""
+      // Linha de comando completa (get_executable descarta args: flatpak virava "/usr/bin/flatpak")
+      const exec = (app.get_commandline() || "").replace(/%[fFuUick]/g, "").trim()
       if (!name || !exec) continue
 
       const gicon = app.get_icon()
