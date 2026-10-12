@@ -65,7 +65,7 @@ function getKeys(app: DockApp): MatchKeys {
 }
 
 function ordered(a: Hyprland.Client, b: Hyprland.Client): number {
-  return a.workspace.id - b.workspace.id || a.address.localeCompare(b.address)
+  return (a.workspace?.id ?? 0) - (b.workspace?.id ?? 0) || a.address.localeCompare(b.address)
 }
 
 // Janelas do app em ordem estável (workspace, endereço); match exato primeiro, substring como fallback
