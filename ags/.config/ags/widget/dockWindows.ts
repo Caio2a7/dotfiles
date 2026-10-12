@@ -68,7 +68,8 @@ function ordered(a: Hyprland.Client, b: Hyprland.Client): number {
   return (a.workspace?.id ?? 0) - (b.workspace?.id ?? 0) || a.address.localeCompare(b.address)
 }
 
-// Janelas do app em ordem estável (workspace, endereço); match exato primeiro, substring como fallback
+// Janelas do app em ordem estável (workspace, endereço); match exato primeiro, substring como fallback.
+// Só class/initialClass: título gera falso positivo (aba "WhatsApp" no navegador, título "Terminal")
 export function windowsFor(app: DockApp, clients: Hyprland.Client[]): Hyprland.Client[] {
   const keys = getKeys(app)
   const classes = (c: Hyprland.Client) => [norm(c.class), norm(c.initialClass)]
