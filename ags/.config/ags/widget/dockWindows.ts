@@ -90,10 +90,15 @@ export function nextWindow(wins: Hyprland.Client[], focused: Hyprland.Client | n
   return wins[(idx + 1) % wins.length]
 }
 
-// Foca (ou cicla) as janelas do app; retorna false se não há janela e o chamador deve lançar o app
+// Foca (ou cicla) as janelas do app; retorna false se não há janela (ou o foco falhou) e o chamador deve lançar o app
 export function focusOrCycle(app: DockApp, hypr: Hyprland.Hyprland): boolean {
-  const wins = windowsFor(app, hypr.clients ?? [])
-  if (wins.length === 0) return false
-  nextWindow(wins, hypr.focusedClient ?? null).focus()
-  return true
+  try {
+    const wins = windowsFor(app, hypr.clients ?? [])
+    if (wins.length === 0) return false
+    nextWindow(wins, hypr.focusedClient ?? null).focus()
+    return true
+  } catch (err) {
+    console.error(`Falha ao focar janela de ${app.name}:`, err)
+    return false
+  }
 }
