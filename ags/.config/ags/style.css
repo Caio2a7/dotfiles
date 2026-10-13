@@ -501,7 +501,7 @@ scale slider:hover,
 
 .dock-wrapper {
   background: transparent;
-  padding: 0;
+  padding: 0 0 0 30px;
   margin: 0;
 }
 

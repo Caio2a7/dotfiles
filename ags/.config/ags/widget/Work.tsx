@@ -578,6 +578,45 @@ export function Work(monitor = 0) {
   win.connect("realize", applyExclusiveZone)
   win.connect("map", applyExclusiveZone)
 
+  // Permite clicar através da margem transparente à esquerda quando o mouse estiver fora do dock
+  const DOCK_PADDING_LEFT = 30
+  const updateInput = (expanded: boolean) => {
+    const surface = getSurface(win)
+    if (!surface) return
+    if (expanded || isAnyPopoverOpen()) {
+      surface.set_input_region(null)
+    } else {
+      type RegionRect = { x: number; y: number; width: number; height: number }
+      const region = new cairo.Region() as cairo.Region & { unionRectangle(rect: RegionRect): void }
+      const height = surface.get_height()
+      const width = surface.get_width()
+      region.unionRectangle({
+        x: DOCK_PADDING_LEFT,
+        y: 0,
+        width: Math.max(0, width - DOCK_PADDING_LEFT),
+        height: height,
+      })
+      surface.set_input_region(region)
+    }
+  }
+
+  const dockMotion = new Gtk.EventControllerMotion()
+  dockMotion.connect("enter", () => updateInput(true))
+  dockMotion.connect("leave", () => updateInput(false))
+  outerBox.add_controller(dockMotion)
+
+  onDockInteractionFinished = () => {
+    if (!dockMotion.contains_pointer) updateInput(false)
+  }
+
+  const bindDockSurface = () => {
+    getSurface(win)?.connect("layout", () => updateInput(false))
+    updateInput(false)
+  }
+  win.connect("realize", bindDockSurface)
+  win.connect("map", bindDockSurface)
+  if (win.get_realized()) bindDockSurface()
+
   // Auto-hide desativado para teste (dock fixa) — descomente para restaurar
   // setupAutoHide(win, outerBox, revealer, peekBar)
 
