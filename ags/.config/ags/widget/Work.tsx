@@ -8,6 +8,7 @@ import GLib from "gi://GLib"
 import GObject from "gi://GObject"
 import WirePlumber from "gi://AstalWp"
 import cairo from "gi://cairo"
+import Gtk4LayerShell from "gi://Gtk4LayerShell"
 import { openAppPickerModal } from "./AppPickerModal"
 import { WorkspacesSection, AudioControlsSection, StatusSection } from "./WorkStatus"
 import { StudySection } from "./StudySection"
@@ -568,6 +569,14 @@ export function Work(monitor = 0) {
     </window>
   ) as Astal.Window
   win.overflow = Gtk.Overflow.VISIBLE
+
+  // Mantém exclusive zone fixo no tamanho real do dock (48px) para não empurrar janelas do desktop além do necessário
+  const applyExclusiveZone = () => {
+    Gtk4LayerShell.set_exclusive_zone(win, 48)
+  }
+  applyExclusiveZone()
+  win.connect("realize", applyExclusiveZone)
+  win.connect("map", applyExclusiveZone)
 
   // Auto-hide desativado para teste (dock fixa) — descomente para restaurar
   // setupAutoHide(win, outerBox, revealer, peekBar)
