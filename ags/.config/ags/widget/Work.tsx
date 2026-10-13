@@ -538,7 +538,7 @@ export function Work(monitor = 0) {
 
   const outerBox = (
     // <box class="dock-wrapper" orientation={Gtk.Orientation.VERTICAL} spacing={0} halign={Gtk.Align.CENTER} valign={Gtk.Align.END}>
-    <box class="dock-wrapper" orientation={Gtk.Orientation.HORIZONTAL} spacing={0} halign={Gtk.Align.CENTER} valign={Gtk.Align.CENTER}>
+    <box class="dock-wrapper" orientation={Gtk.Orientation.HORIZONTAL} spacing={0} halign={Gtk.Align.END} valign={Gtk.Align.CENTER}>
       {revealer}
       {peekBar}
     </box>
