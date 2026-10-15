@@ -398,92 +398,104 @@ function trackPointer(slider: Astal.Slider, st: Interaction) {
   slider.add_controller(click)
 }
 
-function Volume() {
-  const wp = WirePlumber.get_default()
-  if (!wp) return <box />
-  const speaker = wp.defaultSpeaker
-  if (!speaker) return <box />
+interface AudioRowOpts {
+  sliderCls: string
+  rowCls: string
+  muteTip: (muted: boolean) => string
+  iconFor: (muted: boolean, v: number) => string
+}
 
-  const vol   = createBinding(speaker, "volume")
-  const muted = createBinding(speaker, "mute")
+function AudioRow(ep: any, opts: AudioRowOpts) {
+  const muted = createBinding(ep, "mute")
+  const st: Interaction = { pressed: false, last: 0 }
+  let syncing = false
 
-  const icon = createComputed(() => {
-    if (muted()) return "󰖁"
-    const v = vol()
-    return v > 0.65 ? "󰕾" : v > 0.2 ? "󰖀" : "󰕿"
+  const throttle = createThrottle(16, () => {
+    ep.volume = Math.min(1, Math.max(0, slider.value))
   })
+
+  const slider = (
+    <slider
+      class={opts.sliderCls}
+      hexpand={true}
+      valign={Gtk.Align.CENTER}
+      min={0}
+      max={1}
+      step={0.02}
+      value={ep.volume}
+      onValueChanged={() => {
+        if (syncing) return
+        touch(st)
+        if (st.pressed && ep.mute) ep.mute = false
+        throttle.schedule()
+      }}
+    />
+  ) as Astal.Slider
+
+  slider.set_cursor_from_name("pointer")
+  trackPointer(slider, st)
+
+  ep.connect("notify::volume", () => {
+    if (isBusy(st) || Math.abs(slider.value - ep.volume) < 0.005) return
+    syncing = true
+    slider.value = ep.volume
+    syncing = false
+  })
+
+  const liveVal = createBinding(slider.adjustment, "value")
+  const icon = createComputed(() => opts.iconFor(muted(), liveVal()))
   const pctLabel = createComputed(() =>
-    muted() ? "Mudo" : `${Math.round(vol() * 100)}%`
+    muted() ? "Mudo" : `${Math.round(liveVal() * 100)}%`
   )
 
-  return (
-    <box class="hub-stat volume" spacing={5} valign={Gtk.Align.CENTER}>
+  const handleScroll = createScrollHandler(0.02, 0.06, (delta) => {
+    if (delta > 0 && ep.mute) ep.mute = false
+    slider.value = Math.round(Math.min(1, Math.max(0, slider.value + delta)) * 100) / 100
+  })
+
+  const rowBox = (
+    <box class={opts.rowCls} spacing={5} valign={Gtk.Align.CENTER}>
       <button
         class="mute-btn"
         valign={Gtk.Align.CENTER}
-        tooltipText={createComputed(() => muted() ? "Desmutar" : "Mutar")}
-        onClicked={() => { speaker.mute = !speaker.mute }}
+        tooltipText={createComputed(() => opts.muteTip(muted()))}
+        onClicked={() => {
+          ep.mute = !ep.mute
+        }}
       >
         <label class="stat-icon" label={icon} valign={Gtk.Align.CENTER} />
       </button>
-      <slider
-        class="vol-slider"
-        hexpand={true}
-        valign={Gtk.Align.CENTER}
-        min={0} max={1} step={0.02}
-        value={createBinding(speaker, "volume")}
-        onValueChanged={(self: any) => {
-          speaker.mute   = false
-          speaker.volume = self.value
-        }}
-      />
+      {slider}
       <label class="stat-value" label={pctLabel} valign={Gtk.Align.CENTER} />
     </box>
-  )
+  ) as Gtk.Box
+
+  attachScrollController(rowBox, (dx, dy) => handleScroll(dx, dy))
+  return rowBox
+}
+
+function Volume() {
+  const wp = WirePlumber.get_default()
+  const speaker = wp?.defaultSpeaker
+  if (!speaker) return <box />
+  return AudioRow(speaker, {
+    sliderCls: "vol-slider",
+    rowCls: "hub-stat volume",
+    muteTip: (m) => (m ? "Desmutar" : "Mutar"),
+    iconFor: (m, v) => (m ? "󰖁" : v > 0.65 ? "󰕾" : v > 0.2 ? "󰖀" : "󰕿"),
+  })
 }
 
 function Microphone() {
   const wp = WirePlumber.get_default()
-  if (!wp) return <box />
-  const mic = wp.defaultMicrophone
+  const mic = wp?.defaultMicrophone
   if (!mic) return <box />
-
-  const vol   = createBinding(mic, "volume")
-  const muted = createBinding(mic, "mute")
-
-  const icon = createComputed(() => (muted() ? "󰍭" : "󰍬"))
-  const pctLabel = createComputed(() =>
-    muted() ? "Mudo" : `${Math.round(vol() * 100)}%`
-  )
-
-  return (
-    <box class="hub-stat microphone" spacing={5} valign={Gtk.Align.CENTER}>
-      <button
-        class="mute-btn"
-        valign={Gtk.Align.CENTER}
-        tooltipText={createComputed(() => (muted() ? "Desmutar Microfone" : "Mutar Microfone"))}
-        onClicked={() => {
-          mic.mute = !mic.mute
-        }}
-      >
-        <label class="stat-icon" label={icon} valign={Gtk.Align.CENTER} />
-      </button>
-      <slider
-        class="mic-slider"
-        hexpand={true}
-        valign={Gtk.Align.CENTER}
-        min={0}
-        max={1}
-        step={0.02}
-        value={createBinding(mic, "volume")}
-        onValueChanged={(self: any) => {
-          mic.mute = false
-          mic.volume = self.value
-        }}
-      />
-      <label class="stat-value" label={pctLabel} valign={Gtk.Align.CENTER} />
-    </box>
-  )
+  return AudioRow(mic, {
+    sliderCls: "mic-slider",
+    rowCls: "hub-stat microphone",
+    muteTip: (m) => (m ? "Desmutar Microfone" : "Mutar Microfone"),
+    iconFor: (m) => (m ? "󰍭" : "󰍬"),
+  })
 }
 
 function Brightness() {
