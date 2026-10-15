@@ -307,6 +307,53 @@ function SystemStats() {
   )
 }
 
+interface Interaction {
+  pressed: boolean
+  last: number
+}
+
+const RECENT_US = 300_000
+
+const touch = (st: Interaction) => {
+  st.last = GLib.get_monotonic_time()
+}
+
+const isBusy = (st: Interaction) =>
+  st.pressed || GLib.get_monotonic_time() - st.last < RECENT_US
+
+/** Coalescência: no máximo 1 execução por `ms`, sempre com o valor mais recente. */
+function createThrottle(ms: number, fn: () => void) {
+  let id: number | null = null
+  return {
+    schedule() {
+      if (id !== null) return
+      id = GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
+        id = null
+        fn()
+        return GLib.SOURCE_REMOVE
+      })
+    },
+  }
+}
+
+/** Observa o ponteiro em CAPTURE sem nunca reivindicar a sequência do GtkRange. */
+function trackPointer(slider: Astal.Slider, st: Interaction) {
+  const release = () => {
+    st.pressed = false
+    touch(st)
+    slider.set_cursor_from_name("pointer")
+  }
+  const click = new Gtk.GestureClick()
+  click.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+  click.connect("pressed", () => {
+    st.pressed = true
+    slider.set_cursor_from_name("grabbing")
+  })
+  click.connect("released", release)
+  click.connect("cancel", release)
+  slider.add_controller(click)
+}
+
 function Volume() {
   const wp = WirePlumber.get_default()
   if (!wp) return <box />
