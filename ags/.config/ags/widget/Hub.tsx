@@ -336,6 +336,50 @@ function createThrottle(ms: number, fn: () => void) {
   }
 }
 
+const ACCEL_WINDOW_US = 120_000
+
+/** Notches lentos = 1 passo base; notches em sequência aceleram até maxStep. */
+function createScrollHandler(step: number, maxStep: number, apply: (delta: number) => void) {
+  let acc = 0
+  let streak = 0
+  let lastNotch = 0
+  const notch = (sign: number) => {
+    const now = GLib.get_monotonic_time()
+    streak = now - lastNotch < ACCEL_WINDOW_US ? streak + 1 : 0
+    lastNotch = now
+    apply(sign * Math.min(maxStep, step * (1 + streak)))
+  }
+  return (dx: number, dy: number): boolean => {
+    const raw = Math.abs(dy) > 0.001 ? -dy : Math.abs(dx) > 0.001 ? dx : 0
+    if (raw === 0) return false
+    if (Math.abs(raw) >= 1) {
+      acc = 0
+      notch(Math.sign(raw))
+      return true
+    }
+    acc += raw
+    if (Math.abs(acc) >= 1) {
+      const sign = Math.sign(acc)
+      acc -= sign
+      notch(sign)
+    }
+    return true
+  }
+}
+
+function attachScrollController(
+  widget: Gtk.Widget,
+  onScroll: (dx: number, dy: number) => boolean,
+) {
+  const scrollCtrl = new Gtk.EventControllerScroll({
+    flags: Gtk.EventControllerScrollFlags.BOTH_AXES,
+  })
+  scrollCtrl.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
+  scrollCtrl.connect("scroll", (_c, dx, dy) => onScroll(dx, dy))
+  widget.add_controller(scrollCtrl)
+  return scrollCtrl
+}
+
 /** Observa o ponteiro em CAPTURE sem nunca reivindicar a sequência do GtkRange. */
 function trackPointer(slider: Astal.Slider, st: Interaction) {
   const release = () => {
