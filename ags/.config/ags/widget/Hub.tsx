@@ -201,21 +201,15 @@ function ActiveWindow() {
   const appName  = createComputed(() => client()?.class ?? "Desktop")
   const rawTitle = createComputed(() => client()?.title ?? "")
 
-  const title = createComputed(() => {
-    const t = rawTitle()
-    return t.length > 14 ? t.slice(0, 12) + "…" : t
-  })
-
   const appIcon = createComputed(() => getAppIcon(appName(), rawTitle()))
 
   const fullText = createComputed(() => {
     const app = appName()
-    const t = title()
+    const t = rawTitle()
     if (!t || t.toLowerCase() === app.toLowerCase() || app === "Desktop") {
-      return app.length > 14 ? app.slice(0, 12) + "…" : app
+      return app
     }
-    const combined = `${app} — ${t}`
-    return combined.length > 15 ? combined.slice(0, 13) + "…" : combined
+    return `${app} — ${t}`
   })
 
   return (
@@ -224,11 +218,12 @@ function ActiveWindow() {
       <label
         class="window-single-text"
         label={fullText}
+        tooltipText={fullText}
         halign={Gtk.Align.START}
         valign={Gtk.Align.CENTER}
         hexpand={true}
         ellipsize={Pango.EllipsizeMode.END}
-        maxWidthChars={13}
+        maxWidthChars={30}
       />
     </box>
   )
