@@ -8,6 +8,7 @@ import Battery from "gi://AstalBattery"
 import Mpris from "gi://AstalMpris"
 import GLib from "gi://GLib"
 import Pango from "gi://Pango"
+import { GAMMA_MIN, GAMMA_MAX, ensureSunset, createGammaSender } from "./sunset"
 
 const V = Gtk.Orientation.VERTICAL
 
@@ -499,48 +500,72 @@ function Microphone() {
 }
 
 function Brightness() {
-  const adjustment = new Gtk.Adjustment({ value: 100, lower: 0, upper: 100, step_increment: 1 })
-  const brightness = createBinding(adjustment, "value")
-
-  const icon = createComputed(() => {
-    const v = brightness()
-    return v > 66 ? "󰃠" : v > 33 ? "󰃟" : "󰃞"
+  const adjustment = new Gtk.Adjustment({
+    value: GAMMA_MAX,
+    lower: GAMMA_MIN,
+    upper: GAMMA_MAX,
+    step_increment: 1,
+    page_increment: 1,
   })
 
-  const pctLabel = createComputed(() => `${Math.round(brightness())}%`)
+  const st: Interaction = { pressed: false, last: 0 }
+  let syncing = false
+  let lastCommitted = GAMMA_MAX
+  const sendGamma = createGammaSender()
 
-  let debounceId: number | null = null
+  const commitBrightness = (val: number) => {
+    const pct = Math.max(GAMMA_MIN, Math.min(GAMMA_MAX, Math.round(val)))
+    if (pct === lastCommitted) return
+    lastCommitted = pct
+    sendGamma(pct)
+  }
 
-  return (
+  const slider = (
+    <slider
+      class="brightness-slider"
+      hexpand={true}
+      valign={Gtk.Align.CENTER}
+      adjustment={adjustment}
+      onValueChanged={(self: any) => {
+        if (syncing) return
+        touch(st)
+        commitBrightness(self.value)
+      }}
+    />
+  ) as Astal.Slider
+
+  slider.set_cursor_from_name("pointer")
+  trackPointer(slider, st)
+
+  ensureSunset().then((current) => {
+    if (current === null || isBusy(st)) return
+    syncing = true
+    slider.value = current
+    syncing = false
+    lastCommitted = current
+  }).catch((e) => console.error("hyprsunset init falhou:", e))
+
+  const liveVal = createBinding(slider.adjustment, "value")
+  const icon = createComputed(() => {
+    const v = liveVal()
+    return v > 66 ? "󰃠" : v > 33 ? "󰃟" : "󰃞"
+  })
+  const pctLabel = createComputed(() => `${Math.round(liveVal())}%`)
+
+  const handleScroll = createScrollHandler(1, 5, (delta) => {
+    slider.value = Math.round(Math.min(GAMMA_MAX, Math.max(GAMMA_MIN, slider.value + delta)))
+  })
+
+  const rowBox = (
     <box class="hub-stat brightness" spacing={5} valign={Gtk.Align.CENTER}>
       <label class="stat-icon" label={icon} valign={Gtk.Align.CENTER} />
-      <slider
-        class="brightness-slider"
-        hexpand={true}
-        valign={Gtk.Align.CENTER}
-        adjustment={adjustment}
-        value={100}
-        onValueChanged={(self: any) => {
-          const val = Math.round(self.value)
-          const gamma = val
-
-          if (debounceId !== null) {
-            GLib.source_remove(debounceId)
-            debounceId = null
-          }
-          debounceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
-            const cmd = val >= 100
-              ? `pkill -9 hyprsunset`
-              : `pkill -9 hyprsunset; sleep 0.05; hyprsunset --gamma ${gamma}`
-            trySpawn(cmd)
-            debounceId = null
-            return GLib.SOURCE_REMOVE
-          })
-        }}
-      />
+      {slider}
       <label class="stat-value" label={pctLabel} valign={Gtk.Align.CENTER} />
     </box>
-  )
+  ) as Gtk.Box
+
+  attachScrollController(rowBox, (dx, dy) => handleScroll(dx, dy))
+  return rowBox
 }
 
 function NetworkWidget() {
