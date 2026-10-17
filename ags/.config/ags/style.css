@@ -496,29 +496,40 @@ scale slider:active,
 
 .mic-slider highlight {
   background: linear-gradient(90deg, #0d9488, #14b8a6, #2dd4bf);
-  border-radius: 4px;
+  border-radius: 9999px;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.35);
+  transition: box-shadow 100ms ease;
 }
 
-.mic-slider trough {
-  background-color: rgba(18, 22, 30, 0.90);
-  border-radius: 4px;
-  min-height: 5px;
-  border: 1px solid rgba(20, 184, 166, 0.20);
+.mic-slider:hover highlight {
+  box-shadow: 0 0 14px rgba(45, 212, 191, 0.55);
 }
 
 .mic-slider slider {
-  background: radial-gradient(circle at 35% 35%, #2dd4bf, #0d9488);
+  background: radial-gradient(circle at 35% 35%, #f0fdfa, #2dd4bf);
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   min-width: 14px;
   min-height: 14px;
-  margin: -5px 0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.50);
+  margin: -4px 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.65), 0 0 4px rgba(45, 212, 191, 0.3);
+  transition: box-shadow 100ms ease;
 }
 
 .mic-slider slider:hover {
-  background: radial-gradient(circle at 35% 35%, #5eead4, #14b8a6);
-  box-shadow: 0 2px 8px rgba(45, 212, 191, 0.55);
+  background: radial-gradient(circle at 35% 35%, #ffffff, #5eead4);
+  min-width: 16px;
+  min-height: 16px;
+  margin: -5px 0;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7), 0 0 8px rgba(45, 212, 191, 0.65);
+}
+
+.mic-slider slider:active {
+  background: #ffffff;
+  min-width: 18px;
+  min-height: 18px;
+  margin: -6px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), 0 0 12px rgba(45, 212, 191, 0.9);
 }
 
 /* ------------------------------------------------------------------ */
