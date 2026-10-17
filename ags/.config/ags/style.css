@@ -447,23 +447,41 @@ scale slider:active,
 }
 
 .brightness-slider highlight {
-  background: linear-gradient(90deg, #6b5010, #c8a040);
-  border-radius: 4px;
+  background: linear-gradient(90deg, #d97706, #f59e0b, #fbbf24);
+  border-radius: 9999px;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+  transition: box-shadow 100ms ease;
+}
+
+.brightness-slider:hover highlight {
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.55);
 }
 
 .brightness-slider slider {
-  background: radial-gradient(circle at 35% 35%, #e0cc88, #a07830);
+  background: radial-gradient(circle at 35% 35%, #fffbeb, #fbbf24);
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   min-width: 14px;
   min-height: 14px;
-  margin: -5px 0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.50);
+  margin: -4px 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.65), 0 0 4px rgba(245, 158, 11, 0.3);
+  transition: box-shadow 100ms ease;
 }
 
 .brightness-slider slider:hover {
-  background: radial-gradient(circle at 35% 35%, #f0e0a0, #c09840);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+  background: radial-gradient(circle at 35% 35%, #ffffff, #fde68a);
+  min-width: 16px;
+  min-height: 16px;
+  margin: -5px 0;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.7), 0 0 8px rgba(245, 158, 11, 0.65);
+}
+
+.brightness-slider slider:active {
+  background: #ffffff;
+  min-width: 18px;
+  min-height: 18px;
+  margin: -6px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), 0 0 12px rgba(245, 158, 11, 0.9);
 }
 
 /* Microfone em TEAL */
