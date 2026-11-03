@@ -377,7 +377,7 @@ function DockContainer({
       {/* 3. Asa Direita: Wi-Fi + Bateria + Relógio/Data (Largura simétrica 220px) */}
       {/* <box class="dock-wing-right" spacing={6} halign={Gtk.Align.CENTER} valign={Gtk.Align.CENTER} widthRequest={220}> */}
       {/* <box class="dock-wing-right" orientation={Gtk.Orientation.VERTICAL} spacing={6} halign={Gtk.Align.CENTER} valign={Gtk.Align.CENTER}> */}
-      <box class="dock-wing-right" orientation={Gtk.Orientation.VERTICAL} spacing={20} halign={Gtk.Align.CENTER} valign={Gtk.Align.CENTER}>
+      <box class="dock-wing-right" orientation={Gtk.Orientation.VERTICAL} spacing={0} halign={Gtk.Align.CENTER} valign={Gtk.Align.CENTER}>
         <StudySection />
         <StatusSection bat={bat} net={net} />
       </box>

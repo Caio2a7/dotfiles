@@ -3117,6 +3117,21 @@ progressbar.topic-progress-bar.pct-blue progress {
   font-family: "SF Pro Text", "Inter", "Noto Sans", sans-serif;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: -0.2px;
-  color: rgba(255, 255, 255, 0.82);
+  letter-spacing: -0.3px;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.study-rec-dot {
+  min-width: 5px;
+  min-height: 5px;
+  margin: 0 0 0 0;
+  border-radius: 50%;
+  background: rgba(255, 105, 97, 0.95);
+  animation: study-rec-pulse 2s ease-in-out infinite;
+}
+
+@keyframes study-rec-pulse {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.3; }
+  100% { opacity: 1; }
 }

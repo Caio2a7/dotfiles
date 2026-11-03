@@ -1,163 +1,142 @@
 import Gio from "gi://Gio"
 import GLib from "gi://GLib"
+import { ContractState, StudyState, parseContract } from "./studyState"
+import { findVaultRoot, logOnce, readNote, scanStudyDir } from "./studyFrontmatter"
 
-// Leitura (somente leitura!) das notas de matérias do Obsidian para o anel de foco do dock
-Gio._promisify(Gio.File.prototype, "enumerate_children_async", "enumerate_children_finish")
-Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish")
+export { initials } from "./studyState"
+export type { StudyState } from "./studyState"
 
-const DEFAULT_DIR = `${GLib.get_home_dir()}/Vida/00 - MATÉRIAS/Matérias`
-const STUDY_DIR = GLib.getenv("OCQ_STUDY_DIR") || DEFAULT_DIR
-const DEBOUNCE_MS = 300
-const RESCAN_SECONDS = 15
-
-export type StudyState =
-  | { active: false }
-  | {
-      active: true
-      materia: string
-      file: string
-      vault: string
-      relPath: string
-      inicioMs: number
-      gastoMin: number
-      estimadoMin: number
-    }
+// Fonte primária: arquivo de estado publicado pelo Obsidian (Gio.FileMonitor, ~ms).
+// Secundária: frontmatter das notas (rescan ~30s) para ausência/estado preso.
+const HOME = GLib.get_home_dir()
+const STUDY_DIR = GLib.getenv("OCQ_STUDY_DIR") || `${HOME}/Vida/00 - MATÉRIAS/Matérias`
+const ENV_FILE = GLib.getenv("LIFEOS_TRACKING_FILE")
+const STATE_FILES = ENV_FILE ? [ENV_FILE] : [`${HOME}/.cache/lifeos/tracking.json`, `${HOME}/Vida/.obsidian/lifeos-tracking.json`]
+const VAULT_ROOT = findVaultRoot(STUDY_DIR) ?? `${HOME}/Vida`
+const DEBOUNCE_MS = 25
+const RESCAN_SECONDS = 30
+const STUCK_GRACE_MS = 2000
 
 type Listener = (state: StudyState) => void
 
-// Extrai só o bloco de frontmatter (entre os dois primeiros "---"), linhas simples "chave: valor"
-export function parseFrontmatter(text: string): Record<string, string> {
-  const lines = text.replace(/^﻿/, "").split(/\r?\n/)
-  const out: Record<string, string> = {}
-  if (lines[0]?.trim() !== "---") return out
-  for (const line of lines.slice(1)) {
-    if (line.trim() === "---") return out
-    const m = line.match(/^([\w-]+):\s*(.*)$/)
-    if (m) out[m[1]] = m[2].trim().replace(/^(["'])(.*)\1$/, "$2")
-  }
-  return {}
-}
-
-const STOPWORDS = new Set(["e", "de", "da", "do", "das", "dos", "a", "o", "em", "para", "ou", "&", "-"])
-
-// "Cálculo Diferencial e Integral" -> "CDI"; palavra única -> primeiras 4 letras
-export function initials(name: string): string {
-  const base = name.split(" - ")[0]
-  const words = base.split(/\s+/).filter((w) => w && !STOPWORDS.has(w.toLowerCase()))
-  if (words.length === 0) return base.slice(0, 4).toUpperCase()
-  if (words.length === 1) return words[0].slice(0, 4).toUpperCase()
-  return words.slice(0, 4).map((w) => w[0].toUpperCase()).join("")
-}
-
-const num = (v: string | undefined): number => {
-  const n = parseFloat(v ?? "")
-  return Number.isFinite(n) ? n : 0
-}
-
-// Sobe a partir da pasta até achar `.obsidian` (raiz do vault)
-export function findVaultRoot(dir: string): string | null {
-  let cur = dir
-  while (cur && cur !== "/") {
-    if (GLib.file_test(`${cur}/.obsidian`, GLib.FileTest.IS_DIR)) return cur
-    cur = GLib.path_get_dirname(cur)
-  }
-  return null
-}
-
-export function toState(path: string, fm: Record<string, string>): StudyState {
-  if (fm.tracking_ativo !== "true") return { active: false }
-  const stem = GLib.path_get_basename(path).replace(/\.md$/, "")
-  const root = findVaultRoot(GLib.path_get_dirname(path))
-  return {
-    active: true,
-    materia: fm.materia || stem,
-    file: path,
-    vault: root ? GLib.path_get_basename(root) : "",
-    relPath: root ? path.slice(root.length + 1).replace(/\.md$/, "") : stem,
-    inicioMs: num(fm.tracking_inicio),
-    // tempo_gasto_direto é o acumulado da própria matéria; subtarefas usam tempo_gasto
-    gastoMin: num(fm.tempo_gasto_direto) || num(fm.tempo_gasto),
-    estimadoMin: num(fm.tempo_estimado),
-  }
-}
-
-const decoder = new TextDecoder()
-const loggedErrors = new Set<string>()
-
-function logOnce(msg: string, err: unknown): void {
-  if (loggedErrors.has(msg)) return
-  loggedErrors.add(msg)
-  console.error(msg, err)
-}
-
-async function listMarkdown(dir: Gio.File): Promise<string[]> {
-  const en = (await (dir as any).enumerate_children_async("standard::name", Gio.FileQueryInfoFlags.NONE, GLib.PRIORITY_DEFAULT, null)) as Gio.FileEnumerator
-  const names: string[] = []
-  for (let info = en.next_file(null); info; info = en.next_file(null)) {
-    if (info.get_name().endsWith(".md")) names.push(info.get_name())
-  }
-  return names
-}
-
-async function readState(path: string): Promise<StudyState> {
-  try {
-    const [bytes] = (await (Gio.File.new_for_path(path) as any).load_contents_async(null)) as [Uint8Array, string]
-    return toState(path, parseFrontmatter(decoder.decode(bytes)))
-  } catch (err) {
-    logOnce(`Falha ao ler nota ${path}`, err)
-    return { active: false }
-  }
-}
-
-export async function scanStudyDir(dirPath: string): Promise<StudyState> {
-  try {
-    const names = await listMarkdown(Gio.File.new_for_path(dirPath))
-    const states = await Promise.all(names.map((n) => readState(`${dirPath}/${n}`)))
-    return states.find((s) => s.active) ?? { active: false }
-  } catch (err) {
-    logOnce(`Pasta de matérias indisponível: ${dirPath}`, err)
-    return { active: false }
-  }
-}
-
-// --- Store: monitor de diretório (debounce) + rescan de segurança ---
 const listeners = new Set<Listener>()
+const errs = new Set<string>()
 let current: StudyState = { active: false }
+let fileState: ContractState | null = null
+let fmState: StudyState = { active: false }
+let stale = false
 let started = false
-let scanSeq = 0
+let seq = 0
 let debounceId = 0
 
-async function rescan(): Promise<void> {
-  const seq = ++scanSeq
-  const next = await scanStudyDir(STUDY_DIR)
-  if (seq !== scanSeq) return // varredura mais nova já em andamento
+const decoder = new TextDecoder()
+
+function readContract(path: string): ContractState | null {
+  try {
+    const [ok, bytes] = GLib.file_get_contents(path)
+    if (!ok) return null
+    const parsed = parseContract(decoder.decode(bytes), VAULT_ROOT)
+    if (!parsed) logOnce(errs, `Estado de tracking inválido/parcial: ${path}`, "ignorado")
+    return parsed
+  } catch (err) {
+    if (!(err instanceof GLib.Error && err.matches(GLib.file_error_quark(), GLib.FileError.NOENT))) {
+      logOnce(errs, `Falha ao ler ${path}`, err)
+    }
+    return null
+  }
+}
+
+// Mais recente por updatedAt; arquivo inválido é ignorado (mantém o outro)
+function loadContract(): ContractState | null {
+  let best: ContractState | null = null
+  for (const p of STATE_FILES) {
+    const c = readContract(p)
+    if (c && (!best || c.updatedAt > best.updatedAt)) best = c
+  }
+  return best
+}
+
+function resolve(): StudyState {
+  return !fileState || stale ? fmState : fileState.state
+}
+
+function publish(): void {
+  const next = resolve()
   if (JSON.stringify(next) === JSON.stringify(current)) return
   current = next
   listeners.forEach((fn) => fn(current))
 }
 
-function scheduleRescan(): void {
+function reloadContract(): void {
+  const next = loadContract()
+  // Arquivo inválido/ausente após já termos estado válido: mantém o anterior, exceto se sumiu de vez
+  if (next || !STATE_FILES.some((p) => GLib.file_test(p, GLib.FileTest.EXISTS))) {
+    if (JSON.stringify(next) !== JSON.stringify(fileState)) stale = false
+    fileState = next
+  }
+  publish()
+}
+
+// Estado preso: arquivo diverge da nota e a nota foi modificada depois do updatedAt
+async function detectStale(fs: ContractState, fm: { state: StudyState; mtimeMs: number }): Promise<boolean> {
+  if (!fs.state.active) return fm.state.active && fm.mtimeMs > fs.updatedAt + STUCK_GRACE_MS
+  try {
+    const note = await readNote(fs.state.file)
+    return note.fm.tracking_ativo !== "true" && note.mtimeMs > fs.updatedAt + STUCK_GRACE_MS
+  } catch (err) {
+    logOnce(errs, `Falha ao ler nota ${fs.state.file}`, err)
+    return false
+  }
+}
+
+async function rescan(): Promise<void> {
+  const my = ++seq
+  const scan = await scanStudyDir(STUDY_DIR, errs)
+  if (my !== seq) return
+  const contract = loadContract() ?? fileState
+  fmState = scan.state
+  stale = contract ? await detectStale(contract, scan) : false
+  if (my !== seq) return
+  if (contract) fileState = contract
+  publish()
+}
+
+function scheduleReload(): void {
   if (debounceId) GLib.source_remove(debounceId)
   debounceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, DEBOUNCE_MS, () => {
     debounceId = 0
-    rescan().catch((e) => logOnce("Falha no rescan de estudo", e))
+    reloadContract()
     return GLib.SOURCE_REMOVE
   })
 }
 
+function watchStateDirs(): void {
+  const names = new Set(STATE_FILES.map((p) => GLib.path_get_basename(p)))
+  const dirs = new Set(STATE_FILES.map((p) => GLib.path_get_dirname(p)))
+  for (const dir of dirs) {
+    try {
+      GLib.mkdir_with_parents(dir, 0o755)
+      const mon = Gio.File.new_for_path(dir).monitor_directory(Gio.FileMonitorFlags.NONE, null)
+      mon.connect("changed", (_m, file, other) => {
+        const hit = [file, other].some((f) => f && names.has(f.get_basename() ?? ""))
+        if (hit) scheduleReload()
+      })
+    } catch (err) {
+      logOnce(errs, `Monitor indisponível: ${dir}`, err)
+    }
+  }
+}
+
 function start(): void {
   started = true
-  try {
-    const monitor = Gio.File.new_for_path(STUDY_DIR).monitor_directory(Gio.FileMonitorFlags.NONE, null)
-    monitor.connect("changed", scheduleRescan)
-  } catch (err) {
-    logOnce("Monitor da pasta de matérias indisponível", err)
-  }
+  fileState = loadContract()
+  watchStateDirs()
   GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, RESCAN_SECONDS, () => {
-    scheduleRescan()
+    rescan().catch((e) => logOnce(errs, "Falha no rescan de estudo", e))
     return GLib.SOURCE_CONTINUE
   })
-  scheduleRescan()
+  publish()
+  rescan().catch((e) => logOnce(errs, "Falha no rescan de estudo", e))
 }
 
 export function subscribeStudy(fn: Listener): () => void {
