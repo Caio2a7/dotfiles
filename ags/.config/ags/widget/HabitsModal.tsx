@@ -13,6 +13,10 @@ export function openHabitsModal(_targetDate?: string): void {
   modal?.set_visible(true)
 }
 
+export function toggleHabitsModal(): void {
+  if (modal) modal.set_visible(!modal.visible)
+}
+
 export function closeHabitsModal(): void {
   modal?.set_visible(false)
 }

@@ -3,11 +3,16 @@ import GLib from "gi://GLib"
 import { Work } from "./widget/Work"
 import { Hub } from "./widget/Hub"
 import { AppPickerModal } from "./widget/AppPickerModal"
-import { HabitsModal } from "./widget/HabitsModal"
+import { HabitsModal, toggleHabitsModal } from "./widget/HabitsModal"
 
 app.start({
   css: "/home/caio/.config/ags/style.css",
   requestHandler(request, res) {
+    if (request === "habits") {
+      toggleHabitsModal()
+      res("ok")
+      return
+    }
     res("ok")
   },
   main() {
