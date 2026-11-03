@@ -8,7 +8,7 @@ import { HabitsModal, toggleHabitsModal } from "./widget/HabitsModal"
 app.start({
   css: "/home/caio/.config/ags/style.css",
   requestHandler(request, res) {
-    if (request === "habits") {
+    if (request[0] === "habits") {
       toggleHabitsModal()
       res("ok")
       return
