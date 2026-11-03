@@ -1,6 +1,6 @@
 import app from "ags/gtk4/app"
 import { Astal, Gtk, Gdk } from "ags/gtk4"
-import { buildHabitRow } from "./HabitRowView"
+import { HabitView, buildHabitRow } from "./HabitRowView"
 import { HabitsState, rowsOf, subscribeHabits } from "./habitsStore"
 
 const { TOP, BOTTOM, LEFT, RIGHT } = Astal.WindowAnchor
@@ -37,21 +37,31 @@ export function HabitsModal(monitor = 0): Astal.Window {
   const sub = new Gtk.Label({ label: "", xalign: 0, hexpand: true, cssClasses: ["habits-sub"] })
   let last: HabitsState | null = null
 
-  const report = (fn: () => void) => {
-    try {
-      fn()
-      status.label = ""
-    } catch (err) {
-      status.label = err instanceof Error ? err.message : String(err)
-      console.error("Hábitos:", err)
-    }
+  let views = new Map<string, HabitView>()
+
+  const onError = (err: unknown) => {
+    status.label = err instanceof Error ? err.message : String(err)
+    console.error("Hábitos:", err)
   }
 
+  // Atualiza as linhas no lugar (preserva a transição CSS); reconstrói só se o conjunto de hábitos mudou
   const render = (s: HabitsState) => {
     last = s
-    clear(list)
     sub.label = s.erro ?? s.hoje
-    rowsOf(s).forEach((r) => list.append(buildHabitRow(s, r, report)))
+    const rows = rowsOf(s)
+    const same = rows.length === views.size && rows.every((r) => views.has(r.hab.key))
+    if (!same) {
+      clear(list)
+      views = new Map()
+      rows.forEach((r) => {
+        const v = buildHabitRow(s, r, onError)
+        views.set(r.hab.key, v)
+        list.append(v.widget)
+      })
+      return
+    }
+    status.label = ""
+    rows.forEach((r) => views.get(r.hab.key)?.update(s, r))
   }
 
   const header = new Gtk.Box({ spacing: 8, cssClasses: ["habits-header"] })
