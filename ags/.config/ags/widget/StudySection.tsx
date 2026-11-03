@@ -53,7 +53,7 @@ function rgbOf(cor?: string): [number, number, number] {
 }
 
 // Subconjunto do cairo.Context do GJS usado no anel (os typings não expõem os métodos)
-interface RingContext {
+export interface RingContext {
   setLineWidth(w: number): void
   setLineCap(cap: cairo.LineCap): void
   setSourceRGBA(r: number, g: number, b: number, a: number): void
@@ -61,7 +61,7 @@ interface RingContext {
   stroke(): void
 }
 
-function drawRing(cr: RingContext, w: number, h: number, frac: number, rgb: [number, number, number]): void {
+export function drawRing(cr: RingContext, w: number, h: number, frac: number, rgb: [number, number, number]): void {
   const cx = w / 2
   const cy = h / 2
   const r = (Math.min(w, h) - RING_STROKE) / 2
