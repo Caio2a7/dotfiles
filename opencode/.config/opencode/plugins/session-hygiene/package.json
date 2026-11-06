@@ -1,0 +1,9 @@
+{
+  "name": "session-hygiene",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}
