@@ -1,0 +1,12 @@
+[Unit]
+Description=Dispara a manutencao do OpenCode as 04:30 e retenta a cada 2h se adiada por atividade
+
+[Timer]
+OnCalendar=*-*-* 04:30:00
+Persistent=true
+# Retentativa: o script se adia quando ha atividade e tem trava de 20h contra repeticao
+OnBootSec=10min
+OnUnitInactiveSec=2h
+
+[Install]
+WantedBy=timers.target

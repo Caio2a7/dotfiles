@@ -1,0 +1,10 @@
+[Unit]
+Description=Manutencao do OpenCode (poda de sessoes, VACUUM, limpeza de /tmp)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash %h/.config/opencode/scripts/opencode-maintenance.sh
+Nice=10
+IOSchedulingClass=idle
+StandardOutput=journal
+StandardError=journal
