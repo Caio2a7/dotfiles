@@ -134,7 +134,7 @@ Para garantir escalabilidade, resiliência matemática e latência mínima em ta
 
 3. **Verificação Ativa de Pré-Condições Executáveis (SWE-planner Gate - Valmeekam et al. / SWE-planner 2024):**
    - *Eliminação do Planejamento no Vácuo:* Planos agênticos frequentemente alucinam pré-condições, gerando tarefas para editar arquivos ou métodos inexistentes.
-   - *Gating de Pré-Condições:* Durante o modo `/plan`, antes de persistir qualquer tarefa no `.aiflow/plan.md` ou inicializar o `todowrite`, o agente é mecanicamente obrigado a verificar a existência física dos arquivos e símbolos alvo via `ast-grep_search`, `grep` ou `read`. Se uma pré-condição falhar, a tarefa é imediatamente reclassificada como criação estrutural ou scaffold preliminar, garantindo que todo worker despachado receba pré-requisitos validados.
+   - *Gating de Pré-Condições:* Durante o modo `/plan`, antes de persistir qualquer tarefa no `.aiflow/plan.md` ou inicializar o `todowrite`, o agente é mecanicamente obrigado a verificar a existência física dos arquivos e símbolos alvo via `grep`, `glob`, `read` (ou CLI `ast-grep`). Se uma pré-condição falhar, a tarefa é imediatamente reclassificada como criação estrutural ou scaffold preliminar, garantindo que todo worker despachado receba pré-requisitos validados.
 
 ---
 

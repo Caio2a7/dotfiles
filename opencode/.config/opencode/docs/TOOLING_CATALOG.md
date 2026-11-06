@@ -157,7 +157,7 @@ python3 ~/.config/opencode/scripts/status.py
 
 ## 4. `learn.py`
 
-- **Propósito:** Extrator automatizado de aprendizados técnicos, decisões de arquitetura e padrões descobertos para integração com o grafo de conhecimento persistente do Memory MCP (`memory.jsonl`). Permite que lições aprendidas em uma sessão sejam retidas globalmente entre repositórios da máquina.
+- **Propósito:** Extrator automatizado de aprendizados técnicos, decisões de arquitetura e padrões descobertos para integração com o grafo de conhecimento persistente do grafo `memory.jsonl`. Permite que lições aprendidas em uma sessão sejam retidas globalmente entre repositórios da máquina.
 - **Comando Associado:** `/learn`.
 - **Dependências de Runtime:** Python 3 (Stdlib pura: `argparse`, `json`, `os`, `re`, `subprocess`, `typing`).
 - **Fontes de Dados & Mecanismo:**
@@ -443,13 +443,15 @@ def authenticate_user(token: str) -> UserClaims:
 
 ---
 
-## 🔌 Servidores MCP Ativos (Model Context Protocol)
+## 🔌 Servidores MCP (Model Context Protocol)
 
-Além dos scripts utilitários in-process, o runtime OpenCode integra servidores MCP canônicos configurados no manifesto `opencode.json`. Dentre eles, o servidor `agent-lsp` atua como camada essencial de inteligência linguística para análise estática e refatoração assistida.
+Apenas o `context7` fica ativo por padrão. Os MCPs locais (`agent-lsp`, `ast-grep`, `sequential-thinking`, `memory`, `docker`, `git-repo`) estão desligados (`disabled: true`) para economizar RAM, pois cada um é duplicado por diretório aberto; religue em `opencode.json` (`disabled: false`) ou num `opencode.json` do projeto só quando precisar.
 
-### Servidor MCP Ativo: `agent-lsp` (`@blackwell-systems/agent-lsp`)
+Substitutos em uso: diagnósticos do LSP nativo (`lsp: true`) e `grep` por referências no lugar do `agent-lsp`; CLI `ast-grep run -p ...` via shell (quando instalado); `docker`/`docker compose` e `git` via shell; raciocínio nativo do modelo no lugar do `sequential-thinking`.
 
-- **Propósito:** Provedor desacoplado do Language Server Protocol (LSP) voltado a agentes autônomos. Expõe análise semântica de tipos, resolução formal de referências e operadores de edição segura diretamente sobre a árvore de dependências do workspace.
+### Receita (desligado): `agent-lsp` (`@blackwell-systems/agent-lsp`)
+
+- **Propósito:** Provedor desacoplado do LSP para agentes (`blast_radius`, `simulate_edit`, `go_to_definition`, `safe_apply_edit`).
 - **Configuração no `opencode.json`:**
 ```json
 "agent-lsp": {
@@ -463,15 +465,6 @@ Além dos scripts utilitários in-process, o runtime OpenCode integra servidores
   "environment": {}
 }
 ```
-- **Capacidades Fornecidas e Ferramentas Expostas:**
-  1. **`blast_radius`:** Avalia o raio de impacto estático antes de qualquer intervenção, computando o grafo de dependências cruzadas e identificando todos os módulos, interfaces e chamadores afetados pela mutação de um símbolo.
-  2. **`simulate_edit`:** Executa a edição proposta em memória virtual e processa os diagnósticos do compilador/LSP em tempo real, detectando erros de sintaxe ou quebras de tipagem antes de qualquer alteração física no disco.
-  3. **`go_to_definition`:** Salta com precisão semântica diretamente para a declaração original de interfaces, tipos, funções e classes no grafo sintático, eliminando buscas cegas por string.
-  4. **`safe_apply_edit`:** Aplicação atômica e transacional de edições estruturadas. Rejeita automaticamente e desfaz alterações se diagnósticos impeditivos do compilador/LSP forem gerados após a escrita.
-- **Integração com Subagentes Especialistas:**
-  - **`@scout`:** Utiliza `go_to_definition` para localização cirúrgica de símbolos e contratos sem inchaço de contexto.
-  - **`@refactorer`:** Utiliza `blast_radius` para calcular previamente a amplitude de impacto e `simulate_edit` para validar transformações estruturais com zero quebras.
-  - **`@backend`:** Utiliza `go_to_definition` para inspecionar contratos de domínio e `safe_apply_edit` para mutações garantidas sem regressões de tipos.
 
 ---
 
