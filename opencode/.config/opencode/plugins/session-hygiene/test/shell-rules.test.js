@@ -19,17 +19,22 @@ const BLOCKED = [
   ["heredoc para arquivo", "node <<EOF > out.js\nconsole.log(1)\nEOF"],
   ["tee arquivo", "echo x | tee src/a.js"],
   ["tee -a arquivo", "echo x | tee -a src/a.js"],
-  ["sed -n range arquivo", "sed -n 10,40p src/app.js"],
-  ["sed -n $ arquivo", "sed -n '5,$p' src/app.js"],
-  ["sed -n linha única", "sed -n 7p src/app.js"],
-  ["cat arquivo", "cat src/app.js"],
-  ["cat vários", "cat a.js b.js"],
-  ["encadeado com cat", "cd src && cat app.js"],
   ["bash -c aninhado", `bash -c "sed -i 's/a/b/' f"`],
   ["cat arquivo em /tmp não-log", "cat > /tmp/x.py <<EOF\nprint(1)\nEOF"],
 ]
 
 const ALLOWED = [
+  ["cat json oculto", "cat .obsidian/appearance.json"],
+  ["sed -n arquivo", "sed -n '1,5p' Scripts/x.sh"],
+  ["sed -n $ arquivo", "sed -n '5,$p' src/app.js"],
+  ["head arquivo", "head -50 a.js"],
+  ["tail arquivo", "tail -n 20 a.js"],
+  ["wc arquivo", "wc -l src/app.js"],
+  ["cat | jq", "cat a.json | jq ."],
+  ["jq arquivo", "jq .name package.json"],
+  ["grep em pipe", "cat a.js | grep foo | head -3"],
+  ["cat vários", "cat a.js b.js"],
+  ["encadeado com cat", "cd src && cat app.js"],
   ["python script", "python3 script.py"],
   ["python -c sem escrita", `python3 -c "print(open('a.txt').read())"`],
   ["python -c open r", `python3 -c "open('a.txt','r').read()"`],
@@ -60,7 +65,7 @@ for (const [name, cmd] of BLOCKED) {
   test(`bloqueia: ${name}`, () => {
     const found = checkShellCommand(cmd)
     assert.ok(found, `deveria bloquear: ${cmd}`)
-    assert.match(found.hint, /edit|write|read|grep/)
+    assert.match(found.hint, /`edit`.*`write`/)
   })
 }
 

@@ -4,7 +4,7 @@
   "default_agent": "agentic",
   "plugins": [
     "@openchamber/opencode-claude",
-    { "package": "./plugins/claude-context-cap", "options": { "maxContext": 128000 } },
+    { "package": "./plugins/claude-context-cap", "options": { "maxContext": 200000 } },
     "./plugins/agent-model-sync",
     "./plugins/session-hygiene",
     "opencode-antigravity-auth@2.1.1"
