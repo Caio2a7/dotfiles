@@ -1,16 +1,15 @@
 /**
  * session-hygiene — regras de shell (OpenCode V2).
  *
- * Agentes não-orchestrator não escrevem arquivos via shell (sed -i, perl -i,
+ * Nenhum agente escreve arquivos via shell (sed -i, perl -i,
  * redirecionamento/heredoc/tee, python lendo script do stdin): devem usar
- * `edit`/`write`. Leitura via shell (cat, sed -n, head, jq, grep...) é livre.
+ * `edit`/`write` (orchestrator delega). Exceções: /dev/null, /tmp/ e *.log. Leitura via shell (cat, sed -n, head, jq, grep...) é livre.
  *
  * Falha interna nunca derruba a chamada: loga e deixa passar.
  */
-import { blockedCommand, checkShellCommand } from "./lib/shell-rules.js"
+import { blockedCommand, shellVerdict } from "./lib/shell-rules.js"
 
 const SHELL_TOOLS = new Set(["shell", "bash"])
-const EXEMPT_AGENT = "orchestrator"
 
 function log(scope, err) {
   const reason = err instanceof Error ? err.message : String(err)
@@ -18,8 +17,7 @@ function log(scope, err) {
 }
 
 function guardShell(event) {
-  if (event.agent === EXEMPT_AGENT) return
-  const finding = checkShellCommand(event.input?.command)
+  const finding = shellVerdict(event.input?.command, event.agent)
   if (!finding) return
   event.input = { ...event.input, command: blockedCommand(finding) }
   console.error(`[session-hygiene] shell bloqueado para ${event.agent}: ${finding.reason}`)

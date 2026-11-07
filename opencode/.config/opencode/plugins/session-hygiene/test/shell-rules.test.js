@@ -1,6 +1,29 @@
 import { test } from "node:test"
 import assert from "node:assert/strict"
-import { blockedCommand, checkShellCommand } from "../lib/shell-rules.js"
+import { blockedCommand, checkShellCommand, shellVerdict, ORCHESTRATOR_HINT, WRITE_HINT } from "../lib/shell-rules.js"
+
+const ORCH_BLOCKED = ["cat > notas.md <<EOF\nx\nEOF", "sed -i s/a/b/ x.js"]
+const ORCH_ALLOWED = [
+  "cat a.json | jq .",
+  "sed -n '1,5p' x",
+  `git commit -m "a > b"`,
+  `python3 -I -c 'print(1 if 2>1 else 0)'`,
+  "cmd > /tmp/out.txt 2>&1",
+  "cmd 2>/dev/null",
+]
+
+for (const cmd of ORCH_BLOCKED) {
+  test(`orchestrator bloqueado: ${cmd}`, () => {
+    assert.equal(shellVerdict(cmd, "orchestrator")?.hint, ORCHESTRATOR_HINT)
+    assert.equal(shellVerdict(cmd, "worker")?.hint, WRITE_HINT)
+  })
+}
+
+for (const cmd of ORCH_ALLOWED) {
+  test(`orchestrator permitido: ${cmd}`, () => {
+    assert.equal(shellVerdict(cmd, "orchestrator"), null)
+  })
+}
 
 const BLOCKED = [
   ["python3 heredoc", "python3 - <<'EOF'\nopen('a.txt','w').write('x')\nEOF"],
@@ -20,10 +43,10 @@ const BLOCKED = [
   ["tee arquivo", "echo x | tee src/a.js"],
   ["tee -a arquivo", "echo x | tee -a src/a.js"],
   ["bash -c aninhado", `bash -c "sed -i 's/a/b/' f"`],
-  ["cat arquivo em /tmp não-log", "cat > /tmp/x.py <<EOF\nprint(1)\nEOF"],
 ]
 
 const ALLOWED = [
+  ["heredoc para /tmp", "cat > /tmp/x.py <<EOF\nprint(1)\nEOF"],
   ["cat json oculto", "cat .obsidian/appearance.json"],
   ["sed -n arquivo", "sed -n '1,5p' Scripts/x.sh"],
   ["sed -n $ arquivo", "sed -n '5,$p' src/app.js"],

@@ -1,6 +1,7 @@
 import { parseShell, isFileWriteRedirect } from "./shell-parse.js"
 
 export const WRITE_HINT = "Use a tool `edit` (alteração pontual) ou `write` (arquivo novo/inteiro) em vez de editar arquivos via shell."
+export const ORCHESTRATOR_HINT = "Orchestrator não escreve arquivos: delegue a escrita a um subagente (worker, backend ou devops)."
 
 const WRAPPERS = new Set(["sudo", "time", "env", "command", "nice", "nohup", "exec"])
 const SHELLS = new Set(["bash", "sh", "zsh"])
@@ -11,7 +12,8 @@ const isFlag = (a) => a.startsWith("-") && a !== "-"
 const hit = (kind, reason) => ({ kind, reason, hint: WRITE_HINT })
 
 function isHarmlessTarget(target) {
-  return /^\/dev\/(null|stderr|stdout|tty)$/.test(target) || target.endsWith(".log") || target.startsWith("&")
+  return /^\/dev\/(null|stderr|stdout|tty)$/.test(target) || target.startsWith("/tmp/")
+    || target.endsWith(".log") || target.startsWith("&")
 }
 
 function splitCommand(words) {
@@ -69,6 +71,13 @@ export function checkShellCommand(command, depth = 0) {
     if (found) return found
   }
   return null
+}
+
+/** Como checkShellCommand, mas com a mensagem adequada ao agente. */
+export function shellVerdict(command, agent) {
+  const finding = checkShellCommand(command)
+  if (!finding) return null
+  return agent === "orchestrator" ? { ...finding, hint: ORCHESTRATOR_HINT } : finding
 }
 
 export function blockedCommand(finding) {
