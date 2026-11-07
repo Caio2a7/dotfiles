@@ -3,6 +3,8 @@ name: high-end-visual-design
 description: Design visual de alto padrão para páginas de marketing, landing pages, cartões visuais sofisticados e estética de agência de luxo ($150k+ tier). Foco em profundidade háptica, ritmo espacial cinematográfico, micro-interações táteis e movimento fluido.
 ---
 
+> **Precedência:** em projeto existente, as preferências do AGENTS.md do projeto e o design system existente prevalecem sobre esta skill; não pergunte direção estética.
+
 # Agent Skill: Principal UI/UX Architect & Motion Choreographer (Awwwards-Tier)
 
 ## 1. Meta Information & Core Directive

@@ -4,7 +4,8 @@
 - Seja terso. Sem frases de preenchimento nem explicações não solicitadas; o código fala.
 - Ambiguidade: declare a premissa e prossiga, em uma só resposta.
 - Não repita código antes de editar, não resuma o que acabou de fazer.
-- Não rode `git status` nem inspeções repetidas após editar; se a ferramenta teve sucesso, entregue.
+- Pronto = verificado: confira o resultado real com o harness ou os testes do projeto (dados reais, zero erro de console, screenshot conferido em UI) antes de declarar pronto.
+- Diga explicitamente o que não pôde ser verificado; não repita inspeções redundantes (ex.: `git status` após edit bem-sucedido).
 
 ## Code Quality & YAGNI
 - Código completo: sem stubs, `TODO`, `pass` livre, placeholders; mocks só em testes.
@@ -17,13 +18,14 @@
 ## Token Efficiency
 - Leia só o necessário; não explore especulativamente; prefira editar a criar arquivos.
 - Se `.aiflow/context.md` existir, leia antes de agir; ao concluir `/task`, `/tasks` ou `/debug`, registre padrões, anti-padrões e comportamentos não-óbvios de libs.
-- Sessão com 40 turnos ou assunto novo: recomende nova sessão consumindo `.aiflow/context.md` (use `/plan` ou `/commit` para descarregar o estado).
+- Feedback do usuário que vale além da tarefa (preferência de design/fluxo, correção recorrente): grave no mesmo turno, conciso e sem duplicar, na seção de preferências do AGENTS.md do projeto. Antes de mexer em UI, leia essa seção.
 
 ## Frontend (Anti-AI-Slop)
-- Projeto com design system: inspecione `tailwind.config.*`/`globals.css` e siga a identidade existente.
-- Projeto/feature nova sem especificação visual: pergunte (ferramenta `question`) com 2–3 opções (ex.: Linear-Dark, Editorial Clean, Brutalista Técnico) antes de implementar.
-- Proibido: degradê roxo genérico, 3 cards simétricos com ícones redondos, Inter/Roboto sem escala tipográfica, sombras pretas duras.
-- Obrigatório: double-bezel em containers, macro-espaçamento (`py-20+`), paleta contida com 1 cor de destaque, botões "ilha".
+- Precedência: (1) preferências do usuário no AGENTS.md do projeto; (2) design system e padrões das telas existentes (tokens, CSS, componentes; inspecione `tailwind.config.*`/`globals.css`); (3) regras genéricas, só para projeto novo sem identidade visual.
+- Feature nova em projeto existente segue as telas existentes, sem perguntar estilo. Só projeto novo sem identidade: pergunte (ferramenta `question`) com 2–3 direções (ex.: Linear-Dark, Editorial Clean, Brutalista Técnico) antes de implementar.
+- Ferramentas e dashboards: densidade de informação, alinhamento e simetria. Macro-espaçamento, hero e cards grandes só em landing/marketing.
+- Proibido: degradê roxo genérico, 3 cards simétricos com ícones redondos, Inter/Roboto sem escala tipográfica, sombras pretas duras, elemento grande cercado de vazio, números soltos em cards grandes.
+- Projeto novo: paleta contida com 1 cor de destaque.
 
 ## Segurança
 - Nunca exponha chaves, segredos ou tokens; valide e sanitize entradas externas; evite `eval()` e execução de strings.

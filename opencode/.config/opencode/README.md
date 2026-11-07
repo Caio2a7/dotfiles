@@ -506,7 +506,7 @@ O OpenCode impõe regras estéticas rigorosas para erradicar o código e as inte
 ### Regras Mandatórias de Interface:
 - ❌ **Proibição Absoluta de AI-Slop:** Proibido degradês roxos clichês (`from-purple-500 to-indigo-500`), três feature cards idênticos com círculos flutuantes no topo, fontes padrão de sistema (Inter/Roboto puras sem calibração tipográfica) e sombras pretas duras desproporcionais.
 - ✅ **Double-Bezel:** Containers estruturais devem utilizar moldura externa sutil complementada por núcleo interno com raio concêntrico proporcional, criando profundidade elegante.
-- ✅ **Macro-Espaçamento:** Respiro vertical amplo (`py-20+`), garantindo que os elementos não pareçam amontoados.
+- ✅ **Macro-Espaçamento (só landing/marketing e projeto novo):** em projeto existente prevalecem as preferências do AGENTS.md do projeto e as telas existentes; dashboards priorizam densidade e alinhamento.
 - ✅ **Paleta Contida:** Fundo neutro calibrado associado a exatamente uma cor de destaque deliberada (*Deliberate Accent*).
 - ✅ **Botões Ilha:** Ações primárias com ícone aninhado em micro-círculo geométrico concêntrico.
 

@@ -59,7 +59,7 @@ Este catálogo descreve a ontologia, contratos de interface, matrizes de permiss
 - **Missão:** Especialista de interface e implementação em nuvem (`claude-code/claude-sonnet-5-5`). Componentes React/Tailwind com estado complexo, design taste anti-AI-slop e raciocínio de contexto médio/longo.
 - **Contrato:** `{ target_component: string, design_requirements?: string, code_modifications: string }`
 - **Ferramentas Mandatórias:** `write`, `edit`, `read`, MCP `context7` (mandatório para checagem prévia de APIs/libs externas), CLI `ast-grep`, `bash` (linters/compilação).
-- **DoD:** Componente com double-bezel, macro-espaçamento (`py-20+`), paleta contida, tipografia expressiva, compilação limpa em no máximo 2 passos.
+- **DoD:** Componente fiel às preferências do projeto e às telas existentes (genéricas só em projeto novo), verificado via harness de preview, compilação limpa em no máximo 2 passos.
 - **Anti-Patterns:** Degradês roxos genéricos de IA, cards simétricos genéricos, implementar APIs de bibliotecas sem consultar Context7 MCP.
 
 ### 4. `backend`

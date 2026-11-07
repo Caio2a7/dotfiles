@@ -169,5 +169,5 @@ O sistema implementa uma esteira formal orientada a especificações (*Spec-Driv
 ## 🔒 5. Princípios de Governança e Integridade
 
 1. **Determinismo sobre Especulação:** Agentes nunca adivinham métricas, latências ou comportamentos de biblioteca. Consultam empiricamente scripts ou ferramentas dedicadas (`data-query`, `perf-bench`, `context7`).
-2. **Anti-AI-Slop Visual e Arquitetural:** Interfaces gráficas seguem padrões editoriais refinados (double-bezel, macro-espaçamento, paleta contida), rejeitando componentes genéricos de IA. Códigos rejeitam over-engineering e wrappers desnecessários (Ponytail/YAGNI).
+2. **Anti-AI-Slop Visual e Arquitetural:** Precedência de design: preferências do AGENTS.md do projeto > design system/telas existentes > regras genéricas (só projeto novo); ferramentas e dashboards priorizam densidade e alinhamento, rejeitando componentes genéricos de IA. Códigos rejeitam over-engineering e wrappers desnecessários (Ponytail/YAGNI).
 3. **Persistência de Aprendizado:** Cada bug resolvido e comportamento não-óbviano descoberto é obrigatoriamente persistido em `.aiflow/context.md` e na memória vetorial/grafos para imunizar a equipe contra regressões futuras.

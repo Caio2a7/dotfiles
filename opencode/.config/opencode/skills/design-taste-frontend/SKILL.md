@@ -3,6 +3,8 @@ name: design-taste-frontend
 description: Guia guarda-chuva anti-AI-slop geral para frontend, diretrizes de design taste e calibração estética prévia via ferramenta question. Use para evitar layouts clichês de IA e definir a direção visual correta antes de codificar.
 ---
 
+> **Precedência:** em projeto existente, as preferências do AGENTS.md do projeto e o design system existente prevalecem sobre esta skill; não pergunte direção estética.
+
 # tasteskill: Anti-Slop Frontend Skill
 
 > Landing pages, portfolios, and redesigns. Not dashboards, not data tables, not multi-step product UI.

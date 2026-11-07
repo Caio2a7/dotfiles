@@ -1,7 +1,9 @@
 ---
 name: minimalist-ui
-description: Design minimalista refinado para aplicações web, dashboards, ferramentas SaaS e interfaces técnicas em warm-monochrome. Enfatiza tipografia editorial de alto contraste, macro-espaçamento, bento grids e ausência de sombras pesadas ou degradês espalhafatosos.
+description: Design minimalista refinado para aplicações web, ferramentas SaaS e interfaces técnicas em warm-monochrome (dashboards só em projeto novo ou redesign pedido; não carregar por padrão em dashboard de projeto existente). Enfatiza tipografia editorial de alto contraste, macro-espaçamento, bento grids e ausência de sombras pesadas ou degradês espalhafatosos.
 ---
+
+> **Precedência:** em projeto existente, as preferências do AGENTS.md do projeto e o design system existente prevalecem sobre esta skill; não pergunte direção estética.
 
 # Protocol: Premium Utilitarian Minimalism UI Architect
 
