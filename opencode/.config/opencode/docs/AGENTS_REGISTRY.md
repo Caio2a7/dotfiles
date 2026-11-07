@@ -8,7 +8,7 @@ Este catálogo descreve a ontologia, contratos de interface, matrizes de permiss
 
 | Agente | Runtime | Escrita | Ferramentas & Scripts Mandatórios | Foco Primário |
 | :--- | :--- | :--- | :--- | :--- |
-| **`orchestrator`** | Cloud | `deny` | `task`, `todowrite`, scripts (`aqei-scorer`, `quota`, `status`, `learn`), raciocínio nativo do modelo | Direção técnica, DAG incremental, despacho especulativo, paralelismo massivo |
+| **`orchestrator`** | Cloud | `deny` | `read`, `glob`, `grep`, `shell`, `question`, `skill`, `subagent`, `webfetch`, `websearch`, `execute`, scripts (`aqei-scorer`, `quota`, `status`, `learn`), raciocínio nativo do modelo | Direção técnica, DAG incremental, despacho especulativo, paralelismo massivo |
 | **`agentic`** | Cloud (`claude-sonnet-5-5`, low) | Total | `read`, `edit`, `write`, `bash` irrestrito | Execução cirúrgica (*Locate -> Edit -> Finish*) |
 | **`build`** | Cloud (`claude-opus-5-5[1m]`) | Total | ferramentas padrão do OpenCode | Comandos `/init`, `/spec`, `/plan` e `/map` |
 | **`plan`** | Cloud (`claude-opus-5-5[1m]`) | `deny` | somente leitura | Planejamento somente leitura |
@@ -40,7 +40,7 @@ Este catálogo descreve a ontologia, contratos de interface, matrizes de permiss
   - **Despacho Especulativo Multi-Agente:** Despacho simultâneo no mesmo turno de `@backend` (implementação) e `@tester` (harness adversarial) contra contratos de interface no Milestone 2, comprimindo a latência global de $T_{\text{impl}} + T_{\text{test}}$ para $\max(T_{\text{impl}}, T_{\text{test}})$ (redução de até 40%).
   - **SWE-planner Gate:** Verificação ativa de pré-condições executáveis (arquivos e símbolos) antes de persistir tarefas no `.aiflow/plan.md`.
 - **Contrato:** `{ demand: string, scope?: string[], constraints?: string[] }`
-- **Ferramentas Mandatórias:** Orquestração (`task`, `todowrite`), leitura (`read`, `glob`, `grep`), scripts in-process (`aqei-scorer.py`, `quota.py`, `status.py`, `learn.py`, `ast-linter-hook.py`), raciocínio nativo do modelo. Bloqueadas: `edit`, `write`.
+- **Ferramentas Mandatórias:** Orquestração (`subagent`; sem `task`/`todowrite` no V2), leitura (`read`, `glob`, `grep`), scripts in-process (`aqei-scorer.py`, `quota.py`, `status.py`, `learn.py`, `ast-linter-hook.py`), raciocínio nativo do modelo. Bloqueadas: `edit`, `write`.
 - **DoD:** DAG decomposto no `todowrite`, recálculo dinâmico incremental aplicado, ondas concluídas sem erros LSP, testes `FAIL_TO_PASS`/`PASS_TO_PASS` aprovados, gate AQEI bloqueante $\ge 80\%$ validado (meta $\ge 99\%$).
 - **Anti-Patterns:** Mutação direta de arquivos, despacho serial de frentes independentes, conclusão prematura sem testes, planejamento estático cego sem re-avaliação do grafo de impacto.
 
