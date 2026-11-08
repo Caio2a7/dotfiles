@@ -53,86 +53,121 @@ function readRedirectOp(src, i) {
   return { op: ">", next: i + 1 };
 }
 
-export function parseShell(src) {
-  const segments = [];
-  let cur = newSegment(false);
-  let word = null;
-  let pendingOp = null;
-  const heredocs = [];
-
-  const endWord = () => {
-    if (word === null) return;
-    if (pendingOp === "<<") heredocs.push(word);
-    else if (pendingOp === "<<<") cur.herestring = true;
-    else if (pendingOp) cur.redirects.push({ op: pendingOp, target: word });
-    else cur.words.push(word);
-    pendingOp = null;
-    word = null;
-  };
-  const endSegment = (nextPiped) => {
-    endWord();
-    pendingOp = null;
-    if (cur.words.length || cur.redirects.length || cur.heredoc || cur.herestring) segments.push(cur);
-    cur = newSegment(nextPiped);
-  };
-  const append = (text) => {
-    word = (word ?? "") + text;
-  };
-
-  let i = 0;
-  while (i < src.length) {
-    const ch = src[i];
-    if (ch === "'") {
-      const r = readSingleQuoted(src, i);
-      append(r.text);
-      i = r.next;
-    } else if (ch === '"') {
-      const r = readDoubleQuoted(src, i);
-      append(r.text);
-      i = r.next;
-    } else if (ch === "\\") {
-      if (src[i + 1] !== "\n") append(src[i + 1] ?? "");
-      i += 2;
-    } else if (ch === " " || ch === "\t") {
-      endWord();
-      i++;
-    } else if (ch === "#" && word === null) {
-      const eol = src.indexOf("\n", i);
-      i = eol === -1 ? src.length : eol;
-    } else if (ch === "\n") {
-      endSegment(false);
-      i = skipHeredocBodies(src, i + 1, heredocs.splice(0));
-    } else if (ch === ";" || ch === "(" || ch === ")") {
-      endSegment(false);
-      i++;
-    } else if (ch === "|") {
-      const dbl = src[i + 1] === "|";
-      endSegment(!dbl);
-      i += dbl || src[i + 1] === "&" ? 2 : 1;
-    } else if (ch === "&" && src[i + 1] === "&") {
-      endSegment(false);
-      i += 2;
-    } else if (ch === "&" && src[i + 1] === ">") {
-      endWord();
-      pendingOp = src[i + 2] === ">" ? "&>>" : "&>";
-      i += pendingOp.length;
-    } else if (ch === "&") {
-      endSegment(false);
-      i++;
-    } else if (ch === ">" || ch === "<") {
-      if (word !== null && /^\d+$/.test(word)) word = null;
-      endWord();
-      const r = readRedirectOp(src, i);
-      pendingOp = r.op;
-      if (r.op === "<<") cur.heredoc = true;
-      i = r.next;
-    } else {
-      append(ch);
-      i++;
-    }
+class ShellLexer {
+  constructor(src) {
+    this.src = src;
+    this.segments = [];
+    this.cur = newSegment(false);
+    this.word = null;
+    this.pendingOp = null;
+    this.heredocs = [];
   }
-  endSegment(false);
-  return segments;
+
+  endWord() {
+    if (this.word === null) return;
+    if (this.pendingOp === "<<") this.heredocs.push(this.word);
+    else if (this.pendingOp === "<<<") this.cur.herestring = true;
+    else if (this.pendingOp) this.cur.redirects.push({ op: this.pendingOp, target: this.word });
+    else this.cur.words.push(this.word);
+    this.pendingOp = null;
+    this.word = null;
+  }
+
+  endSegment(nextPiped) {
+    this.endWord();
+    this.pendingOp = null;
+    const c = this.cur;
+    if (c.words.length || c.redirects.length || c.heredoc || c.herestring) this.segments.push(c);
+    this.cur = newSegment(nextPiped);
+  }
+
+  append(text) {
+    this.word = (this.word ?? "") + text;
+  }
+
+  /** Consome texto, aspas, escapes, espaços e comentários; retorna o próximo índice ou -1. */
+  stepText(i) {
+    const { src } = this;
+    const ch = src[i];
+    if (ch === "'" || ch === '"') {
+      const r = ch === "'" ? readSingleQuoted(src, i) : readDoubleQuoted(src, i);
+      this.append(r.text);
+      return r.next;
+    }
+    if (ch === "\\") {
+      if (src[i + 1] !== "\n") this.append(src[i + 1] ?? "");
+      return i + 2;
+    }
+    if (ch === " " || ch === "\t") {
+      this.endWord();
+      return i + 1;
+    }
+    if (ch === "#" && this.word === null) {
+      const eol = src.indexOf("\n", i);
+      return eol === -1 ? src.length : eol;
+    }
+    return -1;
+  }
+
+  /** Consome separadores de segmento e redirecionamentos; retorna o próximo índice ou -1. */
+  stepOperator(i) {
+    const { src } = this;
+    const ch = src[i];
+    if (ch === "\n") {
+      this.endSegment(false);
+      return skipHeredocBodies(src, i + 1, this.heredocs.splice(0));
+    }
+    if (ch === ";" || ch === "(" || ch === ")") return this.splitAt(i, 1, false);
+    if (ch === "|") {
+      const dbl = src[i + 1] === "|";
+      return this.splitAt(i, dbl || src[i + 1] === "&" ? 2 : 1, !dbl);
+    }
+    if (ch === "&") return this.stepAmpersand(i);
+    if (ch === ">" || ch === "<") return this.stepRedirect(i);
+    return -1;
+  }
+
+  splitAt(i, width, nextPiped) {
+    this.endSegment(nextPiped);
+    return i + width;
+  }
+
+  stepAmpersand(i) {
+    const next = this.src[i + 1];
+    if (next === "&") return this.splitAt(i, 2, false);
+    if (next !== ">") return this.splitAt(i, 1, false);
+    this.endWord();
+    this.pendingOp = this.src[i + 2] === ">" ? "&>>" : "&>";
+    return i + this.pendingOp.length;
+  }
+
+  stepRedirect(i) {
+    if (this.word !== null && /^\d+$/.test(this.word)) this.word = null;
+    this.endWord();
+    const r = readRedirectOp(this.src, i);
+    this.pendingOp = r.op;
+    if (r.op === "<<") this.cur.heredoc = true;
+    return r.next;
+  }
+
+  run() {
+    let i = 0;
+    while (i < this.src.length) {
+      let next = this.stepText(i);
+      if (next === -1) next = this.stepOperator(i);
+      if (next === -1) {
+        this.append(this.src[i]);
+        next = i + 1;
+      }
+      i = next;
+    }
+    this.endSegment(false);
+    return this.segments;
+  }
+}
+
+export function parseShell(src) {
+  return new ShellLexer(src).run();
 }
 
 export function isFileWriteRedirect(redirect) {
