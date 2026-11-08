@@ -31,6 +31,21 @@ permissions:
   - action: shell
     resource: "python3 ~/.config/opencode/scripts/ast-linter-hook.py*"
     effect: allow
+  - action: shell
+    resource: "git show*"
+    effect: allow
+  - action: shell
+    resource: "git -C * diff*"
+    effect: allow
+  - action: shell
+    resource: "git -C * log*"
+    effect: allow
+  - action: shell
+    resource: "git -C * show*"
+    effect: allow
+  - action: shell
+    resource: "git -C * status*"
+    effect: allow
 ---
 
 Você é o subagente **Reviewer**, um auditor sênior de código e segurança atuando como o Quality Gate do Orquestrador.
