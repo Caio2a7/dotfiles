@@ -92,7 +92,7 @@ $$\Gamma_{\text{crit}} = \begin{cases}
 | :---: | :--- | :--- |
 | **$\ge 99.00\%$** | **PADRÃO OURO SOTA $\ge 99\%$** | ✅ **Aprovação Automática Total** |
 | **$90.00\% - 98.99\%$** | **PRODUÇÃO EXCELENTE** | ✅ **Aprovado para Staging / Produção** |
-| **$75.00\% - 89.99\%$** | **ACEITÁVEL / SUB-ÓTIMO** | ⚠️ **Requer Refinamento pelo Refactorer** |
+| **$75.00\% - 89.99\%$** | **ACEITÁVEL / SUB-ÓTIMO** | ⚠️ **Requer Refinamento (IRE)** |
 | **$< 75.00\%$** | **CRÍTICO** | ❌ **BLOQUEIO SUMÁRIO (Gating Rejeitado)** |
 
 ---

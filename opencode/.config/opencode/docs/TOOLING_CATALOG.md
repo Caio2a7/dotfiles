@@ -12,11 +12,10 @@ graph LR
         AQEI["aqei-scorer.py\n+ aqei/\n(Auditor SOTA & Qualidade)"]
         Quota["quota.py\n+ quota_core/\n(Inspetor de Cotas)"]
         Status["status.py\n(Painel Unificado /status)"]
-        Learn["learn.py\n(Extrator Memory MCP /learn)"]
+        Learn["learn.py\n(Extrator memory.jsonl /learn)"]
         Worktree["worktree-runner.sh\n(Sandbox 2PC /sandbox)"]
         ASTLint["ast-linter-hook.py\n(Hook Linter AST & Modularidade)"]
         Checkpoint["checkpoint.py\n(Snapshot & Monitor 40t /checkpoint)"]
-        DataQuery["data-query.py\n(Motor SQL DuckDB In-Process)"]
         PerfBench["perf-bench.py\n(Hyperfine & Autocannon)"]
         SecScan["sec-scan.py\n(AppSec: Gitleaks/Semgrep/OSV)"]
         LiveBrowser["live-browser.js\n(Controle CDP Helium Dev)"]
@@ -25,16 +24,15 @@ graph LR
 
     AQEI --> QualityGate["Quality Gate & CI/CD"]
     ASTLint --> QualityGate
-    Quota --> Orchestrator["Lead Orchestrator / Status"]
+    Quota --> Orchestrator["Orchestrator / Status"]
     Status --> Orchestrator
-    Learn --> MemoryMCP["Memory MCP (memory.jsonl)"]
+    Learn --> MemoryMCP["memory.jsonl"]
     Worktree --> Isolation["Sandbox Efêmero (Git Worktree)"]
     Checkpoint --> ContextEconomy["Higiene de Sessão (Teto 40t)"]
-    DataQuery --> DataEng["@data-engineer"]
-    PerfBench --> Performance["@performance"]
+    PerfBench --> Bench["Benchmarks (hyperfine / autocannon)"]
     SecScan --> BlueTeam["@blue-team / @reviewer"]
     LiveBrowser --> Browser["@browser / UI QA"]
-    SemSearch --> ScoutBackend["@scout / @backend / GPU Local"]
+    SemSearch --> Backend["@backend / GPU Local"]
 ```
 
 ---
@@ -163,7 +161,7 @@ python3 ~/.config/opencode/scripts/status.py
 - **Fontes de Dados & Mecanismo:**
   - Inspeciona `.aiflow/context.md` e `~/.config/opencode/.aiflow/context.md` em busca de descobertas e lições registradas.
   - Inspeciona os commits recentes do Git (`git log -n3 --pretty=format:%s (%h)`).
-  - Estrutura as entidades com tipagem formal do Memory MCP (`<Repo>_Learnings` e `<Repo>_RecentCommits`).
+  - Estrutura as entidades com tipagem de entidades do grafo (`<Repo>_Learnings` e `<Repo>_RecentCommits`).
   - **Modo Preview (padrão):** Exibe resumo visual colorido no terminal sem alterar arquivos.
   - **Modo Persistência (`--save` ou `--commit`):** Anexa as entidades em formato JSON Lines (`.jsonl`) em `~/.config/opencode/memory.jsonl`.
 - **Tabela de Flags:**
@@ -178,7 +176,7 @@ python3 ~/.config/opencode/scripts/status.py
 # Visualizar preview dos aprendizados da sessão atual
 python3 ~/.config/opencode/scripts/learn.py
 
-# Persistir os aprendizados no grafo global do Memory MCP
+# Persistir os aprendizados no grafo global (memory.jsonl)
 python3 ~/.config/opencode/scripts/learn.py --save
 ```
 
@@ -275,38 +273,6 @@ python3 ~/.config/opencode/scripts/checkpoint.py
   "git_diff_summary": "scripts/status.py | 12 +-\n 1 file changed"
 }
 ```
-
----
-
-## 8. `data-query.py`
-
-- **Propósito:** Motor de consulta analítica SQL *in-process* com DuckDB. Permite realizar queries relacionais, joins e agregações diretamente sobre arquivos brutos (`.csv`, `.json`, `.parquet`, `.sqlite`) sem necessidade de criar bancos ou servidores de dados.
-- **Dependências de Runtime:** Python 3 com DuckDB. Caso `duckdb` não esteja no ambiente global, o script se auto-invoca instantaneamente via `uv run --with duckdb`.
-- **Tabela de Subcomandos:**
-
-| Subcomando | Argumentos | Saída / Operação |
-| :--- | :--- | :--- |
-| `schema` | `<caminho_do_arquivo>` | Tabela com nome das colunas, tipos inferidos e se aceita nulos. |
-| `summary` | `<caminho_do_arquivo>` | Quantidade total de linhas e resumo descritivo das variáveis. |
-| `query` | `"<consulta_sql>"` | Executa SQL analítico e formata os dados em tabela Markdown ou JSON. |
-
-- **Exemplos de Uso:**
-```bash
-# Inspecionar o schema de um arquivo CSV
-python3 ~/.config/opencode/scripts/data-query.py schema logs/access.csv
-
-# Executar agregação com filtro direto
-python3 ~/.config/opencode/scripts/data-query.py query \
-  "SELECT status, count(*) AS total FROM 'logs/access.csv' GROUP BY status ORDER BY total DESC"
-
-# Consultar arquivo Parquet retornando JSON puro
-python3 ~/.config/opencode/scripts/data-query.py query \
-  "SELECT * FROM 'data/users.parquet' WHERE age > 30 LIMIT 5" --json
-```
-
-- **Contrato de Saída:**
-  - Modo padrão: Tabela limpa em GitHub-flavored Markdown.
-  - Modo `--json`: Array de objetos serializados `[ { "col": "val" }, ... ]`.
 
 ---
 
@@ -443,102 +409,29 @@ def authenticate_user(token: str) -> UserClaims:
 
 ---
 
-## 🔌 Servidores MCP (Model Context Protocol)
 
-Apenas o `context7` fica ativo por padrão. Os MCPs locais (`agent-lsp`, `ast-grep`, `sequential-thinking`, `memory`, `docker`, `git-repo`) estão desligados (`disabled: true`) para economizar RAM, pois cada um é duplicado por diretório aberto; religue em `opencode.json` (`disabled: false`) ou num `opencode.json` do projeto só quando precisar.
+## 13. `opencode-maintenance.sh` e `opencode-maintenance.timer`
 
-Substitutos em uso: diagnósticos do LSP nativo (`lsp: true`) e `grep` por referências no lugar do `agent-lsp`; CLI `ast-grep run -p ...` via shell (quando instalado); `docker`/`docker compose` e `git` via shell; raciocínio nativo do modelo no lugar do `sequential-thinking`.
+- **Propósito:** manutenção do OpenCode sem intervenção: poda de sessões, `wal_checkpoint(TRUNCATE)` + `VACUUM` do SQLite e limpeza de dirs ad hoc em `/tmp` (`td`, `ana*.py` com mais de 2 dias).
+- **Segurança:** só age com o OpenCode ocioso (nenhuma mensagem nos últimos 20 min e nenhuma sessão ativa na API); trava `flock`; intervalo mínimo de 20 h entre execuções.
+- **Poda:** sessões filhas com mais de 21 dias e sessões raiz com mais de 60 dias (sem filhas recentes), via `opencode api delete`.
+- **VACUUM:** para o serviço (`opencode service stop`), compacta o banco e reinicia.
+- **Log:** `~/.local/state/opencode-maintenance.log` (últimas 500 linhas).
 
-### Receita (desligado): `agent-lsp` (`@blackwell-systems/agent-lsp`)
+| Flag | Efeito |
+| :--- | :--- |
+| `--dry-run` | Só reporta o que faria; não toca no serviço nem apaga nada. |
+| `--force` | Ignora a trava de 20 h (a checagem de ociosidade continua). |
 
-- **Propósito:** Provedor desacoplado do LSP para agentes (`blast_radius`, `simulate_edit`, `go_to_definition`, `safe_apply_edit`).
-- **Configuração no `opencode.json`:**
-```json
-"agent-lsp": {
-  "type": "local",
-  "command": [
-    "npx",
-    "-y",
-    "@blackwell-systems/agent-lsp"
-  ],
-  "enabled": true,
-  "environment": {}
-}
+- **Timer systemd (usuário):** `opencode-maintenance.timer` dispara às 04:30 (`Persistent=true`), 10 min após o boot e a cada 2 h depois da última execução; se o OpenCode estiver ativo, o script se adia para o próximo disparo. A unit fica no repo `dotfiles` (`systemd/.config/systemd/user/`).
+
+```bash
+bash ~/.config/opencode/scripts/opencode-maintenance.sh --dry-run
+systemctl --user list-timers opencode-maintenance.timer
 ```
 
 ---
 
-## Apêndice: Receitas de MCPs Opcionais (Desativados)
+## 🔌 Servidores MCP
 
-Caso seja necessário reativar integrações externas pontuais, copie o bloco desejado para o objeto `"mcp"` em `~/.config/opencode/opencode.json` e ajuste a flag `"enabled": true` juntamente com as variáveis de ambiente necessárias.
-
-### 1. GitHub MCP (`@modelcontextprotocol/server-github`)
-Permite operações em issues, pull requests, commits e branches diretamente via API do GitHub.
-- **Variáveis de Ambiente Necessárias:** `GITHUB_PERSONAL_ACCESS_TOKEN`
-- **Configuração (`opencode.json`):**
-```json
-"github": {
-  "type": "local",
-  "command": [
-    "npx",
-    "-y",
-    "@modelcontextprotocol/server-github"
-  ],
-  "environment": {
-    "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PERSONAL_ACCESS_TOKEN}"
-  },
-  "enabled": true
-}
-```
-
-### 2. Sentry MCP (`@sentry/mcp-server`)
-Permite inspecionar issues, stack traces, tags de telemetria e exceções diretamente do Sentry.
-- **Variáveis de Ambiente Necessárias:** `SENTRY_AUTH_TOKEN`
-- **Configuração (`opencode.json`):**
-```json
-"sentry": {
-  "type": "local",
-  "command": [
-    "npx",
-    "-y",
-    "@sentry/mcp-server"
-  ],
-  "environment": {
-    "SENTRY_AUTH_TOKEN": "{env:SENTRY_AUTH_TOKEN}"
-  },
-  "enabled": true
-}
-```
-
-### 3. PostgreSQL MCP (`@modelcontextprotocol/server-postgres`)
-Permite inspecionar schemas de tabelas, índices e executar queries analíticas em instâncias PostgreSQL remotas ou locais.
-- **Variáveis de Ambiente Necessárias:** `DATABASE_URL` (ex: `postgresql://user:password@localhost:5432/dbname`)
-- **Configuração (`opencode.json`):**
-```json
-"postgres": {
-  "type": "local",
-  "command": [
-    "npx",
-    "-y",
-    "@modelcontextprotocol/server-postgres",
-    "{env:DATABASE_URL}"
-  ],
-  "enabled": true
-}
-```
-
-### 4. Chrome DevTools MCP (`chrome-devtools-mcp`)
-Bridge alternativa ao utilitário nativo in-process `live-browser.js` para controle via MCP do Chrome DevTools.
-- **Configuração (`opencode.json`):**
-```json
-"chrome-devtools": {
-  "type": "local",
-  "command": [
-    "npx",
-    "-y",
-    "chrome-devtools-mcp"
-  ],
-  "enabled": true,
-  "environment": {}
-}
-```
+Só o `context7` (remoto, `https://mcp.context7.com/mcp`) está configurado. Os demais MCPs foram removidos do `opencode.json`; para uma integração pontual, adicione o bloco em `mcp.servers` do `opencode.json` do projeto, com `disabled: false`. Substitutos nativos: LSP do OpenCode (`lsp`) para diagnósticos, `grep` para referências, `git`/`docker` via shell.
