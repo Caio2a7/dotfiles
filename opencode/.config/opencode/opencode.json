@@ -3,7 +3,7 @@
   "model": "claude-code/claude-sonnet-5-5",
   "default_agent": "orchestrator",
   "plugins": [
-    "@openchamber/opencode-claude",
+    "@openchamber/opencode-claude@1.7.0",
     {
       "package": "./plugins/claude-context-cap",
       "options": {
@@ -316,7 +316,7 @@
           "effect": "allow"
         }
       ],
-      "model": "claude-code/claude-opus-5-5[1m]"
+      "model": "claude-code/claude-opus-5-5"
     },
     "plan": {
       "description": "Modo de planejamento (somente leitura, pesquisa e análise)",
@@ -584,7 +584,7 @@
           "effect": "allow"
         }
       ],
-      "model": "claude-code/claude-opus-5-5[1m]"
+      "model": "claude-code/claude-opus-5-5"
     },
     "title": {
       "model": "local-gpu/qwen2.5-coder:7b"

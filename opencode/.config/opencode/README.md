@@ -26,7 +26,7 @@ Config versionada em `~/dotfiles/opencode/.config/opencode` e ligada a `~/.confi
 
 | Plugin | Função |
 | :--- | :--- |
-| `@openchamber/opencode-claude` | Bridge para o CLI `claude` (provider `claude-code`), pela assinatura. |
+| `@openchamber/opencode-claude@1.7.0` | Bridge para o CLI `claude` (provider `claude-code`), pela assinatura. Fixado em 1.7.0: o V2 não reinstala `@latest` e o serviço ficou preso na 1.3.4, que exige um sufixo de 1M nos ids opus; a 1.7.0 usa ids plain (1M nativo). Variants: `low`, `medium`, `high`, `xhigh`, `max`. |
 | `claude-context-cap` | Limita o contexto dos modelos 1M a 200k (`maxContext: 200000`). |
 | `agent-model-sync` | Aplica à sessão o modelo do agente primário. |
 | `session-hygiene` | Regras de shell: bloqueia escrita de arquivo via shell (`sed -i`, redirecionamento, heredoc, `tee`); `/tmp`, `/dev/null` e `*.log` liberados. Leitura via shell é livre. |
@@ -43,9 +43,9 @@ Só o `context7` (remoto). Obrigatório consultá-lo antes de integrar bibliotec
 | Modo | `auto` |
 | Gatilho | ~185k (cap de 200k menos buffer de 15k) |
 | `keep` | 30000 tokens |
-| Resumo | Haiku 4.5 (decisão do bridge) |
+| Resumo | Modelo do próprio chat, via fork em memória da sessão que lê do prompt cache (bridge 1.7.0) |
 
-O autocompact interno do CLI só dispararia em ~967k, então não há compaction dupla.
+O autocompact interno do CLI só dispararia em ~967k, então não há compaction dupla. Não ative a opção `compactAt` do bridge: ela conflita com o `claude-context-cap`, que apaga `limit.input`.
 
 ## Comandos
 

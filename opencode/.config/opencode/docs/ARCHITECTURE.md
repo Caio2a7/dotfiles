@@ -4,7 +4,7 @@ Decisões de desenho da config. Inventário e uso estão no [README](../README.m
 
 ## 1. Modelos e provider
 
-Todo modelo de nuvem passa pelo provider `claude-code` (plugin `@openchamber/opencode-claude`), que chama o CLI `claude` com a assinatura. O provider `local-gpu` (Ollama, `qwen2.5-coder:7b`, timeout 60 s, chunkTimeout 30 s) serve só o agente `title`. O `opencode-antigravity-auth` fica como reserva para quando a cota do Claude acabar.
+Todo modelo de nuvem passa pelo provider `claude-code` (plugin `@openchamber/opencode-claude`, fixado em `@1.7.0`: o V2 não reinstala `@latest` e a 1.3.4 em cache exigia ids opus com sufixo de 1M; a 1.7.0 usa ids plain com 1M nativo e variants `low`, `medium`, `high`, `xhigh`, `max`), que chama o CLI `claude` com a assinatura. O provider `local-gpu` (Ollama, `qwen2.5-coder:7b`, timeout 60 s, chunkTimeout 30 s) serve só o agente `title`. O `opencode-antigravity-auth` fica como reserva para quando a cota do Claude acabar.
 
 | Camada | Modelo |
 | :--- | :--- |
@@ -37,8 +37,9 @@ O runner do V2.2.6 ignora o `model` de agentes primários; o plugin `agent-model
 | :--- | :--- |
 | `claude-context-cap` | Limita modelos 1M a 200k. |
 | Compaction | `auto`, gatilho ~185k (200k − buffer 15k), `keep` 30000. |
-| Resumo | Haiku 4.5, escolha do bridge. |
+| Resumo | Modelo do próprio chat: o bridge 1.7.0 faz um fork em memória da sessão nativa e lê do prompt cache; a sessão nativa é trocada quando o histórico compactado chega. |
 | Autocompact do CLI | Só em ~967k: não duplica a compaction do OpenCode. |
+| `compactAt` do bridge | Não usar: conflita com o `claude-context-cap` (que apaga `limit.input`). |
 
 Sessões longas: `/checkpoint` gera snapshot e monitora o teto de 40 turnos; `.aiflow/context.md` guarda padrões e armadilhas que sobrevivem à compactação. A poda de sessões antigas e o VACUUM do banco ficam com o `opencode-maintenance.timer` ([catálogo](TOOLING_CATALOG.md#13-opencode-maintenancesh-e-opencode-maintenancetimer)).
 
