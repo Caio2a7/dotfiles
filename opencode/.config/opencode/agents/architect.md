@@ -2,7 +2,7 @@
 name: architect
 description: Systems architecture, distributed design, and technical specification specialist. Produces schemas, interface contracts, sequence diagrams, and ADRs.
 mode: subagent
-model: claude-code/claude-opus-5-5[1m]
+model: claude-code/claude-opus-5-5
 permission:
   edit: deny
   bash:

@@ -2,7 +2,7 @@
 name: debugger
 description: Systematic debugging specialist. Employs empirical root-cause analysis, hypothesis elimination, and execution tracing.
 mode: subagent
-model: claude-code/claude-opus-5-5[1m]
+model: claude-code/claude-opus-5-5
 permission:
   edit: deny
   bash: allow
