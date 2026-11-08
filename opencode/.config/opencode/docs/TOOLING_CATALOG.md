@@ -12,7 +12,6 @@ graph LR
         AQEI["aqei-scorer.py\n+ aqei/\n(Auditor SOTA & Qualidade)"]
         Quota["quota.py\n+ quota_core/\n(Inspetor de Cotas)"]
         Status["status.py\n(Painel Unificado /status)"]
-        Learn["learn.py\n(Extrator memory.jsonl /learn)"]
         Worktree["worktree-runner.sh\n(Sandbox 2PC /sandbox)"]
         ASTLint["ast-linter-hook.py\n(Hook Linter AST & Modularidade)"]
         Checkpoint["checkpoint.py\n(Snapshot & Monitor 40t /checkpoint)"]
@@ -26,7 +25,6 @@ graph LR
     ASTLint --> QualityGate
     Quota --> Orchestrator["Orchestrator / Status"]
     Status --> Orchestrator
-    Learn --> MemoryMCP["memory.jsonl"]
     Worktree --> Isolation["Sandbox Efêmero (Git Worktree)"]
     Checkpoint --> ContextEconomy["Higiene de Sessão (Teto 40t)"]
     PerfBench --> Bench["Benchmarks (hyperfine / autocannon)"]
@@ -153,32 +151,10 @@ python3 ~/.config/opencode/scripts/status.py
 
 ---
 
-## 4. `learn.py`
+## 4. `/learn`
 
-- **Propósito:** Extrator automatizado de aprendizados técnicos, decisões de arquitetura e padrões descobertos para integração com o grafo de conhecimento persistente do grafo `memory.jsonl`. Permite que lições aprendidas em uma sessão sejam retidas globalmente entre repositórios da máquina.
-- **Comando Associado:** `/learn`.
-- **Dependências de Runtime:** Python 3 (Stdlib pura: `argparse`, `json`, `os`, `re`, `subprocess`, `typing`).
-- **Fontes de Dados & Mecanismo:**
-  - Inspeciona `.aiflow/context.md` e `~/.config/opencode/.aiflow/context.md` em busca de descobertas e lições registradas.
-  - Inspeciona os commits recentes do Git (`git log -n3 --pretty=format:%s (%h)`).
-  - Estrutura as entidades com tipagem de entidades do grafo (`<Repo>_Learnings` e `<Repo>_RecentCommits`).
-  - **Modo Preview (padrão):** Exibe resumo visual colorido no terminal sem alterar arquivos.
-  - **Modo Persistência (`--save` ou `--commit`):** Anexa as entidades em formato JSON Lines (`.jsonl`) em `~/.config/opencode/memory.jsonl`.
-- **Tabela de Flags:**
-
-| Flag | Tipo | Descrição |
-| :--- | :--- | :--- |
-| *(sem flags)* | N/A | Executa em modo preview exibindo as entidades extraídas no terminal. |
-| `--save` / `--commit` | Flag | Grava e persiste as entidades no arquivo canônico `~/.config/opencode/memory.jsonl`. |
-
-- **Exemplos de Uso:**
-```bash
-# Visualizar preview dos aprendizados da sessão atual
-python3 ~/.config/opencode/scripts/learn.py
-
-# Persistir os aprendizados no grafo global (memory.jsonl)
-python3 ~/.config/opencode/scripts/learn.py --save
-```
+- **Propósito:** registrar aprendizados técnicos da sessão (padrões, anti-padrões, decisões, comportamentos não-óbvios de libs).
+- **Mecanismo:** comando puro de prompt, sem script. O agente anexa as entradas, com data, ao `.aiflow/context.md` do projeto, que o `AGENTS.md` manda ler antes de agir.
 
 ---
 
