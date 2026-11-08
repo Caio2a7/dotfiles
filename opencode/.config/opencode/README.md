@@ -67,7 +67,7 @@ As 13 skills do Claude desktop vindas de `~/.claude/skills/synced` (`docs`, `doc
 
 ## Scripts
 
-Catálogo completo em [docs/TOOLING_CATALOG.md](docs/TOOLING_CATALOG.md): `aqei-scorer.py`, `quota.py`, `status.py`, `learn.py`, `worktree-runner.sh`, `ast-linter-hook.py`, `checkpoint.py`, `perf-bench.py`, `sec-scan.py`, `live-browser.js`, `semantic-code-search.py`, `opencode-maintenance.sh`.
+Catálogo completo em [docs/TOOLING_CATALOG.md](docs/TOOLING_CATALOG.md): `aqei-scorer.py`, `quota.py`, `status.py`, `worktree-runner.sh`, `ast-linter-hook.py`, `checkpoint.py`, `perf-bench.py`, `sec-scan.py`, `live-browser.js`, `semantic-code-search.py`, `opencode-maintenance.sh`.
 
 Manutenção automática: o timer systemd `opencode-maintenance.timer` roda `opencode-maintenance.sh` às 04:30, com retentativa a cada 2 h se houver atividade (poda de sessões, VACUUM do banco, limpeza de `/tmp`).
 
