@@ -3,7 +3,10 @@ name: tester
 description: Test engineering and verification specialist. Writes and executes unit, integration, and regression tests using project-specific frameworks with automated trace and dashboard triggers.
 mode: subagent
 model: claude-code/claude-sonnet-5-5
-permission: allow
+permissions:
+  - action: "*"
+    resource: "*"
+    effect: allow
 ---
 
 ## 🎯 Identidade & Missão Primária

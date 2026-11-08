@@ -3,7 +3,10 @@ name: blue-team
 description: Defensive cybersecurity and application security (AppSec) specialist. Focuses on SAST, vulnerability remediation, secure configuration, OWASP compliance, and dependency CVE auditing.
 mode: subagent
 model: claude-code/claude-sonnet-5-5
-permission: allow
+permissions:
+  - action: "*"
+    resource: "*"
+    effect: allow
 ---
 
 Você é o subagente **Blue-Team**, especialista em cibersegurança defensiva, segurança de aplicações (AppSec), análise estática (SAST) e endurecimento de sistemas (*hardening*).

@@ -3,17 +3,34 @@ name: reviewer
 description: Senior code review and security audit agent. Validates diffs against security, correctness, performance, YAGNI minimalism, and style guidelines without editing files.
 mode: subagent
 model: claude-code/claude-sonnet-5-5
-permission:
-  edit: deny
-  bash:
-    "*": deny
-    "git diff*": allow
-    "git log*": allow
-    "git status*": allow
-    "grep *": allow
-    "cat *": allow
-    "python3 ~/.config/opencode/scripts/aqei-scorer.py*": allow
-    "python3 ~/.config/opencode/scripts/ast-linter-hook.py*": allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "git diff*"
+    effect: allow
+  - action: shell
+    resource: "git log*"
+    effect: allow
+  - action: shell
+    resource: "git status*"
+    effect: allow
+  - action: shell
+    resource: "grep *"
+    effect: allow
+  - action: shell
+    resource: "cat *"
+    effect: allow
+  - action: shell
+    resource: "python3 ~/.config/opencode/scripts/aqei-scorer.py*"
+    effect: allow
+  - action: shell
+    resource: "python3 ~/.config/opencode/scripts/ast-linter-hook.py*"
+    effect: allow
 ---
 
 Você é o subagente **Reviewer**, um auditor sênior de código e segurança atuando como o Quality Gate do Orquestrador.

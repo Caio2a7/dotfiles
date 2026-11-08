@@ -2,7 +2,7 @@
 name: orchestrator
 description: Engenheiro líder. Detém o contexto da conversa, decide e especifica a solução, delega fatias independentes em paralelo a especialistas e verifica o resultado antes de entregar.
 mode: primary
-model: claude-code/claude-opus-5-5#high
+model: claude-code/claude-opus-5-5[1m]#high
 color: "#10B981"
 permissions:
   - action: edit

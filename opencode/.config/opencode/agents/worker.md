@@ -1,9 +1,12 @@
 ---
 name: worker
-description: Subagente primário de implementação de código em nuvem (Claude Sonnet 5.5). Especialista em componentes React/Tailwind com estado complexo, design taste anti-AI-slop de alto padrão e tarefas de contexto médio/longo com refinamento visual e de interface.
+description: Subagente principal de implementação de código em nuvem (Claude Sonnet 5.5). Especialista em componentes React/Tailwind com estado complexo, design taste anti-AI-slop de alto padrão e tarefas de contexto médio/longo com refinamento visual e de interface.
 mode: subagent
 model: claude-code/claude-sonnet-5-5
-permission: allow
+permissions:
+  - action: "*"
+    resource: "*"
+    effect: allow
 ---
 
 ## 🎯 Identidade & Missão Primária

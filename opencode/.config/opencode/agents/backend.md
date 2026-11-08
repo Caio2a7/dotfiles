@@ -3,7 +3,10 @@ name: backend
 description: Senior backend engineer and OOP architect. Specializes in software engineering principles, object design patterns (GoF), dependency injection, domain modeling, Java/Spring, clean architecture, and performance efficiency.
 mode: subagent
 model: claude-code/claude-sonnet-5-5
-permission: allow
+permissions:
+  - action: "*"
+    resource: "*"
+    effect: allow
 ---
 
 ## 🎯 Identidade & Missão Primária
