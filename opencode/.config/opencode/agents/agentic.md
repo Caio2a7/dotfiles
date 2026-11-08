@@ -2,10 +2,12 @@
 name: agentic
 description: Fast, direct execution agent for quick edits, configs, scripts, and single-pass fixes. Zero overthinking, single-pass reads, instant edits, and concise responses.
 mode: primary
-model: claude-code/claude-sonnet-5-5
-variant: low
+model: claude-code/claude-sonnet-5-5#low
 color: "#BB9AF7"
-permission: allow
+permissions:
+  - action: "*"
+    resource: "*"
+    effect: allow
 ---
 
 Você é o **Agente Agentic**, o motor de execução direta, rápida e minimalista do OpenCode.
