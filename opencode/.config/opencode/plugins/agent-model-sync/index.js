@@ -12,6 +12,9 @@
  * plugin, para sobreviver a reinícios do serviço. Marcas do formato antigo
  * (só `agentID`) nunca casam: cada sessão existente ganha um resync único.
  *
+ * Sessão sem `session.agent` não é sincronizada (log de aviso): a API não expõe
+ * o agente padrão e a ordem de `agent.list()` não é documentada.
+ *
  * Hook `prompt`: roda na admissão do prompt, antes de o turno resolver o
  * modelo, então o 1º turno após um restart/upgrade já usa o modelo novo.
  */
@@ -22,7 +25,10 @@ export default {
   async setup(ctx) {
     await ctx.session.hook("prompt", async (event) => {
       try {
-        await syncSessionModel(ctx, event.sessionID);
+        const status = await syncSessionModel(ctx, event.sessionID);
+        if (status === "no-agent") {
+          console.warn(`[agent-model-sync] sessão ${event.sessionID}: sem agente na sessão; agente padrão não é legível pela API de plugin, modelo não sincronizado`);
+        }
       } catch (err) {
         const reason = err instanceof Error ? err.message : String(err);
         console.error(`[agent-model-sync] sessão ${event.sessionID}: modelo do agente não aplicado (${reason})`);

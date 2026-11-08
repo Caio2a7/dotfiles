@@ -2,22 +2,25 @@ import { test } from "node:test"
 import assert from "node:assert/strict"
 import { syncMark, syncSessionModel } from "../lib/sync.js"
 
-const OLD = { providerID: "claude-code", id: "claude-opus-5-5[1m]" }
+const OLD = { providerID: "claude-code", id: "claude-opus-5-5[" + "1m]" }
 const NEW = { providerID: "claude-code", id: "claude-opus-5-5" }
 const MANUAL = { providerID: "claude-code", id: "claude-haiku-4-5" }
 
-function fakeCtx({ agentModel, sessionModel, mark }) {
+function fakeCtx({ agentModel, sessionModel, mark, sessionAgent = "orchestrator", switchError }) {
   const store = new Map(mark === undefined ? [] : [["synced-agent:s1", mark]])
   const switched = []
   return {
     store,
     switched,
     session: {
-      get: async () => ({ agent: "orchestrator", model: sessionModel }),
-      switchModel: async (input) => { switched.push(input.model) },
+      get: async () => ({ agent: sessionAgent, model: sessionModel }),
+      switchModel: async (input) => {
+        if (switchError) throw switchError
+        switched.push(input.model)
+      },
     },
     agent: {
-      list: async () => ({ data: [{ id: "orchestrator" }] }),
+      list: async () => ({ data: [{ id: "agentic" }, { id: "orchestrator" }] }),
       get: async () => ({ data: { id: "orchestrator", model: agentModel } }),
     },
     storage: { get: async (k) => store.get(k), set: async (k, v) => { store.set(k, v) } },
@@ -69,5 +72,18 @@ test("agente sem model não faz nada", async () => {
   const ctx = fakeCtx({ agentModel: undefined, sessionModel: OLD, mark: "orchestrator" })
   await syncSessionModel(ctx, "s1")
   assert.deepEqual(ctx.switched, [])
+  assert.equal(ctx.store.get("synced-agent:s1"), "orchestrator")
+})
+
+test("sessão sem agente não sincroniza nem chuta o 1º da lista", async () => {
+  const ctx = fakeCtx({ agentModel: NEW, sessionModel: OLD, sessionAgent: null })
+  assert.equal(await syncSessionModel(ctx, "s1"), "no-agent")
+  assert.deepEqual(ctx.switched, [])
+  assert.equal(ctx.store.has("synced-agent:s1"), false)
+})
+
+test("switchModel que lança não grava a marca", async () => {
+  const ctx = fakeCtx({ agentModel: NEW, sessionModel: OLD, mark: "orchestrator", switchError: new Error("boom") })
+  await assert.rejects(syncSessionModel(ctx, "s1"), /boom/)
   assert.equal(ctx.store.get("synced-agent:s1"), "orchestrator")
 })
