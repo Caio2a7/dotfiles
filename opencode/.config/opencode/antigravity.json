@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "account_selection_strategy": "round-robin",
+  "scheduling_mode": "performance_first",
+  "pid_offset_enabled": true,
+  "switch_on_first_rate_limit": true,
+  "session_recovery": true,
+  "auto_resume": true,
+  "tool_id_recovery": true,
+  "claude_tool_hardening": true
+}
