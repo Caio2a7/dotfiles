@@ -921,6 +921,31 @@
       "action": "tool.use",
       "resource": "shell:rm -* \"${HOME}\"/ *",
       "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -* ~/? *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -* $HOME/? *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -* ${HOME}/? *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -* \"$HOME\"/? *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -* \"${HOME}\"/? *",
+      "effect": "deny"
     }
   ]
 }

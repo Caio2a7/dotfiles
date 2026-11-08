@@ -27,7 +27,7 @@ O runner do V2.2.6 ignora o `model` de agentes primários; o plugin `agent-model
 | Mecanismo | O que faz |
 | :--- | :--- |
 | `session-hygiene` | Bloqueia escrita de arquivo via shell (`sed -i`, `perl -i`, redirecionamento, heredoc, `tee`, Python lendo script do stdin). Exceções: `/tmp`, `/dev/null`, `*.log`. Falha interna do plugin deixa a chamada passar e registra. |
-| `policies` | Nega `git push --force`/`-f` e `rm -*` (qualquer flag) contra `/`, `/*`, `~`, `~/`, `$HOME`, `${HOME}`, com ou sem aspas. Limite residual: não cobre `~/*` e `$HOME/*` (o `?` também casaria `~/x`), expansão de variável (`rm -rf "$DIR/"` com `DIR` vazio) nem flags depois do alvo (`rm / -rf`). |
+| `policies` | Nega `git push --force`/`-f` e `rm -*` (qualquer flag) contra `/`, `/*`, `~`, `~/`, `~/*`, `$HOME`, `$HOME/*`, `${HOME}`, `${HOME}/*`, com ou sem aspas. `rm -r` em nomes de 1 caractere logo abaixo de `/` ou `~` (`~/x`) é bloqueado de propósito: o `?` que cobre `*` casa qualquer caractere. Limite residual: não cobre expansão de variável (`rm -rf "$DIR/"` com `DIR` vazio) nem flags depois do alvo (`rm / -rf`). |
 | `tool_output` | 300 linhas / 16 KB por chamada (`max_lines: 300`, `max_bytes: 16384`): evita despejar logs no contexto. |
 | Limites de código | Arquivos ≤ 300 linhas, funções ≤ 40, sem stubs. Verificados pelo [AQEI](METRICS_AQEI.md) e por `ast-linter-hook.py`. |
 
