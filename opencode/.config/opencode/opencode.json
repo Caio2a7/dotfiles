@@ -864,162 +864,62 @@
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -rf / *",
+      "resource": "shell:rm -* / *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -rf ~ *",
+      "resource": "shell:rm -* /? *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -rf $HOME *",
+      "resource": "shell:rm -* ~ *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -rf ${HOME} *",
+      "resource": "shell:rm -* ~/ *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -fr / *",
+      "resource": "shell:rm -* $HOME *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -fr ~ *",
+      "resource": "shell:rm -* $HOME/ *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -fr $HOME *",
+      "resource": "shell:rm -* ${HOME} *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -fr ${HOME} *",
+      "resource": "shell:rm -* ${HOME}/ *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -Rf / *",
+      "resource": "shell:rm -* \"$HOME\" *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -Rf ~ *",
+      "resource": "shell:rm -* \"$HOME\"/ *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -Rf $HOME *",
+      "resource": "shell:rm -* \"${HOME}\" *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -Rf ${HOME} *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -fR / *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -fR ~ *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -fR $HOME *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -fR ${HOME} *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -r -f / *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -r -f ~ *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -r -f $HOME *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -r -f ${HOME} *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -f -r / *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -f -r ~ *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -f -r $HOME *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -f -r ${HOME} *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm --recursive --force / *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm --recursive --force ~ *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm --recursive --force $HOME *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm --recursive --force ${HOME} *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm --force --recursive / *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm --force --recursive ~ *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm --force --recursive $HOME *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm --force --recursive ${HOME} *",
+      "resource": "shell:rm -* \"${HOME}\"/ *",
       "effect": "deny"
     }
   ]
