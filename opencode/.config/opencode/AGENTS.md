@@ -37,6 +37,6 @@
 - Verifique diagnósticos do LSP após editar cada arquivo; não marque tarefa `[x]` com erros pendentes (em COMPLEXA, warnings contam como erros).
 
 ## Ferramentas e Fluxo
-- Scripts utilitários (`sec-scan`, `data-query`, `perf-bench`, `live-browser`, `aqei-scorer`, `quota`): ver `docs/TOOLING_CATALOG.md`.
+- Scripts utilitários (`sec-scan`, `perf-bench`, `live-browser`, `aqei-scorer`, `quota`): ver `docs/TOOLING_CATALOG.md`.
 - Comandos `/spec /plan /task /validate /debug /review /commit /mr` têm prompts próprios; não replique o fluxo aqui. Artefatos em `.aiflow/` (excluído do git).
 - Mais de 20 etapas lógicas: pare e registre o plano em `docs/plan.md` antes de prosseguir.
