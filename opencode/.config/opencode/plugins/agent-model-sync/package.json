@@ -2,5 +2,8 @@
   "name": "agent-model-sync",
   "private": true,
   "type": "module",
-  "main": "index.js"
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
 }
