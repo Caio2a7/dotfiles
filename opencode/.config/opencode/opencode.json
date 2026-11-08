@@ -1,10 +1,15 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "claude-code/claude-sonnet-5-5",
-  "default_agent": "agentic",
+  "default_agent": "orchestrator",
   "plugins": [
     "@openchamber/opencode-claude",
-    { "package": "./plugins/claude-context-cap", "options": { "maxContext": 200000 } },
+    {
+      "package": "./plugins/claude-context-cap",
+      "options": {
+        "maxContext": 200000
+      }
+    },
     "./plugins/agent-model-sync",
     "./plugins/session-hygiene",
     "opencode-antigravity-auth@2.1.1"
@@ -40,23 +45,6 @@
     }
   },
   "agents": {
-    "orchestrator": {
-      "model": "claude-code/claude-opus-5-5[1m]#high",
-      "mode": "primary",
-      "color": "#10B981",
-      "permissions": [
-        {
-          "action": "edit",
-          "resource": "*",
-          "effect": "deny"
-        }
-      ]
-    },
-    "agentic": {
-      "model": "claude-code/claude-sonnet-5-5#low",
-      "mode": "primary",
-      "color": "#BB9AF7"
-    },
     "build": {
       "description": "Modo padrão de desenvolvimento com confirmação para comandos modificadores",
       "mode": "primary",
@@ -294,11 +282,6 @@
         },
         {
           "action": "shell",
-          "resource": "graphify*",
-          "effect": "allow"
-        },
-        {
-          "action": "shell",
           "resource": "live-browser inspect*",
           "effect": "allow"
         },
@@ -310,11 +293,6 @@
         {
           "action": "shell",
           "resource": "live-browser status*",
-          "effect": "allow"
-        },
-        {
-          "action": "shell",
-          "resource": "data-query*",
           "effect": "allow"
         },
         {
@@ -572,11 +550,6 @@
         },
         {
           "action": "shell",
-          "resource": "graphify*",
-          "effect": "allow"
-        },
-        {
-          "action": "shell",
           "resource": "live-browser inspect*",
           "effect": "allow"
         },
@@ -588,11 +561,6 @@
         {
           "action": "shell",
           "resource": "live-browser status*",
-          "effect": "allow"
-        },
-        {
-          "action": "shell",
-          "resource": "data-query*",
           "effect": "allow"
         },
         {
@@ -654,7 +622,7 @@
       "agent": "build"
     },
     "plan": {
-      "template": "0. Verifique se .aiflow/plan.md já existe:\n- Se existir: leia o conteúdo.\n  * Se houver tarefas [ ] pendentes → NÃO sobrescreva. Avise: \"Existem tarefas pendentes no plano atual. Conclua com /task ou confirme explicitamente para arquivar.\"\n  * Se todas as tarefas estiverem [x] → execute `date +%Y%m%d`, arquive em .aiflow/archive/plan-[DATA].md e crie o novo .aiflow/plan.md.\n\n1. Leia .aiflow/spec.md (ou a classificação do /spec) e grave no cabeçalho do .aiflow/plan.md:\n# Classificação: [TRIVIAL/SIMPLES/COMPLEXA]\n# Branch: [branch-detectada]\n# Base: main\n\n2. Verificação de Pré-Condições Executáveis (SWE-planner Gate - Valmeekam et al. / SWE-planner 2024):\nAntes de adicionar qualquer tarefa de mutação no .aiflow/plan.md (ex: \"Modificar função X no arquivo Y\"), o agente é PROIBIDO de planejar no vácuo. Ele DEVE verificar ativamente se o arquivo e o símbolo alvo existem de fato (usando `ast-grep run -p ...` via shell se instalado, ou grep, glob e read). Se a pré-condição falhar, o plano deve refletir a criação ou ajuste imediato, eliminando planos quebrados por suposição.\n\n3. Gere a lista de tarefas:\n- TRIVIAL:\n  [ ] 1. [descrição da tarefa trivial]\n     Critério de done: sem regressões nos testes existentes\n  → Responda: \"TRIVIAL: .aiflow/plan.md criado. Execute /task.\"\n- SIMPLES:\n  [ ] 1. Título\n     Critério de done: [teste ou comportamento específico]\n  → Responda: \"SIMPLES: .aiflow/plan.md criado. Execute /task.\"\n- COMPLEXA:\n  Gere a lista detalhada com critérios de done, complexidade S/M, dependências, risco e flag [P].\n  → Responda: \"COMPLEXA: .aiflow/plan.md criado. Execute /task ou /tasks.\"",
+      "template": "0. Verifique se .aiflow/plan.md já existe:\n- Se existir: leia o conteúdo.\n  * Se houver tarefas [ ] pendentes → NÃO sobrescreva. Avise: \"Existem tarefas pendentes no plano atual. Conclua com /task ou confirme explicitamente para arquivar.\"\n  * Se todas as tarefas estiverem [x] → execute `date +%Y%m%d`, arquive em .aiflow/archive/plan-[DATA].md e crie o novo .aiflow/plan.md.\n\n1. Leia .aiflow/spec.md (ou a classificação do /spec) e grave no cabeçalho do .aiflow/plan.md:\n# Classificação: [TRIVIAL/SIMPLES/COMPLEXA]\n# Branch: [branch-detectada]\n# Base: main\n\n2. Verificação de Pré-Condições Executáveis (SWE-planner Gate - Valmeekam et al. / SWE-planner 2024):\nAntes de adicionar qualquer tarefa de mutação no .aiflow/plan.md (ex: \"Modificar função X no arquivo Y\"), o agente é PROIBIDO de planejar no vácuo. Ele DEVE verificar ativamente se o arquivo e o símbolo alvo existem de fato (usando grep, glob e read). Se a pré-condição falhar, o plano deve refletir a criação ou ajuste imediato, eliminando planos quebrados por suposição.\n\n3. Gere a lista de tarefas:\n- TRIVIAL:\n  [ ] 1. [descrição da tarefa trivial]\n     Critério de done: sem regressões nos testes existentes\n  → Responda: \"TRIVIAL: .aiflow/plan.md criado. Execute /task.\"\n- SIMPLES:\n  [ ] 1. Título\n     Critério de done: [teste ou comportamento específico]\n  → Responda: \"SIMPLES: .aiflow/plan.md criado. Execute /task.\"\n- COMPLEXA:\n  Gere a lista detalhada com critérios de done, complexidade S/M, dependências, risco e flag [P].\n  → Responda: \"COMPLEXA: .aiflow/plan.md criado. Execute /task ou /tasks.\"",
       "description": "Adaptive plan generation with header state persistence",
       "agent": "build"
     },
@@ -667,7 +635,7 @@
       "description": "Execute all pending tasks from plan.md sequentially with TDD and stop-on-error gate"
     },
     "validate": {
-      "template": "Execute o portão de qualidade completo:\n1. Testes: rode a suíte completa e reporte falhas.\n2. Lint: rode o linter configurado e reporte violações.\n3. Type-check: rode o verificador de tipos e reporte erros.\n4. Dependências: verifique vulnerabilidades conhecidas (npm audit / pip-audit).\n5. Cobertura: reporte se a cobertura caiu em relação ao baseline.\n6. AQEI Quality Gate: execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .'. Se o AQEI Global for inferior a 80.0% ou houver stubs críticos (TODO, pass) ou arquivos > 300 linhas, reprove a validação e exija refatoração prévia.\n\nSE APROVADO:\n- Consulte a classificação no cabeçalho do .aiflow/plan.md.\n- Se SIMPLES: recomende executar /commit.\n- Se COMPLEXA: recomende executar /review.\n\nSE REPROVADO:\n- Falha de Teste -> Crie ou sobrescreva .aiflow/debug-context.md com timestamp, comando de teste, testes falhos, output completo e stack trace. Recomende executar /debug.\n- Falha de Lint/Types -> Recomende executar /refactor ou sugira a correção no arquivo.\n- Falha de Cobertura -> Recomende executar /task para adicionar testes ausentes.\n- Falha de Segurança -> Indique a vulnerabilidade e recomende a atualização.\n- Falha de AQEI/Modularidade -> Recomende executar /refactor para decompor arquivos > 300 linhas ou eliminar stubs.",
+      "template": "Execute o portão de qualidade completo:\n1. Testes: rode a suíte completa e reporte falhas.\n2. Lint: rode o linter configurado e reporte violações.\n3. Type-check: rode o verificador de tipos e reporte erros.\n4. Dependências: verifique vulnerabilidades conhecidas (npm audit / pip-audit).\n5. Cobertura: reporte se a cobertura caiu em relação ao baseline.\n6. AQEI Quality Gate: execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .'. Se o AQEI Global for inferior a 80.0% ou houver stubs críticos (TODO, pass) ou arquivos > 300 linhas, reprove a validação e exija refatoração prévia.\n\nSE APROVADO:\n- Consulte a classificação no cabeçalho do .aiflow/plan.md.\n- Se SIMPLES: recomende executar /commit.\n- Se COMPLEXA: recomende executar /review.\n\nSE REPROVADO:\n- Falha de Teste -> Crie ou sobrescreva .aiflow/debug-context.md com timestamp, comando de teste, testes falhos, output completo e stack trace. Recomende executar /debug.\n- Falha de Lint/Types -> Sugira a correção no arquivo.\n- Falha de Cobertura -> Recomende executar /task para adicionar testes ausentes.\n- Falha de Segurança -> Indique a vulnerabilidade e recomende a atualização.\n- Falha de AQEI/Modularidade -> Exija decompor arquivos > 300 linhas ou eliminar stubs antes de aprovar.",
       "description": "Run full quality gate with advisory routing and debug context capture",
       "agent": "tester"
     },
@@ -677,7 +645,7 @@
       "agent": "reviewer"
     },
     "commit": {
-      "template": "Leia .aiflow/plan.md e extraia Branch e Base do cabeçalho.\n\n0. Execute `git status` e `git diff --staged` para entender o que está staged.\n   Se nada estiver staged, execute `git add .` antes de prosseguir.\n\nChecklist antes de commitar:\n1. Todos os testes passam? (verifique se .aiflow/task-test.sh não existe — se existir há testes falhando)\n2. Lint e type-check limpos?\n3. AQEI >= 80.0% limpo sem stubs (TODO/FIXME) ou arquivos > 300L? (execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .')\n4. Nenhum segredo ou API key exposto?\n5. .aiflow/, graphify-out/ e .playwright-cli/ não estão no diff (devem estar no ~/.config/git/ignore)\n\nSE TUDO OK:\n`git add .`\n`git commit -m '[mensagem em português no padrão Conventional Commits]'`\n`git push origin [Branch]`\n(se a branch não existir remotamente: `git push -u origin [Branch]`)\n\nSE ALGO FALHOU: reporte o bloqueio antes de executar qualquer git.\n\nPasso opcional:\nSe a tarefa envolveu resolução de bug não-óbvio ou decisão técnica relevante, registre uma observação concisa no Memory MCP para retenção global de aprendizado.",
+      "template": "Leia .aiflow/plan.md e extraia Branch e Base do cabeçalho.\n\n0. Execute `git status` e `git diff --staged` para entender o que está staged.\n   Se nada estiver staged, execute `git add .` antes de prosseguir.\n\nChecklist antes de commitar:\n1. Todos os testes passam? (verifique se .aiflow/task-test.sh não existe — se existir há testes falhando)\n2. Lint e type-check limpos?\n3. AQEI >= 80.0% limpo sem stubs (TODO/FIXME) ou arquivos > 300L? (execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .')\n4. Nenhum segredo ou API key exposto?\n5. .aiflow/, graphify-out/ e .playwright-cli/ não estão no diff (devem estar no ~/.config/git/ignore)\n\nSE TUDO OK:\n`git add .`\n`git commit -m '[mensagem em português no padrão Conventional Commits]'`\n`git push origin [Branch]`\n(se a branch não existir remotamente: `git push -u origin [Branch]`)\n\nSE ALGO FALHOU: reporte o bloqueio antes de executar qualquer git.\n\nPasso opcional:\nSe a tarefa envolveu resolução de bug não-óbvio ou decisão técnica relevante, registre uma observação concisa em .aiflow/context.md (ou rode /learn).",
       "description": "Stage, commit and push to target branch from plan.md header"
     },
     "mr": {
@@ -687,11 +655,6 @@
     "debug": {
       "template": "0. Identifique automaticamente a origem da falha sem necessitar de argumentos:\n   - SE .aiflow/task-test.sh e .aiflow/task-test.log existirem → Origem: falha no teste atômico da tarefa isolada.\n   - SE .aiflow/debug-context.md existir → Origem: falha no portão de qualidade /validate.\n   - SENÃO → Analise a última saída do test runner ou logs de erro disponíveis no contexto do terminal.\n\n1. Diagnóstico (@debugger) & Correção (@worker/@backend):\n   - Delegue ao @debugger apenas o diagnóstico (Fault Localization DTO + correção proposta, sem editar); a correção vai para @worker/@backend. Leia o arquivo de log/contexto como ponto de partida (erro exato, comando e stack trace já documentados).\n   - Forme hipóteses e teste-as. Se após 3 hipóteses locais falharem, consulte a pesquisa web (`websearch`) para pesquisar a mensagem de erro exata e a versão da dependência.\n   - Se a origem foi task-test.sh, execute novamente: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n   - SE PASSOU nos testes: apague .aiflow/task-test.sh, .aiflow/task-test.log e .aiflow/debug-context.md se existirem. Atualize .aiflow/context.md com o aprendizado da sessão. Recomende /commit ou /validate conforme a classificação no .aiflow/plan.md.\n   - SE FALHOU: atualize o log/contexto, informe o erro e peça novo diagnóstico ao @debugger com nova hipótese.",
       "description": "Automatic debug from .aiflow/task-test.log, .aiflow/debug-context.md or latest error"
-    },
-    "refactor": {
-      "template": "0. Identificação Automática sem necessitar de argumentos:\n   - Leia .aiflow/plan.md, .aiflow/spec.md e analise o diff atual ou arquivos modificados.\n   - Identifique pontos de refatoração conforme os limites do AGENTS.md (funções > 40 linhas, arquivos > 300 linhas, duplicação de código ou avisos de lint/types do /validate).\n\n1. Execução Segura:\n   - Rode TODOS os testes do projeto antes para capturar o snapshot de aprovação.\n   - Refatore o código focando em: coesão, desacoplamento, SOLID e eliminação de duplicação.\n   - Rode os testes novamente — devem ter exatamente o mesmo resultado verde.\n   - Se qualquer teste quebrar, reverta e tente uma abordagem diferente.\n   - Nenhuma mudança de comportamento externo é permitida.\n\n2. Conclusão:\n   - Atualize .aiflow/context.md com aprendizados ou padrões de refatoração aplicados.\n   - Consulte .aiflow/plan.md: se TRIVIAL/SIMPLES recomende /commit; se COMPLEXA recomende /validate.",
-      "description": "Automatic refactoring from plan.md, git diff, and AGENTS.md thresholds",
-      "agent": "refactorer"
     },
     "adr": {
       "template": "Primeiro, execute `date +%Y%m%d` para obter a data atual.\nCrie o arquivo docs/decisions/ADR-[DATA]-[ARGUMENTS-COM-HIFENS].md contendo:\n# ADR: $ARGUMENTS\nData: [DATA]\nStatus: Aceito\n\n## Contexto\nQual problema estamos resolvendo?\n## Decisão\nO que decidimos fazer?\n## Alternativas consideradas\nO que foi descartado e por quê?\n## Consequências\nPositivas, negativas e trade-offs que aceitamos.",
@@ -716,30 +679,15 @@
       "template": "Apresente a avaliação AQEI gerada deterministicamente abaixo sem executar ferramentas adicionais ou introduções:\n\n!`python3 ~/.config/opencode/scripts/aqei-scorer.py $ARGUMENTS`",
       "description": "Calcula o índice de qualidade e eficiência (AQEI) da sessão ou audita diretório"
     },
-    "graphify": {
-      "template": "SE $ARGUMENTS tiver texto:\nExecute: graphify query \"$ARGUMENTS\"\nSENÃO SE existir graphify-out/graph.json:\nExecute: graphify god-nodes --top 10\nSENÃO:\nExecute: graphify extract . --code-only\nExiba o resumo arquitetural.",
-      "description": "Gera ou consulta o Knowledge Graph estrutural do repositório (Graphify AST)",
-      "agent": "scout"
-    },
     "playwright": {
       "template": "SE $ARGUMENTS contiver 'ui' ou 'dashboard':\nExecute em background: `npx playwright test --ui &` e confirme ao usuário que o Playwright UI Dashboard foi iniciado.\nSENÃO SE $ARGUMENTS contiver 'report':\nExecute em background: `npx playwright show-report &` e confirme abertura do relatório HTML.\nSENÃO SE $ARGUMENTS contiver 'trace':\nExecute em background: `npx playwright show-trace $ARGUMENTS &`\nSENÃO:\nExecute: `npx playwright test --project=chromium --reporter=list $ARGUMENTS`",
       "description": "Abre o Playwright UI Mode (Dashboard), relatórios HTML ou executa testes E2E",
       "agent": "browser"
     },
-    "data": {
-      "template": "SE $ARGUMENTS começar com 'schema ':\nExecute: data-query schema $ARGUMENTS[7:]\nSENÃO SE $ARGUMENTS começar com 'summary ':\nExecute: data-query summary $ARGUMENTS[8:]\nSENÃO SE $ARGUMENTS começar com 'query ':\nExecute: data-query query \"$ARGUMENTS[6:]\"\nSENÃO:\nAnalise o arquivo ou execute a consulta informada usando `data-query`:\n$ARGUMENTS\nProduza síntese de dados e insights com base nos resultados computados.",
-      "description": "Executa análise de dados, estatísticas ou consultas SQL analíticas em arquivos locais via DuckDB",
-      "agent": "data-engineer"
-    },
     "audit": {
-      "template": "SE $ARGUMENTS contiver 'secrets':\nExecute: sec-scan secrets\nSENÃO SE $ARGUMENTS contiver 'sast' ou 'code':\nExecute: sec-scan sast\nSENÃO SE $ARGUMENTS contiver 'deps':\nExecute: sec-scan deps\nSENÃO SE $ARGUMENTS contiver 'threat' ou 'red':\nInvoque @red-team para modelagem de ameaças STRIDE e análise de superfície de ataque em $ARGUMENTS.\nSENÃO:\nExecute auditoria completa (segredos, SAST e dependências): `sec-scan all`\nApresente a síntese dos achados e plano de remediação.",
+      "template": "SE $ARGUMENTS contiver 'secrets':\nExecute: sec-scan secrets\nSENÃO SE $ARGUMENTS contiver 'sast' ou 'code':\nExecute: sec-scan sast\nSENÃO SE $ARGUMENTS contiver 'deps':\nExecute: sec-scan deps\nSENÃO:\nExecute auditoria completa (segredos, SAST e dependências): `sec-scan all`\nApresente a síntese dos achados e plano de remediação.",
       "description": "Auditoria de segurança de código (Semgrep SAST), segredos (Gitleaks) ou dependências (OSV-Scanner CVEs)",
       "agent": "blue-team"
-    },
-    "perf": {
-      "template": "SE $ARGUMENTS começar com 'http ' ou contiver 'http://' ou 'https://':\nExecute: perf-bench http $ARGUMENTS\nSENÃO SE $ARGUMENTS começar com 'cli ':\nExecute: perf-bench cli $ARGUMENTS[4:]\nSENÃO:\nExecute o benchmark de performance solicitado usando `perf-bench`:\n$ARGUMENTS\nApresente a tabela com percentis (p50, p95, p99) e análise do resultado.",
-      "description": "Benchmark estatístico de performance (Hyperfine) ou teste de carga HTTP (Autocannon)",
-      "agent": "performance"
     },
     "agentic": {
       "template": "SE $ARGUMENTS tiver texto:\nExecute a tarefa solicitada no modo agêntico, de forma direta e autônoma:\n$ARGUMENTS\n\nSENÃO:\nConfirme em uma linha que o modo agêntico está ativo nesta sessão.",
@@ -770,67 +718,6 @@
         "url": "https://mcp.context7.com/mcp",
         "oauth": false,
         "disabled": false
-      },
-      "sequential-thinking": {
-        "type": "local",
-        "command": [
-          "npx",
-          "-y",
-          "@modelcontextprotocol/server-sequential-thinking"
-        ],
-        "environment": {},
-        "disabled": true
-      },
-      "memory": {
-        "type": "local",
-        "command": [
-          "npx",
-          "-y",
-          "@modelcontextprotocol/server-memory"
-        ],
-        "environment": {
-          "MEMORY_FILE_PATH": "/home/caio/.config/opencode/memory.jsonl"
-        },
-        "disabled": true
-      },
-      "ast-grep": {
-        "type": "local",
-        "command": [
-          "npx",
-          "-y",
-          "ast-grep-mcp"
-        ],
-        "environment": {},
-        "disabled": true
-      },
-      "docker": {
-        "type": "local",
-        "command": [
-          "npx",
-          "-y",
-          "mcp-docker-server"
-        ],
-        "environment": {},
-        "disabled": true
-      },
-      "git-repo": {
-        "type": "local",
-        "command": [
-          "uvx",
-          "mcp-server-git"
-        ],
-        "environment": {},
-        "disabled": true
-      },
-      "agent-lsp": {
-        "type": "local",
-        "command": [
-          "npx",
-          "-y",
-          "@blackwell-systems/agent-lsp"
-        ],
-        "environment": {},
-        "disabled": true
       }
     }
   },
@@ -839,12 +726,77 @@
       "action": "*",
       "resource": "*",
       "effect": "allow"
+    },
+    {
+      "action": "skill",
+      "resource": "docs",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "docx",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "pdf",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "pptx",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "xlsx",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "google-workspace",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "morning",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "built-in-browser",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "chrome-browser",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "computer-use",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "import-memory",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "deep-research",
+      "effect": "deny"
+    },
+    {
+      "action": "skill",
+      "resource": "skill-creator",
+      "effect": "deny"
     }
   ],
   "compaction": {
     "auto": true,
     "keep": {
-      "tokens": 15000
+      "tokens": 30000
     },
     "buffer": 15000
   },
@@ -864,12 +816,10 @@
       "__pycache__/**",
       ".next/**",
       "*.lock",
-      "coverage/**",
-      "brain/**"
+      "coverage/**"
     ]
   },
   "formatter": {
-    "prettier": {},
     "custom-black": {
       "command": [
         "black",
@@ -881,38 +831,56 @@
     }
   },
   "lsp": true,
-  "experimental": {
-    "policies": [
-      {
-        "action": "permission",
-        "resource": "shell:git push --force *",
-        "effect": "deny"
-      },
-      {
-        "action": "permission",
-        "resource": "shell:git push -f *",
-        "effect": "deny"
-      },
-      {
-        "action": "permission",
-        "resource": "shell:git push * --force",
-        "effect": "deny"
-      },
-      {
-        "action": "permission",
-        "resource": "shell:rm -rf / *",
-        "effect": "deny"
-      },
-      {
-        "action": "permission",
-        "resource": "shell:rm -rf ~ *",
-        "effect": "deny"
-      },
-      {
-        "action": "permission",
-        "resource": "shell:rm -rf $HOME *",
-        "effect": "deny"
-      }
-    ]
-  }
+  "policies": [
+    {
+      "action": "tool.use",
+      "resource": "shell:git push --force *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:git push -f *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:git push * --force",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:git push * -f",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -rf / *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -rf /*",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -rf ~ *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -rf ~/*",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -rf $HOME *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -rf $HOME/*",
+      "effect": "deny"
+    }
+  ]
 }
