@@ -5,7 +5,6 @@ import Gio from "gi://Gio"
 import GObject from "gi://GObject"
 import Pango from "gi://Pango"
 import cairo from "gi://cairo"
-import { HabitsStreakPanel } from "./HabitsStrip"
 import {
   readMetas,
   saveMetas,
@@ -1943,19 +1942,11 @@ export function TodoCards(monitor = 0): Astal.Window {
   const totalWidth = getDisplayWidth(monitor) // 1899px
   const halfWidth = Math.floor((totalWidth - 1) / 2) // 50% = 949px
 
-  const habitsStripHeight = 68
-  const tasksHeight = topHeight - habitsStripHeight - 1 // 408px
-
-  // 1. Faixa Superior: Hábitos em toda a largura horizontal no topo
-  const topHabitsStrip = HabitsStreakPanel(habitsStripHeight)
-
-  // 2. Divisor nítido de 1px entre Hábitos e Tarefas
-  const topDivider = <box class="prio-board-divider" heightRequest={1} hexpand={true} />
-
-  // 3. Quadro de Tarefas (3 Colunas direto, sem o header antigo)
+  // 1. Quadro de Tarefas (3 Colunas direto, sem o header antigo)
+  const tasksHeight = topHeight
   const tasksZone = UnifiedPriorityBoard(tasksHeight)
 
-  // 4. Bloco Superior Completo (Hábitos no topo + divisor + Tarefas)
+  // 2. Bloco Superior Completo (Tarefas)
   const topHalf = (
     <box
       orientation={V}
@@ -1965,8 +1956,6 @@ export function TodoCards(monitor = 0): Astal.Window {
       heightRequest={topHeight}
       class="dash-top-half"
     >
-      {topHabitsStrip}
-      {topDivider}
       {tasksZone}
     </box>
   ) as Gtk.Widget

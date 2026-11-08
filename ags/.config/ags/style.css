@@ -7,6 +7,7 @@
 window.Hub,
 .Hub {
   min-width: 250px;
+  background: transparent;
 }
 
 .hub-inner {
@@ -15,8 +16,8 @@ window.Hub,
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   min-width: 250px;
-  margin: 5px;
-  padding: 8px;
+  margin: 4px;
+  padding: 8px 8px;
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.60),
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
@@ -26,7 +27,7 @@ window.Hub,
 }
 
 .hub-section {
-  padding: 10px 6px;
+  padding: 10px 0;
 }
 
 .hub-section-title {
@@ -40,7 +41,7 @@ window.Hub,
 .hub-divider {
   background: rgba(255, 255, 255, 0.06);
   min-height: 1px;
-  margin: 0 10px;
+  margin: 0 4px;
 }
 
 .hub-clock {
@@ -564,7 +565,7 @@ scale slider:active,
 
 .dock-wrapper {
   background: transparent;
-  padding: 0 0 0 30px;
+  padding: 24px 0 24px 28px;
   margin: 0;
 }
 
@@ -607,7 +608,8 @@ scale slider:active,
   box-shadow:
     inset 0 1.5px 0 0 rgba(255, 255, 255, 0.35),
     inset 0 -1px 0 0 rgba(255, 255, 255, 0.06),
-    0 16px 44px rgba(0, 0, 0, 0.60);
+    -6px 0 18px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.30);
   transition: all 200ms ease;
 }
 
@@ -687,11 +689,9 @@ scale slider:active,
 }
 
 .apple-space-btn.active {
-  background: rgba(255, 255, 255, 0.22);
-  border-color: rgba(255, 255, 255, 0.40);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.40),
-    0 2px 6px rgba(0, 0, 0, 0.25);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.20);
 }
 
 .apple-space-num {
@@ -1057,12 +1057,6 @@ scale slider:active,
   background: rgba(255, 255, 255, 0.35);
   /* margin: 0 1px; */
   margin: 1px 0;
-}
-
-.dock-habit-btn label {
-  font-family: "Symbols Nerd Font", monospace;
-  font-size: 13px;
-  color: #38bdf8;
 }
 
 .dock-clock-pill {
@@ -1779,35 +1773,6 @@ scale slider:active,
   color: #64748b;
 }
 
-/* ── Painel de Hábitos no Topo ──────────────────────────────────── */
-.habits-top-panel,
-.habits-panel {
-  padding: 6px 12px;
-}
-
-.habit-mini-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 6px 10px;
-  transition: border-color 0.2s ease, background 0.2s ease;
-}
-
-.habit-mini-card:hover {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.habit-mini-card.habit-done {
-  border-color: rgba(74, 222, 128, 0.25);
-  background: rgba(74, 222, 128, 0.05);
-}
-
-.habit-mini-card.habit-done:hover {
-  border-color: rgba(74, 222, 128, 0.45);
-  background: rgba(74, 222, 128, 0.09);
-}
-
 /* ── Painel do Gráfico Bento ────────────────────────────────────── */
 .chart-panel {
   padding: 8px 14px;
@@ -2362,215 +2327,6 @@ switch slider {
 }
 
 /* ────────────────────────────────────────────────────────────────── */
-/* HABITS MODAL (FLUTUANTE)                                           */
-/* ────────────────────────────────────────────────────────────────── */
-.HabitsModal {
-  background: transparent;
-}
-
-.habits-scrim {
-  background: rgba(4, 6, 10, 0.65);
-}
-
-.habits-dialog {
-  background: rgba(12, 15, 22, 0.96);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  min-width: 360px;
-  padding: 20px 22px;
-  box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.80),
-    0 0 0 1px rgba(16, 185, 129, 0.20),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10);
-}
-
-.habits-header {
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 12px;
-}
-
-.habits-title-icon {
-  font-size: 20px;
-  color: #10b981;
-  margin-right: 10px;
-}
-
-.habits-title-text {
-  font-size: 16px;
-  font-weight: 800;
-  color: #ffffff;
-}
-
-.habits-subtitle-text {
-  font-size: 12.5px;
-  color: #94a3b8;
-  font-weight: 500;
-  margin-top: 2px;
-}
-
-.habit-badge {
-  border-radius: 6px;
-  padding: 2px 8px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-}
-
-.badge-today {
-  background: rgba(16, 185, 129, 0.18);
-  color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.40);
-}
-
-.badge-pending {
-  background: rgba(245, 158, 11, 0.18);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.40);
-}
-
-.habit-modal-rows {
-  padding: 4px 0;
-}
-
-.habit-modal-row {
-  background: rgba(18, 22, 32, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  padding: 8px 12px;
-  transition: all 180ms cubic-bezier(0.25, 0.8, 0.25, 1);
-  min-height: 40px;
-}
-
-.habit-modal-row:hover {
-  background: rgba(28, 36, 52, 0.80);
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-.habit-modal-row.done {
-  background: rgba(16, 185, 129, 0.12);
-  border-color: rgba(16, 185, 129, 0.35);
-  box-shadow: inset 0 0 12px rgba(16, 185, 129, 0.08);
-}
-
-.habit-modal-row.done:hover {
-  background: rgba(16, 185, 129, 0.18);
-  border-color: rgba(16, 185, 129, 0.50);
-}
-
-.habit-modal-row.pending {
-  background: rgba(239, 68, 68, 0.06);
-  border-color: rgba(239, 68, 68, 0.20);
-}
-
-.habit-modal-row.pending:hover {
-  background: rgba(239, 68, 68, 0.10);
-  border-color: rgba(239, 68, 68, 0.35);
-}
-
-.habit-modal-icon {
-  font-size: 18px;
-  margin-right: 10px;
-  color: #a8b4c8;
-}
-
-.habit-modal-row.done .habit-modal-icon {
-  color: #10b981;
-}
-
-.habit-modal-row.pending .habit-modal-icon {
-  color: #ef4444;
-}
-
-.habit-modal-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: #f1f5f9;
-}
-
-.habit-status-badge {
-  padding: 2px 6px;
-  border-radius: 6px;
-}
-
-.habit-status-icon {
-  font-family: "Symbols Nerd Font", "JetBrainsMono Nerd Font", monospace;
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.habit-status-icon.done {
-  color: #10b981;
-}
-
-.habit-status-icon.pending {
-  color: #ef4444;
-}
-
-.habit-status-label {
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.habit-status-label.done {
-  color: #10b981;
-}
-
-.habit-status-label.pending {
-  color: #ef4444;
-}
-
-.habits-footer {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.habits-btn-save {
-  background: #10b981;
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 12px;
-  padding: 6px 16px;
-  border-radius: 8px;
-  border: none;
-  transition: all 150ms ease;
-}
-
-.habits-btn-save:hover {
-  background: #059669;
-}
-
-.habits-btn-close {
-  background: rgba(255, 255, 255, 0.06);
-  color: #cbd5e1;
-  font-weight: 700;
-  font-size: 12px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  transition: all 150ms ease;
-}
-
-.habits-btn-close:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-}
-
-.habit-pill-btn {
-  background: transparent;
-  border: none;
-  padding: 0;
-  margin: 0;
-  box-shadow: none;
-  color: #10b981;
-  transition: all 200ms ease;
-}
-
-.habit-pill-btn:hover {
-  color: #34d399;
-}
-
 /* ────────────────────────────────────────────────────────────────── */
 /* MODAL: NOVA TAREFA (SUPER + N)                                     */
 /* ────────────────────────────────────────────────────────────────── */
@@ -3101,21 +2857,22 @@ progressbar.topic-progress-bar.pct-blue progress {
 
 /* Anel de foco de estudo (Obsidian): cápsula compartilhada + textos estilo relógio */
 .study-capsule {
-  padding: 8px 0;
+  padding: 7px 0 6px;
+  margin-bottom: 20px; /* espaçamento vive dentro do Revealer: colapsa sem pulo */
 }
 
 .study-time {
   font-family: "SF Pro Text", "Inter", "Noto Sans", sans-serif;
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 9px;
+  font-weight: 600;
   font-feature-settings: "tnum";
   letter-spacing: -0.2px;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .study-subject {
   font-family: "SF Pro Text", "Inter", "Noto Sans", sans-serif;
-  font-size: 11px;
+  font-size: 8px;
   font-weight: 700;
   letter-spacing: -0.3px;
   color: rgba(255, 255, 255, 0.92);

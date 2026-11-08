@@ -12,7 +12,6 @@ import Gtk4LayerShell from "gi://Gtk4LayerShell"
 import { openAppPickerModal } from "./AppPickerModal"
 import { WorkspacesSection, AudioControlsSection, StatusSection } from "./WorkStatus"
 import { StudySection } from "./StudySection"
-import { HabitsSection } from "./HabitsSection"
 import { DockApp, removeDockApp, reorderDockApps, subscribeDockApps } from "./dockStore"
 import { windowsFor, isFocusedApp, focusOrCycle } from "./dockWindows"
 
@@ -380,7 +379,6 @@ function DockContainer({
       {/* <box class="dock-wing-right" orientation={Gtk.Orientation.VERTICAL} spacing={6} halign={Gtk.Align.CENTER} valign={Gtk.Align.CENTER}> */}
       <box class="dock-wing-right" orientation={Gtk.Orientation.VERTICAL} spacing={0} halign={Gtk.Align.CENTER} valign={Gtk.Align.CENTER}>
         <StudySection />
-        <HabitsSection />
         <StatusSection bat={bat} net={net} />
       </box>
     </box>
