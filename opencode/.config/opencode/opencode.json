@@ -62,16 +62,6 @@
         },
         {
           "action": "shell",
-          "resource": "git push --force*",
-          "effect": "deny"
-        },
-        {
-          "action": "shell",
-          "resource": "rm -rf /",
-          "effect": "deny"
-        },
-        {
-          "action": "shell",
           "resource": "ls",
           "effect": "allow"
         },
@@ -645,7 +635,7 @@
       "agent": "reviewer"
     },
     "commit": {
-      "template": "Leia .aiflow/plan.md e extraia Branch e Base do cabeçalho.\n\n0. Execute `git status` e `git diff --staged` para entender o que está staged.\n   Se nada estiver staged, execute `git add .` antes de prosseguir.\n\nChecklist antes de commitar:\n1. Todos os testes passam? (verifique se .aiflow/task-test.sh não existe — se existir há testes falhando)\n2. Lint e type-check limpos?\n3. AQEI >= 80.0% limpo sem stubs (TODO/FIXME) ou arquivos > 300L? (execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .')\n4. Nenhum segredo ou API key exposto?\n5. .aiflow/, graphify-out/ e .playwright-cli/ não estão no diff (devem estar no ~/.config/git/ignore)\n\nSE TUDO OK:\n`git add .`\n`git commit -m '[mensagem em português no padrão Conventional Commits]'`\n`git push origin [Branch]`\n(se a branch não existir remotamente: `git push -u origin [Branch]`)\n\nSE ALGO FALHOU: reporte o bloqueio antes de executar qualquer git.\n\nPasso opcional:\nSe a tarefa envolveu resolução de bug não-óbvio ou decisão técnica relevante, registre uma observação concisa em .aiflow/context.md (ou rode /learn).",
+      "template": "Leia .aiflow/plan.md e extraia Branch e Base do cabeçalho.\n\n0. Execute `git status` e `git diff --staged` para entender o que está staged.\n   Se nada estiver staged, execute `git add .` antes de prosseguir.\n\nChecklist antes de commitar:\n1. Todos os testes passam? (verifique se .aiflow/task-test.sh não existe — se existir há testes falhando)\n2. Lint e type-check limpos?\n3. AQEI >= 80.0% limpo sem stubs (TODO/FIXME) ou arquivos > 300L? (execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .')\n4. Nenhum segredo ou API key exposto?\n5. .aiflow/ e .playwright-cli/ não estão no diff (devem estar no ~/.config/git/ignore)\n\nSE TUDO OK:\n`git add .`\n`git commit -m '[mensagem em português no padrão Conventional Commits]'`\n`git push origin [Branch]`\n(se a branch não existir remotamente: `git push -u origin [Branch]`)\n\nSE ALGO FALHOU: reporte o bloqueio antes de executar qualquer git.\n\nPasso opcional:\nSe a tarefa envolveu resolução de bug não-óbvio ou decisão técnica relevante, registre uma observação concisa em .aiflow/context.md (ou rode /learn).",
       "description": "Stage, commit and push to target branch from plan.md header"
     },
     "mr": {
@@ -699,8 +689,8 @@
       "description": "Apresenta o painel unificado de status do sistema e sessão OpenCode"
     },
     "learn": {
-      "template": "Extraia e registre os aprendizados técnicos desta sessão no grafo de memória:\n\n!`python3 ~/.config/opencode/scripts/learn.py $ARGUMENTS`",
-      "description": "Extrai e registra aprendizados técnicos no grafo de memória"
+      "template": "Registre os aprendizados técnicos desta sessão em .aiflow/context.md do projeto atual.\n\n1. `mkdir -p .aiflow`; se o arquivo existir, leia-o antes para não duplicar entradas.\n2. Anexe ao final (não reescreva o que já existe), com a data de `date +%Y-%m-%d` como título da entrada: padrões que funcionaram, anti-padrões, decisões técnicas e comportamentos não-óbvios de libs ou ferramentas descobertos nesta sessão. Seja conciso: um item por linha, só o que ajuda numa sessão futura.\n3. Contexto adicional do usuário: $ARGUMENTS\n4. Responda só com o que foi anexado.",
+      "description": "Anexa os aprendizados técnicos da sessão em .aiflow/context.md do projeto"
     },
     "sandbox": {
       "template": "Execute a tarefa em sandbox isolado via Git Worktree (Two-Phase Commit):\n\n!`bash ~/.config/opencode/scripts/worktree-runner.sh $ARGUMENTS`",
@@ -839,17 +829,37 @@
     },
     {
       "action": "tool.use",
+      "resource": "shell:git push * --force *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
       "resource": "shell:git push -f *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:git push * --force",
+      "resource": "shell:git push * -f *",
       "effect": "deny"
     },
     {
       "action": "tool.use",
-      "resource": "shell:git push * -f",
+      "resource": "shell:git * push --force *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:git * push * --force *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:git * push -f *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:git * push * -f *",
       "effect": "deny"
     },
     {
@@ -859,17 +869,7 @@
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -rf /*",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
       "resource": "shell:rm -rf ~ *",
-      "effect": "deny"
-    },
-    {
-      "action": "tool.use",
-      "resource": "shell:rm -rf ~/*",
       "effect": "deny"
     },
     {
@@ -879,7 +879,147 @@
     },
     {
       "action": "tool.use",
-      "resource": "shell:rm -rf $HOME/*",
+      "resource": "shell:rm -rf ${HOME} *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -fr / *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -fr ~ *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -fr $HOME *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -fr ${HOME} *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -Rf / *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -Rf ~ *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -Rf $HOME *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -Rf ${HOME} *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -fR / *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -fR ~ *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -fR $HOME *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -fR ${HOME} *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -r -f / *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -r -f ~ *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -r -f $HOME *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -r -f ${HOME} *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -f -r / *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -f -r ~ *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -f -r $HOME *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm -f -r ${HOME} *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm --recursive --force / *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm --recursive --force ~ *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm --recursive --force $HOME *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm --recursive --force ${HOME} *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm --force --recursive / *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm --force --recursive ~ *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm --force --recursive $HOME *",
+      "effect": "deny"
+    },
+    {
+      "action": "tool.use",
+      "resource": "shell:rm --force --recursive ${HOME} *",
       "effect": "deny"
     }
   ]
