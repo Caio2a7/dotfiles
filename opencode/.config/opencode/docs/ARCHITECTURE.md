@@ -27,7 +27,7 @@ O runner do V2.2.6 ignora o `model` de agentes primários; o plugin `agent-model
 | Mecanismo | O que faz |
 | :--- | :--- |
 | `session-hygiene` | Bloqueia escrita de arquivo via shell (`sed -i`, `perl -i`, redirecionamento, heredoc, `tee`, Python lendo script do stdin). Exceções: `/tmp`, `/dev/null`, `*.log`. Falha interna do plugin deixa a chamada passar e registra. |
-| `experimental.policies` | Nega `git push --force`/`-f` e `rm -rf` em `/`, `~`, `$HOME`. |
+| `policies` | Nega `git push --force`/`-f` e `rm -rf` em `/`, `~`, `$HOME`. |
 | `tool_output` | 300 linhas / 16 KB por chamada (`max_lines: 300`, `max_bytes: 16384`): evita despejar logs no contexto. |
 | Limites de código | Arquivos ≤ 300 linhas, funções ≤ 40, sem stubs. Verificados pelo [AQEI](METRICS_AQEI.md) e por `ast-linter-hook.py`. |
 
