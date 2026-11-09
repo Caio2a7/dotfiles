@@ -10,7 +10,7 @@
  * Opções (opencode.json): { "package": "./plugins/claude-context-cap",
  *                           "options": { "maxContext": 200000 } }
  */
-const PROVIDER_ID = "claude-code";
+const PROVIDERS = ["claude-code", "google"];
 const DEFAULT_MAX_CONTEXT = 200_000;
 
 function resolveMaxContext(options) {
@@ -27,14 +27,16 @@ export default {
   async setup(ctx) {
     const maxContext = resolveMaxContext(ctx.options);
     await ctx.model.transform((editor) => {
-      for (const model of editor.list(PROVIDER_ID)) {
-        if (model.limit.context <= maxContext) continue;
-        editor.update(PROVIDER_ID, model.id, (m) => {
-          m.limit.context = maxContext;
-          // Variantes 1M anunciam input ~900k, que a compactação usaria no
-          // lugar do contexto; sem ele, comportam-se como os modelos 200k.
-          delete m.limit.input;
-        });
+      for (const providerID of PROVIDERS) {
+        for (const model of editor.list(providerID)) {
+          if (model.limit.context <= maxContext) continue;
+          editor.update(providerID, model.id, (m) => {
+            m.limit.context = maxContext;
+            // Variantes 1M anunciam input ~900k, que a compactação usaria no
+            // lugar do contexto; sem ele, comportam-se como os modelos 200k.
+            delete m.limit.input;
+          });
+        }
       }
     });
   },

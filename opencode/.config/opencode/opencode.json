@@ -12,7 +12,7 @@
     },
     "./plugins/agent-model-sync",
     "./plugins/session-hygiene",
-    "opencode-antigravity-auth@2.1.1"
+    "opencode-antigravity-auth@2.1.2"
   ],
   "providers": {
     "local-gpu": {
