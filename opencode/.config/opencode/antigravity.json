@@ -4,6 +4,8 @@
   "scheduling_mode": "performance_first",
   "pid_offset_enabled": true,
   "switch_on_first_rate_limit": true,
+  "quota_fallback": false,
+  "cli_first": false,
   "session_recovery": true,
   "auto_resume": false,
   "max_rate_limit_wait_seconds": 15,
