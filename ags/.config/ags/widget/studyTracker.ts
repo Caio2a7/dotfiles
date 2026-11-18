@@ -9,6 +9,7 @@ export type { StudyState } from "./studyState"
 // Fonte primária: arquivo de estado publicado pelo Obsidian (Gio.FileMonitor, ~ms).
 // Secundária: frontmatter das notas (rescan ~30s) para ausência/estado preso.
 const HOME = GLib.get_home_dir()
+// Pasta pode não existir (modelo de notas-instância abandonado): varredura vira inativo silencioso
 const STUDY_DIR = GLib.getenv("OCQ_STUDY_DIR") || `${HOME}/Vida/00 - MATÉRIAS/Matérias`
 const ENV_FILE = GLib.getenv("LIFEOS_TRACKING_FILE")
 const STATE_FILES = ENV_FILE ? [ENV_FILE] : [`${HOME}/.cache/lifeos/tracking.json`, `${HOME}/Vida/.obsidian/lifeos-tracking.json`]
@@ -82,6 +83,8 @@ async function detectStale(fs: ContractState, fm: { state: StudyState; mtimeMs: 
   if (!fs.state.active) return fm.state.active && fm.mtimeMs > fs.updatedAt + STUCK_GRACE_MS
   try {
     const note = await readNote(fs.state.file)
+    // Só vale se a nota carrega o campo: notas sem `tracking_ativo` (quadro de blocos) nunca ficam "presas"
+    if (!("tracking_ativo" in note.fm)) return false
     return note.fm.tracking_ativo !== "true" && note.mtimeMs > fs.updatedAt + STUCK_GRACE_MS
   } catch (err) {
     logOnce(errs, `Falha ao ler nota ${fs.state.file}`, err)

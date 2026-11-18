@@ -95,7 +95,9 @@ export async function scanStudyDir(dir: string, errs: Set<string>): Promise<Scan
   try {
     await listMarkdown(dir, paths, errs)
   } catch (err) {
-    logOnce(errs, `Pasta de matérias indisponível: ${dir}`, err)
+    // Pasta ausente = nada a varrer (inativo silencioso); só outros erros são logados
+    const missing = err instanceof GLib.Error && err.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_FOUND)
+    if (!missing) logOnce(errs, `Pasta de matérias indisponível: ${dir}`, err)
     return inactive
   }
   const notes = await Promise.all(
