@@ -1,89 +1,335 @@
-import { test } from "node:test"
-import assert from "node:assert/strict"
-import { syncMark, syncSessionModel } from "../lib/sync.js"
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import {
+  sameModel,
+  syncMark,
+  isAntigravityModel,
+  formatModelRef,
+  handleSubagentToolCall,
+  syncSessionModel,
+} from "../lib/sync.js";
 
-const OLD = { providerID: "claude-code", id: "claude-opus-5-5[" + "1m]" }
-const NEW = { providerID: "claude-code", id: "claude-opus-5-5" }
-const MANUAL = { providerID: "claude-code", id: "claude-haiku-4-5" }
+const OLD = { providerID: "claude-code", id: "claude-opus-5-5[" + "1m]" };
+const NEW = { providerID: "claude-code", id: "claude-opus-5-5" };
+const MANUAL = { providerID: "claude-code", id: "claude-haiku-4-5" };
+const SONNET = { providerID: "claude-code", id: "claude-sonnet-5-5" };
+const AG_GEMINI = { providerID: "google", id: "antigravity-gemini-3.8-flash", variant: "high" };
+const AG_GEMINI_HIGH = { providerID: "google", id: "antigravity-gemini-3.8-flash-high" };
+const AG_GEMINI_HIGH_VAR = { providerID: "google", id: "antigravity-gemini-3.8-flash-high", variant: "high" };
+const AG_GEMINI_HIGH_DEF = { providerID: "google", id: "antigravity-gemini-3.8-flash-high", variant: "default" };
+const AG_OPUS = { providerID: "google", id: "antigravity-claude-opus-4-6-thinking", variant: "max" };
+const AGY_FLASH = { providerID: "agy", id: "gemini-3.8-flash", variant: "high" };
 
-function fakeCtx({ agentModel, sessionModel, mark, sessionAgent = "orchestrator", switchError }) {
-  const store = new Map(mark === undefined ? [] : [["synced-agent:s1", mark]])
-  const switched = []
+function fakeCtx({
+  agentModel,
+  sessionModel,
+  mark,
+  sessionAgent = "orchestrator",
+  parentID = null,
+  parentModel = null,
+  parentAgent = "orchestrator",
+  switchError,
+}) {
+  const store = new Map(mark === undefined ? [] : [["synced-agent:s1", mark]]);
+  const switched = [];
+  const sessions = new Map();
+
+  sessions.set("s1", {
+    id: "s1",
+    agent: sessionAgent,
+    model: sessionModel,
+    parentID,
+  });
+
+  if (parentID) {
+    sessions.set(parentID, {
+      id: parentID,
+      agent: parentAgent,
+      model: parentModel,
+      parentID: null,
+    });
+  }
+
   return {
     store,
     switched,
     session: {
-      get: async () => ({ agent: sessionAgent, model: sessionModel }),
+      get: async ({ sessionID }) => sessions.get(sessionID),
       switchModel: async (input) => {
-        if (switchError) throw switchError
-        switched.push(input.model)
+        if (switchError) throw switchError;
+        switched.push(input.model);
+        const s = sessions.get(input.sessionID);
+        if (s) s.model = input.model;
       },
     },
     agent: {
-      list: async () => ({ data: [{ id: "agentic" }, { id: "orchestrator" }] }),
-      get: async () => ({ data: { id: "orchestrator", model: agentModel } }),
+      list: async () => ({ data: [{ id: "agentic" }, { id: "orchestrator" }, { id: "worker" }] }),
+      get: async ({ agentID }) => ({ data: { id: agentID, model: agentModel } }),
     },
-    storage: { get: async (k) => store.get(k), set: async (k, v) => { store.set(k, v) } },
-  }
+    storage: {
+      get: async (k) => store.get(k),
+      set: async (k, v) => { store.set(k, v); },
+    },
+  };
 }
 
+test("isAntigravityModel identifica corretamente modelos Antigravity e agy", () => {
+  assert.equal(isAntigravityModel(AG_GEMINI), true);
+  assert.equal(isAntigravityModel(AG_GEMINI_HIGH), true);
+  assert.equal(isAntigravityModel(AG_OPUS), true);
+  assert.equal(isAntigravityModel(AGY_FLASH), true);
+  assert.equal(isAntigravityModel({ providerID: "google", id: "gemini-2.5-flash" }), true);
+  assert.equal(isAntigravityModel("google/antigravity-gemini-3.8-flash-high"), true);
+  assert.equal(isAntigravityModel("agy/gemini-3.8-flash#high"), true);
+  assert.equal(isAntigravityModel("antigravity-gemini-3.8-flash"), true);
+
+  assert.equal(isAntigravityModel(SONNET), false);
+  assert.equal(isAntigravityModel(NEW), false);
+  assert.equal(isAntigravityModel("claude-code/claude-sonnet-5-5"), false);
+  assert.equal(isAntigravityModel(null), false);
+  assert.equal(isAntigravityModel(undefined), false);
+});
+
+test("formatModelRef formata modelos e remove variant redundante ou default", () => {
+  assert.equal(formatModelRef(AG_GEMINI), "google/antigravity-gemini-3.8-flash#high");
+  assert.equal(formatModelRef(AGY_FLASH), "agy/gemini-3.8-flash#high");
+  assert.equal(formatModelRef(AG_GEMINI_HIGH), "google/antigravity-gemini-3.8-flash-high");
+  assert.equal(formatModelRef(AG_GEMINI_HIGH_VAR), "google/antigravity-gemini-3.8-flash-high");
+  assert.equal(formatModelRef(AG_GEMINI_HIGH_DEF), "google/antigravity-gemini-3.8-flash-high");
+  assert.equal(formatModelRef(AG_OPUS), "google/antigravity-claude-opus-4-6-thinking#max");
+  assert.equal(formatModelRef(SONNET), "claude-code/claude-sonnet-5-5");
+});
+
+test("handleSubagentToolCall: injeta modelo Antigravity quando o pai for Antigravity", async () => {
+  const ctx = fakeCtx({ sessionModel: AG_GEMINI });
+  const event = {
+    tool: "subagent",
+    sessionID: "s1",
+    input: { agent: "worker", description: "UI fix", prompt: "ajuste" },
+  };
+
+  const handled = await handleSubagentToolCall(ctx, event);
+  assert.equal(handled, true);
+  assert.equal(event.input.model, "google/antigravity-gemini-3.8-flash#high");
+});
+
+test("handleSubagentToolCall: injeta modelo sem variant redundante quando ID já contém tier", async () => {
+  const ctx = fakeCtx({ sessionModel: AG_GEMINI_HIGH_VAR });
+  const event = {
+    tool: "subagent",
+    sessionID: "s1",
+    input: { agent: "worker", description: "UI fix", prompt: "ajuste" },
+  };
+
+  const handled = await handleSubagentToolCall(ctx, event);
+  assert.equal(handled, true);
+  assert.equal(event.input.model, "google/antigravity-gemini-3.8-flash-high");
+});
+
+test("handleSubagentToolCall: injeta modelo agy quando o pai for agy", async () => {
+  const ctx = fakeCtx({ sessionModel: AGY_FLASH });
+  const event = {
+    tool: "subagent",
+    sessionID: "s1",
+    input: { agent: "worker", description: "UI fix", prompt: "ajuste" },
+  };
+
+  const handled = await handleSubagentToolCall(ctx, event);
+  assert.equal(handled, true);
+  assert.equal(event.input.model, "agy/gemini-3.8-flash#high");
+});
+
+test("handleSubagentToolCall: não altera model se o pai for Claude/não-Antigravity", async () => {
+  const ctx = fakeCtx({ sessionModel: NEW });
+  const event = {
+    tool: "subagent",
+    sessionID: "s1",
+    input: { agent: "worker", description: "UI fix", prompt: "ajuste" },
+  };
+
+  const handled = await handleSubagentToolCall(ctx, event);
+  assert.equal(handled, false);
+  assert.equal(event.input.model, undefined);
+});
+
+test("syncSessionModel: subagente com pai Antigravity herda modelo do pai", async () => {
+  const ctx = fakeCtx({
+    sessionAgent: "worker",
+    sessionModel: SONNET,
+    agentModel: SONNET,
+    parentID: "p1",
+    parentModel: AG_GEMINI,
+  });
+
+  const res = await syncSessionModel(ctx, "s1");
+  assert.equal(res, "synced-subagent-antigravity");
+  assert.deepEqual(ctx.switched, [AG_GEMINI]);
+});
+
+test("syncSessionModel: subagente com pai não-Antigravity mantém modelo default", async () => {
+  const ctx = fakeCtx({
+    sessionAgent: "worker",
+    sessionModel: SONNET,
+    agentModel: SONNET,
+    parentID: "p1",
+    parentModel: NEW,
+  });
+
+  const res = await syncSessionModel(ctx, "s1");
+  assert.equal(res, "subagent-default");
+  assert.deepEqual(ctx.switched, []);
+});
+
+test("syncSessionModel: subagente preso em gemini volta ao modelo do agente quando pai está em Claude", async () => {
+  const ctx = fakeCtx({
+    sessionAgent: "worker",
+    sessionModel: AG_GEMINI,
+    agentModel: SONNET,
+    parentID: "p1",
+    parentModel: NEW,
+  });
+
+  const res = await syncSessionModel(ctx, "s1");
+  assert.equal(res, "subagent-restored");
+  assert.deepEqual(ctx.switched, [SONNET]);
+  assert.equal(ctx.store.get("synced-agent:s1"), syncMark("worker", SONNET));
+});
+
+test("syncSessionModel: subagente em gemini sem modelo no agente não troca nada", async () => {
+  const ctx = fakeCtx({
+    sessionAgent: "worker",
+    sessionModel: AG_GEMINI,
+    agentModel: undefined,
+    parentID: "p1",
+    parentModel: NEW,
+  });
+
+  const res = await syncSessionModel(ctx, "s1");
+  assert.equal(res, "subagent-default");
+  assert.deepEqual(ctx.switched, []);
+});
+
+test("syncSessionModel: subagente em gemini sem agente não troca nada", async () => {
+  const ctx = fakeCtx({
+    sessionAgent: null,
+    sessionModel: AG_GEMINI,
+    agentModel: SONNET,
+    parentID: "p1",
+    parentModel: NEW,
+  });
+
+  assert.equal(await syncSessionModel(ctx, "s1"), "subagent-default");
+  assert.deepEqual(ctx.switched, []);
+});
+
+function resumeEvent(input) {
+  return { tool: "subagent", sessionID: "p1", input: { agent: "worker", sessionID: "s1", prompt: "x", ...input } };
+}
+
+test("handleSubagentToolCall: retomada com pai Claude e alvo em gemini injeta modelo do agente", async () => {
+  const ctx = fakeCtx({
+    sessionAgent: "worker", sessionModel: AG_GEMINI, agentModel: SONNET, parentID: "p1", parentModel: NEW,
+  });
+  const event = resumeEvent({});
+  assert.equal(await handleSubagentToolCall(ctx, event), true);
+  assert.equal(event.input.model, "claude-code/claude-sonnet-5-5");
+});
+
+test("handleSubagentToolCall: model explícito do chamador é respeitado", async () => {
+  const ctx = fakeCtx({
+    sessionAgent: "worker", sessionModel: AG_GEMINI, agentModel: SONNET, parentID: "p1", parentModel: NEW,
+  });
+  const event = resumeEvent({ model: "claude-code/claude-haiku-4-5" });
+  assert.equal(await handleSubagentToolCall(ctx, event), false);
+  assert.equal(event.input.model, "claude-code/claude-haiku-4-5");
+});
+
+test("handleSubagentToolCall: pai Antigravity continua propagando na retomada", async () => {
+  const ctx = fakeCtx({
+    sessionAgent: "worker", sessionModel: SONNET, agentModel: SONNET, parentID: "p1", parentModel: AG_GEMINI,
+  });
+  const event = resumeEvent({});
+  assert.equal(await handleSubagentToolCall(ctx, event), true);
+  assert.equal(event.input.model, "google/antigravity-gemini-3.8-flash#high");
+});
+
+test("handleSubagentToolCall: agente sem modelo não injeta nada", async () => {
+  const ctx = fakeCtx({
+    sessionAgent: "worker", sessionModel: AG_GEMINI, agentModel: undefined, parentID: "p1", parentModel: NEW,
+  });
+  const event = resumeEvent({});
+  assert.equal(await handleSubagentToolCall(ctx, event), false);
+  assert.equal(event.input.model, undefined);
+});
+
+test("syncSessionModel: sessão primária em modelo Antigravity é preservada", async () => {
+  const ctx = fakeCtx({
+    sessionAgent: "orchestrator",
+    sessionModel: AG_GEMINI_HIGH,
+    agentModel: NEW,
+  });
+
+  const res = await syncSessionModel(ctx, "s1");
+  assert.equal(res, "antigravity-preserved");
+  assert.deepEqual(ctx.switched, []);
+});
+
 test("marca antiga (só agentID) gera resync único", async () => {
-  const ctx = fakeCtx({ agentModel: NEW, sessionModel: OLD, mark: "orchestrator" })
-  await syncSessionModel(ctx, "s1")
-  assert.deepEqual(ctx.switched, [NEW])
-  assert.equal(ctx.store.get("synced-agent:s1"), syncMark("orchestrator", NEW))
-  await syncSessionModel(ctx, "s1")
-  assert.equal(ctx.switched.length, 1)
-})
+  const ctx = fakeCtx({ agentModel: NEW, sessionModel: OLD, mark: "orchestrator" });
+  await syncSessionModel(ctx, "s1");
+  assert.deepEqual(ctx.switched, [NEW]);
+  assert.equal(ctx.store.get("synced-agent:s1"), syncMark("orchestrator", NEW));
+  await syncSessionModel(ctx, "s1");
+  assert.equal(ctx.switched.length, 1);
+});
 
 test("modelo do agente mudou: troca o modelo da sessão", async () => {
-  const ctx = fakeCtx({ agentModel: NEW, sessionModel: OLD, mark: syncMark("orchestrator", OLD) })
-  await syncSessionModel(ctx, "s1")
-  assert.deepEqual(ctx.switched, [NEW])
-})
+  const ctx = fakeCtx({ agentModel: NEW, sessionModel: OLD, mark: syncMark("orchestrator", OLD) });
+  await syncSessionModel(ctx, "s1");
+  assert.deepEqual(ctx.switched, [NEW]);
+});
 
 test("variant mudou: troca o modelo da sessão", async () => {
-  const low = { ...NEW, variant: "low" }
-  const ctx = fakeCtx({ agentModel: low, sessionModel: NEW, mark: syncMark("orchestrator", NEW) })
-  await syncSessionModel(ctx, "s1")
-  assert.deepEqual(ctx.switched, [low])
-})
+  const low = { ...NEW, variant: "low" };
+  const ctx = fakeCtx({ agentModel: low, sessionModel: NEW, mark: syncMark("orchestrator", NEW) });
+  await syncSessionModel(ctx, "s1");
+  assert.deepEqual(ctx.switched, [low]);
+});
 
 test("troca manual preservada se o agente não mudou", async () => {
-  const ctx = fakeCtx({ agentModel: NEW, sessionModel: MANUAL, mark: syncMark("orchestrator", NEW) })
-  await syncSessionModel(ctx, "s1")
-  assert.deepEqual(ctx.switched, [])
-})
+  const ctx = fakeCtx({ agentModel: NEW, sessionModel: MANUAL, mark: syncMark("orchestrator", NEW) });
+  await syncSessionModel(ctx, "s1");
+  assert.deepEqual(ctx.switched, []);
+});
 
 test("sessão nova sem marca recebe o modelo do agente", async () => {
-  const ctx = fakeCtx({ agentModel: NEW, sessionModel: MANUAL })
-  await syncSessionModel(ctx, "s1")
-  assert.deepEqual(ctx.switched, [NEW])
-})
+  const ctx = fakeCtx({ agentModel: NEW, sessionModel: MANUAL });
+  await syncSessionModel(ctx, "s1");
+  assert.deepEqual(ctx.switched, [NEW]);
+});
 
 test("sessão já no modelo do agente só grava a marca", async () => {
-  const ctx = fakeCtx({ agentModel: NEW, sessionModel: { ...NEW } })
-  await syncSessionModel(ctx, "s1")
-  assert.deepEqual(ctx.switched, [])
-  assert.equal(ctx.store.get("synced-agent:s1"), syncMark("orchestrator", NEW))
-})
+  const ctx = fakeCtx({ agentModel: NEW, sessionModel: NEW });
+  await syncSessionModel(ctx, "s1");
+  assert.deepEqual(ctx.switched, []);
+  assert.equal(ctx.store.get("synced-agent:s1"), syncMark("orchestrator", NEW));
+});
 
 test("agente sem model não faz nada", async () => {
-  const ctx = fakeCtx({ agentModel: undefined, sessionModel: OLD, mark: "orchestrator" })
-  await syncSessionModel(ctx, "s1")
-  assert.deepEqual(ctx.switched, [])
-  assert.equal(ctx.store.get("synced-agent:s1"), "orchestrator")
-})
+  const ctx = fakeCtx({ agentModel: undefined, sessionModel: NEW });
+  await syncSessionModel(ctx, "s1");
+  assert.deepEqual(ctx.switched, []);
+});
 
 test("sessão sem agente não sincroniza nem chuta o 1º da lista", async () => {
-  const ctx = fakeCtx({ agentModel: NEW, sessionModel: OLD, sessionAgent: null })
-  assert.equal(await syncSessionModel(ctx, "s1"), "no-agent")
-  assert.deepEqual(ctx.switched, [])
-  assert.equal(ctx.store.has("synced-agent:s1"), false)
-})
+  const ctx = fakeCtx({ agentModel: NEW, sessionModel: NEW, sessionAgent: null });
+  const res = await syncSessionModel(ctx, "s1");
+  assert.equal(res, "no-agent");
+  assert.deepEqual(ctx.switched, []);
+});
 
 test("switchModel que lança não grava a marca", async () => {
-  const ctx = fakeCtx({ agentModel: NEW, sessionModel: OLD, mark: "orchestrator", switchError: new Error("boom") })
-  await assert.rejects(syncSessionModel(ctx, "s1"), /boom/)
-  assert.equal(ctx.store.get("synced-agent:s1"), "orchestrator")
-})
+  const ctx = fakeCtx({ agentModel: NEW, sessionModel: OLD, switchError: new Error("boom") });
+  await assert.rejects(() => syncSessionModel(ctx, "s1"), /boom/);
+  assert.equal(ctx.store.has("synced-agent:s1"), false);
+});
