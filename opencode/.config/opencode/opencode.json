@@ -1,18 +1,22 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "claude-code/claude-sonnet-5-5",
-  "default_agent": "orchestrator",
+  "model": "claude-code/claude-opus-5-5",
+  "default_agent": "coder",
   "plugins": [
     "@openchamber/opencode-claude@1.7.0",
     {
       "package": "./plugins/claude-context-cap",
       "options": {
-        "maxContext": 200000
+        "providers": {
+          "claude-code": 200000,
+          "google": 300000
+        }
       }
     },
     "./plugins/agent-model-sync",
     "./plugins/session-hygiene",
-    "opencode-antigravity-auth@2.1.2"
+    "opencode-antigravity-auth@2.1.2",
+    "@dietrichgebert/ponytail"
   ],
   "providers": {
     "local-gpu": {
@@ -46,7 +50,7 @@
   },
   "agents": {
     "build": {
-      "description": "Modo padrão de desenvolvimento com confirmação para comandos modificadores",
+      "description": "Modo padr\u00e3o de desenvolvimento com confirma\u00e7\u00e3o para comandos modificadores",
       "mode": "primary",
       "color": "#7AA2F7",
       "permissions": [
@@ -316,10 +320,10 @@
           "effect": "allow"
         }
       ],
-      "model": "claude-code/claude-opus-5-5"
+      "model": "google/antigravity-gemini-4-hydrogen-high"
     },
     "plan": {
-      "description": "Modo de planejamento (somente leitura, pesquisa e análise)",
+      "description": "Modo de planejamento (somente leitura, pesquisa e an\u00e1lise)",
       "mode": "primary",
       "color": "#FFFF00",
       "permissions": [
@@ -584,121 +588,149 @@
           "effect": "allow"
         }
       ],
-      "model": "claude-code/claude-opus-5-5"
+      "model": "google/antigravity-gemini-4-neon-high"
     },
     "title": {
       "model": "local-gpu/qwen2.5-coder:7b"
     },
     "explore": {
-      "model": "claude-code/claude-sonnet-5-5"
+      "model": "google/antigravity-gemini-4-hydrogen-low"
     },
     "general": {
-      "model": "claude-code/claude-sonnet-5-5"
+      "model": "google/antigravity-gemini-4-hydrogen-low"
+    },
+    "orchestrator": {
+      "hidden": true
+    },
+    "worker": {
+      "hidden": true
+    },
+    "backend": {
+      "hidden": true
+    },
+    "architect": {
+      "hidden": true
+    },
+    "reviewer": {
+      "hidden": true
+    },
+    "tester": {
+      "hidden": true
+    },
+    "debugger": {
+      "hidden": true
+    },
+    "devops": {
+      "hidden": true
+    },
+    "blue-team": {
+      "hidden": true
+    },
+    "browser": {
+      "hidden": true
+    },
+    "docs-writer": {
+      "hidden": true
     }
   },
   "commands": {
     "semsearch": {
-      "template": "Apresente os resultados da busca semântica vetorial abaixo:\n\n!`python3 ~/.config/opencode/scripts/semantic-code-search.py $ARGUMENTS`",
-      "description": "Busca semântica vetorial por intenção de código na GPU local (Ollama / nomic-embed-text)"
+      "template": "Apresente os resultados da busca sem\u00e2ntica vetorial abaixo:\n\n!`python3 ~/.config/opencode/scripts/semantic-code-search.py $ARGUMENTS`",
+      "description": "Busca sem\u00e2ntica vetorial por inten\u00e7\u00e3o de c\u00f3digo na GPU local (Ollama / nomic-embed-text)"
     },
     "init": {
-      "template": "0. Garanta o exclude no git local:\nmkdir -p .git/info .aiflow\ngrep -qxF \".aiflow\" .git/info/exclude || echo \".aiflow\" >> .git/info/exclude\n\n1. Analise o repositório atual (stack, linter, test runner, estrutura de pastas):\n- Se AGENTS.md já existir no raiz, NÃO o sobrescreva; apenas analise e proponha refinamentos.\n- Se não existir, crie AGENTS.md adaptado à stack (comandos exatos de test/lint/build, convenções, limites de refatoração: funções >40 linhas, arquivos >300 linhas).\n2. Crie o diretório docs/decisions/ com a estrutura base se ausente.\n3. Sugira as entradas recomendadas para o .gitignore e verifica se há suporte a pre-commit hooks (Lefthook / Husky).\n4. Aguarde confirmação do usuário antes de alterar o .gitignore ou instalar hooks.",
-      "description": "Initialize .aiflow/ exclusion, project AGENTS.md, docs/decisions and gitignore",
-      "agent": "build"
+      "template": "0. Garanta o exclude no git local:\nmkdir -p .git/info .aist\ngrep -qxF \".aist\" .git/info/exclude || echo \".aist\" >> .git/info/exclude\n\n1. Analise o reposit\u00f3rio atual (stack, linter, test runner, estrutura de pastas):\n- Se AGENTS.md j\u00e1 existir no raiz, N\u00c3O o sobrescreva; apenas analise e proponha refinamentos.\n- Se n\u00e3o existir, crie AGENTS.md adaptado \u00e0 stack (comandos exatos de test/lint/build, conven\u00e7\u00f5es, limites de refatora\u00e7\u00e3o: fun\u00e7\u00f5es >40 linhas, arquivos >300 linhas).\n2. Crie o diret\u00f3rio docs/decisions/ com a estrutura base se ausente.\n3. Sugira as entradas recomendadas para o .gitignore e verifica se h\u00e1 suporte a pre-commit hooks (Lefthook / Husky).\n4. Aguarde confirma\u00e7\u00e3o do usu\u00e1rio antes de alterar o .gitignore ou instalar hooks.",
+      "description": "Initialize .aist/ exclusion, project AGENTS.md, docs/decisions and gitignore"
     },
     "spec": {
-      "template": "0. Garanta o exclude do .aiflow/ no git local:\nmkdir -p .git/info .aiflow\ngrep -qxF \".aiflow\" .git/info/exclude || echo \".aiflow\" >> .git/info/exclude\n\n1. Detecte a branch de trabalho:\n- SE o usuário especificou uma branch em $ARGUMENTS (ex: \"em feat/auth\") → use a branch especificada.\n- SENÃO → execute `git branch --show-current` e use o resultado como branch alvo.\n\n2. Verifique se .aiflow/spec.md já existe:\n- Se existir: leia o conteúdo e compare com $ARGUMENTS.\n  * Se for a mesma tarefa → trate como refinamento e atualize o spec existente.\n  * Se for tarefa diferente → execute `date +%Y%m%d`, arquive em .aiflow/archive/spec-[DATA].md e crie o novo .aiflow/spec.md.\n\n3. Leia docs/decisions/*.md (se existirem) como contexto prévio.\n\n4. Classifique a tarefa:\n- TRIVIAL (doc, typo, cor, config, renomear — sem lógica de negócio):\n  → Não crie .aiflow/spec.md. Responda em 1 linha: \"TRIVIAL: [descrição]. Branch: [branch]. Vá para /plan.\"\n- SIMPLES (bug claro, feature pequena seguindo padrão existente, ≤3 arquivos):\n  → Não faça perguntas. Crie .aiflow/spec.md mínimo (Objetivo 1 parágrafo + 1-3 critérios de done). Responda: \"SIMPLES: .aiflow/spec.md criado. Branch: [branch]. Vá para /plan.\"\n- COMPLEXA (comportamento novo, múltiplos arquivos, decisão de arquitetura):\n  → Faça até 5 perguntas clarificadoras, aguarde respostas e crie .aiflow/spec.md completo. Se envolver decisão arquitetural relevante, sugira executar /adr antes do /plan.",
-      "description": "Adaptive spec generation with branch detection and archiving check",
-      "agent": "build"
+      "template": "0. Garanta o exclude do .aist/ no git local:\nmkdir -p .git/info .aist\ngrep -qxF \".aist\" .git/info/exclude || echo \".aist\" >> .git/info/exclude\n\n1. Detecte a branch de trabalho:\n- SE o usu\u00e1rio especificou uma branch em $ARGUMENTS (ex: \"em feat/auth\") \u2192 use a branch especificada.\n- SEN\u00c3O \u2192 execute `git branch --show-current` e use o resultado como branch alvo.\n\n2. Verifique se .aist/spec.md j\u00e1 existe:\n- Se existir: leia o conte\u00fado e compare com $ARGUMENTS.\n  * Se for a mesma tarefa \u2192 trate como refinamento e atualize o spec existente.\n  * Se for tarefa diferente \u2192 execute `date +%Y%m%d`, arquive em .aist/archive/spec-[DATA].md e crie o novo .aist/spec.md.\n\n3. Leia docs/decisions/*.md (se existirem) como contexto pr\u00e9vio.\n\n4. Classifique a tarefa:\n- TRIVIAL (doc, typo, cor, config, renomear \u2014 sem l\u00f3gica de neg\u00f3cio):\n  \u2192 N\u00e3o crie .aist/spec.md. Responda em 1 linha: \"TRIVIAL: [descri\u00e7\u00e3o]. Branch: [branch]. V\u00e1 para /plan.\"\n- SIMPLES (bug claro, feature pequena seguindo padr\u00e3o existente, \u22643 arquivos):\n  \u2192 N\u00e3o fa\u00e7a perguntas. Crie .aist/spec.md m\u00ednimo (Objetivo 1 par\u00e1grafo + 1-3 crit\u00e9rios de done). Responda: \"SIMPLES: .aist/spec.md criado. Branch: [branch]. V\u00e1 para /plan.\"\n- COMPLEXA (comportamento novo, m\u00faltiplos arquivos, decis\u00e3o de arquitetura):\n  \u2192 Fa\u00e7a at\u00e9 5 perguntas clarificadoras, aguarde respostas e crie .aist/spec.md completo. Se envolver decis\u00e3o arquitetural relevante, sugira executar /adr antes do /plan.",
+      "description": "Adaptive spec generation with branch detection and archiving check"
     },
     "plan": {
-      "template": "0. Verifique se .aiflow/plan.md já existe:\n- Se existir: leia o conteúdo.\n  * Se houver tarefas [ ] pendentes → NÃO sobrescreva. Avise: \"Existem tarefas pendentes no plano atual. Conclua com /task ou confirme explicitamente para arquivar.\"\n  * Se todas as tarefas estiverem [x] → execute `date +%Y%m%d`, arquive em .aiflow/archive/plan-[DATA].md e crie o novo .aiflow/plan.md.\n\n1. Leia .aiflow/spec.md (ou a classificação do /spec) e grave no cabeçalho do .aiflow/plan.md:\n# Classificação: [TRIVIAL/SIMPLES/COMPLEXA]\n# Branch: [branch-detectada]\n# Base: main\n\n2. Verificação de Pré-Condições Executáveis (SWE-planner Gate - Valmeekam et al. / SWE-planner 2024):\nAntes de adicionar qualquer tarefa de mutação no .aiflow/plan.md (ex: \"Modificar função X no arquivo Y\"), o agente é PROIBIDO de planejar no vácuo. Ele DEVE verificar ativamente se o arquivo e o símbolo alvo existem de fato (usando grep, glob e read). Se a pré-condição falhar, o plano deve refletir a criação ou ajuste imediato, eliminando planos quebrados por suposição.\n\n3. Gere a lista de tarefas:\n- TRIVIAL:\n  [ ] 1. [descrição da tarefa trivial]\n     Critério de done: sem regressões nos testes existentes\n  → Responda: \"TRIVIAL: .aiflow/plan.md criado. Execute /task.\"\n- SIMPLES:\n  [ ] 1. Título\n     Critério de done: [teste ou comportamento específico]\n  → Responda: \"SIMPLES: .aiflow/plan.md criado. Execute /task.\"\n- COMPLEXA:\n  Gere a lista detalhada com critérios de done, complexidade S/M, dependências, risco e flag [P].\n  → Responda: \"COMPLEXA: .aiflow/plan.md criado. Execute /task ou /tasks.\"",
-      "description": "Adaptive plan generation with header state persistence",
-      "agent": "build"
+      "template": "0. Verifique se .aist/plan.md j\u00e1 existe:\n- Se existir: leia o conte\u00fado.\n  * Se houver tarefas [ ] pendentes \u2192 N\u00c3O sobrescreva. Avise: \"Existem tarefas pendentes no plano atual. Conclua com /task ou confirme explicitamente para arquivar.\"\n  * Se todas as tarefas estiverem [x] \u2192 execute `date +%Y%m%d`, arquive em .aist/archive/plan-[DATA].md e crie o novo .aist/plan.md.\n\n1. Leia .aist/spec.md (ou a classifica\u00e7\u00e3o do /spec) e grave no cabe\u00e7alho do .aist/plan.md:\n# Classifica\u00e7\u00e3o: [TRIVIAL/SIMPLES/COMPLEXA]\n# Branch: [branch-detectada]\n# Base: main\n\n2. Verifica\u00e7\u00e3o de Pr\u00e9-Condi\u00e7\u00f5es Execut\u00e1veis (SWE-planner Gate - Valmeekam et al. / SWE-planner 2024):\nAntes de adicionar qualquer tarefa de muta\u00e7\u00e3o no .aist/plan.md (ex: \"Modificar fun\u00e7\u00e3o X no arquivo Y\"), o agente \u00e9 PROIBIDO de planejar no v\u00e1cuo. Ele DEVE verificar ativamente se o arquivo e o s\u00edmbolo alvo existem de fato (usando grep, glob e read). Se a pr\u00e9-condi\u00e7\u00e3o falhar, o plano deve refletir a cria\u00e7\u00e3o ou ajuste imediato, eliminando planos quebrados por suposi\u00e7\u00e3o.\n\n3. Gere a lista de tarefas:\n- TRIVIAL:\n  [ ] 1. [descri\u00e7\u00e3o da tarefa trivial]\n     Crit\u00e9rio de done: sem regress\u00f5es nos testes existentes\n  \u2192 Responda: \"TRIVIAL: .aist/plan.md criado. Execute /task.\"\n- SIMPLES:\n  [ ] 1. T\u00edtulo\n     Crit\u00e9rio de done: [teste ou comportamento espec\u00edfico]\n  \u2192 Responda: \"SIMPLES: .aist/plan.md criado. Execute /task.\"\n- COMPLEXA:\n  Gere a lista detalhada com crit\u00e9rios de done, complexidade S/M, depend\u00eancias, risco e flag [P].\n  \u2192 Responda: \"COMPLEXA: .aist/plan.md criado. Execute /task ou /tasks.\"",
+      "description": "Adaptive plan generation with header state persistence"
     },
     "task": {
-      "template": "SE $ARGUMENTS tiver texto (tarefa ad-hoc):\n1. Se .aiflow/plan.md não existir:\n   - Execute `git branch --show-current` para detectar a branch.\n   - Crie .aiflow/plan.md com cabeçalho mínimo:\n     # Classificação: SIMPLES\n     # Branch: [branch-detectada]\n     # Base: main\n2. Leia o cabeçalho do .aiflow/plan.md para herdar a classificação atual.\n3. Classifique a nova tarefa e adicione ao final do .aiflow/plan.md:\n   [ ] N+1. [descrição de $ARGUMENTS]\n      Critério de done: [inferido da descrição]\n      Complexidade: [S/M]\n      Origem: ad-hoc\n4. Execute a tarefa imediatamente seguindo o fluxo TDD normal.\n\nSE $ARGUMENTS estiver vazio:\n1. Leia .aiflow/plan.md e identifique a classificação no cabeçalho e a próxima tarefa [ ].\n\nEXECUÇÃO DA TAREFA:\n- TRIVIAL → Obvious Implementation: implemente diretamente, confirme testes verdes, marque [x] no .aiflow/plan.md. Atualize .aiflow/context.md se houver padrão relevante descoberto. Próxima etapa: /commit.\n- SIMPLES/COMPLEXA → Ciclo TDD:\n  a) Crie sempre e somente .aiflow/task-test.sh com o comando de teste do critério de done (deve falhar agora).\n  b) Implemente o código mínimo.\n  c) Execute: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n  d) SE PASSOU: apague .aiflow/task-test.sh e .aiflow/task-test.log, marque [x] no .aiflow/plan.md, atualize .aiflow/context.md com aprendizados. Recomende /validate (ou /commit se SIMPLES).\n  e) SE FALHOU: mantenha ambos os arquivos, pare e informe: \"Testes falharam. Verifique .aiflow/task-test.log e execute /debug.\"",
+      "template": "SE $ARGUMENTS tiver texto (tarefa ad-hoc):\n1. Se .aist/plan.md n\u00e3o existir:\n   - Execute `git branch --show-current` para detectar a branch.\n   - Crie .aist/plan.md com cabe\u00e7alho m\u00ednimo:\n     # Classifica\u00e7\u00e3o: SIMPLES\n     # Branch: [branch-detectada]\n     # Base: main\n2. Leia o cabe\u00e7alho do .aist/plan.md para herdar a classifica\u00e7\u00e3o atual.\n3. Classifique a nova tarefa e adicione ao final do .aist/plan.md:\n   [ ] N+1. [descri\u00e7\u00e3o de $ARGUMENTS]\n      Crit\u00e9rio de done: [inferido da descri\u00e7\u00e3o]\n      Complexidade: [S/M]\n      Origem: ad-hoc\n4. Execute a tarefa imediatamente seguindo o fluxo TDD normal.\n\nSE $ARGUMENTS estiver vazio:\n1. Leia .aist/plan.md e identifique a classifica\u00e7\u00e3o no cabe\u00e7alho e a pr\u00f3xima tarefa [ ].\n\nEXECU\u00c7\u00c3O DA TAREFA:\n- TRIVIAL \u2192 Obvious Implementation: implemente diretamente, confirme testes verdes, marque [x] no .aist/plan.md. Atualize .aist/context.md se houver padr\u00e3o relevante descoberto. Pr\u00f3xima etapa: /commit.\n- SIMPLES/COMPLEXA \u2192 Ciclo TDD:\n  a) Crie sempre e somente .aist/task-test.sh com o comando de teste do crit\u00e9rio de done (deve falhar agora).\n  b) Implemente o c\u00f3digo m\u00ednimo.\n  c) Execute: `bash .aist/task-test.sh 2>&1 | tee .aist/task-test.log`\n  d) SE PASSOU: apague .aist/task-test.sh e .aist/task-test.log, marque [x] no .aist/plan.md, atualize .aist/context.md com aprendizados. Recomende /validate (ou /commit se SIMPLES).\n  e) SE FALHOU: mantenha ambos os arquivos, pare e informe: \"Testes falharam. Verifique .aist/task-test.log e execute /debug.\"",
       "description": "Execute single pending task or ad-hoc task with atomic task-test.sh"
     },
     "tasks": {
-      "template": "Execute todas as tarefas [ ] do .aiflow/plan.md em sequência.\n\nLeia a classificação no cabeçalho do .aiflow/plan.md.\n\nPara cada tarefa [ ]:\n1. Crie sempre e somente .aiflow/task-test.sh com o teste do critério de done (deve falhar agora).\n2. Implemente o código mínimo para o teste passar.\n3. Execute: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n4. SE PASSOU: apague .aiflow/task-test.sh e .aiflow/task-test.log, marque [x] no .aiflow/plan.md, atualize .aiflow/context.md e prossiga para a próxima tarefa.\n5. SE FALHOU: mantenha ambos os arquivos, interrompa o loop imediatamente e informe:\n   'Tarefa N falhou. Verifique .aiflow/task-test.log e execute /debug.'\n   Não avance para a próxima tarefa.\n\nApós concluir todas as tarefas:\n- Recomende executar /validate.",
+      "template": "Execute todas as tarefas [ ] do .aist/plan.md em sequ\u00eancia.\n\nLeia a classifica\u00e7\u00e3o no cabe\u00e7alho do .aist/plan.md.\n\nPara cada tarefa [ ]:\n1. Crie sempre e somente .aist/task-test.sh com o teste do crit\u00e9rio de done (deve falhar agora).\n2. Implemente o c\u00f3digo m\u00ednimo para o teste passar.\n3. Execute: `bash .aist/task-test.sh 2>&1 | tee .aist/task-test.log`\n4. SE PASSOU: apague .aist/task-test.sh e .aist/task-test.log, marque [x] no .aist/plan.md, atualize .aist/context.md e prossiga para a pr\u00f3xima tarefa.\n5. SE FALHOU: mantenha ambos os arquivos, interrompa o loop imediatamente e informe:\n   'Tarefa N falhou. Verifique .aist/task-test.log e execute /debug.'\n   N\u00e3o avance para a pr\u00f3xima tarefa.\n\nAp\u00f3s concluir todas as tarefas:\n- Recomende executar /validate.",
       "description": "Execute all pending tasks from plan.md sequentially with TDD and stop-on-error gate"
     },
     "validate": {
-      "template": "Execute o portão de qualidade completo:\n1. Testes: rode a suíte completa e reporte falhas.\n2. Lint: rode o linter configurado e reporte violações.\n3. Type-check: rode o verificador de tipos e reporte erros.\n4. Dependências: verifique vulnerabilidades conhecidas (npm audit / pip-audit).\n5. Cobertura: reporte se a cobertura caiu em relação ao baseline.\n6. AQEI Quality Gate: execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .'. Se o AQEI Global for inferior a 80.0% ou houver stubs críticos (TODO, pass) ou arquivos > 300 linhas, reprove a validação e exija refatoração prévia.\n\nSE APROVADO:\n- Consulte a classificação no cabeçalho do .aiflow/plan.md.\n- Se SIMPLES: recomende executar /commit.\n- Se COMPLEXA: recomende executar /review.\n\nSE REPROVADO:\n- Falha de Teste -> Crie ou sobrescreva .aiflow/debug-context.md com timestamp, comando de teste, testes falhos, output completo e stack trace. Recomende executar /debug.\n- Falha de Lint/Types -> Sugira a correção no arquivo.\n- Falha de Cobertura -> Recomende executar /task para adicionar testes ausentes.\n- Falha de Segurança -> Indique a vulnerabilidade e recomende a atualização.\n- Falha de AQEI/Modularidade -> Exija decompor arquivos > 300 linhas ou eliminar stubs antes de aprovar.",
-      "description": "Run full quality gate with advisory routing and debug context capture",
-      "agent": "tester"
+      "template": "Execute o port\u00e3o de qualidade completo:\n1. Testes: rode a su\u00edte completa e reporte falhas.\n2. Lint: rode o linter configurado e reporte viola\u00e7\u00f5es.\n3. Type-check: rode o verificador de tipos e reporte erros.\n4. Depend\u00eancias: verifique vulnerabilidades conhecidas (npm audit / pip-audit).\n5. Cobertura: reporte se a cobertura caiu em rela\u00e7\u00e3o ao baseline.\n6. AQEI Quality Gate: execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .'. Se o AQEI Global for inferior a 80.0% ou houver stubs cr\u00edticos (TODO, pass) ou arquivos > 300 linhas, reprove a valida\u00e7\u00e3o e exija refatora\u00e7\u00e3o pr\u00e9via.\n\nSE APROVADO:\n- Consulte a classifica\u00e7\u00e3o no cabe\u00e7alho do .aist/plan.md.\n- Se SIMPLES: recomende executar /commit.\n- Se COMPLEXA: recomende executar /review.\n\nSE REPROVADO:\n- Falha de Teste -> Crie ou sobrescreva .aist/debug-context.md com timestamp, comando de teste, testes falhos, output completo e stack trace. Recomende executar /debug.\n- Falha de Lint/Types -> Sugira a corre\u00e7\u00e3o no arquivo.\n- Falha de Cobertura -> Recomende executar /task para adicionar testes ausentes.\n- Falha de Seguran\u00e7a -> Indique a vulnerabilidade e recomende a atualiza\u00e7\u00e3o.\n- Falha de AQEI/Modularidade -> Exija decompor arquivos > 300 linhas ou eliminar stubs antes de aprovar.",
+      "description": "Run full quality gate with advisory routing and debug context capture"
     },
     "review": {
-      "template": "Faça code review do diff atual.\n1. Verifique cada critério de aceitação do .aiflow/spec.md — a implementação atende?\n2. Verifique se existe algum ADR em docs/decisions/ relevante para o diff e inclua a seção '## Conformidade com ADRs'.\n3. Segurança: injection, exposição de dados, autenticação.\n4. Performance: N+1, memory leaks, complexidade algorítmica.\n5. Manutenibilidade: duplicação, acoplamento, coesão.\n\nFormato:\n🔴 Crítico (bloqueia merge)\n🟡 Importante (deve ser discutido)\n🟢 Sugestão\n\nResumo final: aprovado/reprovado + motivo.\nSe aprovado: recomende executar /commit.",
-      "description": "Full code review against spec acceptance criteria and ADR compliance",
-      "agent": "reviewer"
+      "template": "Fa\u00e7a code review do diff atual.\n1. Verifique cada crit\u00e9rio de aceita\u00e7\u00e3o do .aist/spec.md \u2014 a implementa\u00e7\u00e3o atende?\n2. Verifique se existe algum ADR em docs/decisions/ relevante para o diff e inclua a se\u00e7\u00e3o '## Conformidade com ADRs'.\n3. Seguran\u00e7a: injection, exposi\u00e7\u00e3o de dados, autentica\u00e7\u00e3o.\n4. Performance: N+1, memory leaks, complexidade algor\u00edtmica.\n5. Manutenibilidade: duplica\u00e7\u00e3o, acoplamento, coes\u00e3o.\n\nFormato:\n\ud83d\udd34 Cr\u00edtico (bloqueia merge)\n\ud83d\udfe1 Importante (deve ser discutido)\n\ud83d\udfe2 Sugest\u00e3o\n\nResumo final: aprovado/reprovado + motivo.\nSe aprovado: recomende executar /commit.",
+      "description": "Full code review against spec acceptance criteria and ADR compliance"
     },
     "commit": {
-      "template": "Leia .aiflow/plan.md e extraia Branch e Base do cabeçalho.\n\n0. Execute `git status` e `git diff --staged` para entender o que está staged.\n   Se nada estiver staged, execute `git add .` antes de prosseguir.\n\nChecklist antes de commitar:\n1. Todos os testes passam? (verifique se .aiflow/task-test.sh não existe — se existir há testes falhando)\n2. Lint e type-check limpos?\n3. AQEI >= 80.0% limpo sem stubs (TODO/FIXME) ou arquivos > 300L? (execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .')\n4. Nenhum segredo ou API key exposto?\n5. .aiflow/ e .playwright-cli/ não estão no diff (devem estar no ~/.config/git/ignore)\n\nSE TUDO OK:\n`git add .`\n`git commit -m '[mensagem em português no padrão Conventional Commits]'`\n`git push origin [Branch]`\n(se a branch não existir remotamente: `git push -u origin [Branch]`)\n\nSE ALGO FALHOU: reporte o bloqueio antes de executar qualquer git.\n\nPasso opcional:\nSe a tarefa envolveu resolução de bug não-óbvio ou decisão técnica relevante, registre uma observação concisa em .aiflow/context.md (ou rode /learn).",
+      "template": "Leia .aist/plan.md e extraia Branch e Base do cabe\u00e7alho.\n\n0. Execute `git status` e `git diff --staged` para entender o que est\u00e1 staged.\n   Se nada estiver staged, execute `git add .` antes de prosseguir.\n\nChecklist antes de commitar:\n1. Todos os testes passam? (verifique se .aist/task-test.sh n\u00e3o existe \u2014 se existir h\u00e1 testes falhando)\n2. Lint e type-check limpos?\n3. AQEI >= 80.0% limpo sem stubs (TODO/FIXME) ou arquivos > 300L? (execute 'python3 ~/.config/opencode/scripts/aqei-scorer.py --audit-dir .')\n4. Nenhum segredo ou API key exposto?\n5. .aist/ e .playwright-cli/ n\u00e3o est\u00e3o no diff (devem estar no ~/.config/git/ignore)\n\nSE TUDO OK:\n`git add .`\n`git commit -m '[mensagem em portugu\u00eas no padr\u00e3o Conventional Commits]'`\n`git push origin [Branch]`\n(se a branch n\u00e3o existir remotamente: `git push -u origin [Branch]`)\n\nSE ALGO FALHOU: reporte o bloqueio antes de executar qualquer git.\n\nPasso opcional:\nSe a tarefa envolveu resolu\u00e7\u00e3o de bug n\u00e3o-\u00f3bvio ou decis\u00e3o t\u00e9cnica relevante, registre uma observa\u00e7\u00e3o concisa em .aist/context.md (ou rode /learn).",
       "description": "Stage, commit and push to target branch from plan.md header"
     },
     "mr": {
-      "template": "Leia .aiflow/spec.md e .aiflow/plan.md.\n\nDetermine o nome da branch de MR a partir da classificação e da tarefa:\n- TRIVIAL → chore/[descricao-com-hifens]\n- SIMPLES (fix) → fix/[descricao-com-hifens]\n- SIMPLES (feature) → feat/[descricao-com-hifens]\n- COMPLEXA → feat/[descricao-com-hifens]\n\nExecute os comandos git diretamente:\n`git checkout -b [branch-mr]`\n`git add .`\n`git commit -m '[mensagem Conventional Commits em português]'`\n`git push -u origin [branch-mr]`\n\nApós o push, gere no output da conversa a descrição do MR para copiar e colar:\n---\n## Contexto\n[Por que essa mudança é necessária — baseado no spec]\n## O que mudou\n[Lista por área — baseado no git diff]\n## Como testar\n[Passos específicos]\n## Checklist\n- [ ] Critérios de aceitação do spec implementados\n- [ ] Testes adicionados/atualizados\n- [ ] Sem segredos expostos\n- [ ] Breaking changes documentados\n---\n\nNão crie nenhum arquivo com essa descrição. Apenas exiba no output.",
+      "template": "Leia .aist/spec.md e .aist/plan.md.\n\nDetermine o nome da branch de MR a partir da classifica\u00e7\u00e3o e da tarefa:\n- TRIVIAL \u2192 chore/[descricao-com-hifens]\n- SIMPLES (fix) \u2192 fix/[descricao-com-hifens]\n- SIMPLES (feature) \u2192 feat/[descricao-com-hifens]\n- COMPLEXA \u2192 feat/[descricao-com-hifens]\n\nExecute os comandos git diretamente:\n`git checkout -b [branch-mr]`\n`git add .`\n`git commit -m '[mensagem Conventional Commits em portugu\u00eas]'`\n`git push -u origin [branch-mr]`\n\nAp\u00f3s o push, gere no output da conversa a descri\u00e7\u00e3o do MR para copiar e colar:\n---\n## Contexto\n[Por que essa mudan\u00e7a \u00e9 necess\u00e1ria \u2014 baseado no spec]\n## O que mudou\n[Lista por \u00e1rea \u2014 baseado no git diff]\n## Como testar\n[Passos espec\u00edficos]\n## Checklist\n- [ ] Crit\u00e9rios de aceita\u00e7\u00e3o do spec implementados\n- [ ] Testes adicionados/atualizados\n- [ ] Sem segredos expostos\n- [ ] Breaking changes documentados\n---\n\nN\u00e3o crie nenhum arquivo com essa descri\u00e7\u00e3o. Apenas exiba no output.",
       "description": "Create MR branch, commit, push and generate merge request description in output"
     },
     "debug": {
-      "template": "0. Identifique automaticamente a origem da falha sem necessitar de argumentos:\n   - SE .aiflow/task-test.sh e .aiflow/task-test.log existirem → Origem: falha no teste atômico da tarefa isolada.\n   - SE .aiflow/debug-context.md existir → Origem: falha no portão de qualidade /validate.\n   - SENÃO → Analise a última saída do test runner ou logs de erro disponíveis no contexto do terminal.\n\n1. Diagnóstico (@debugger) & Correção (@worker/@backend):\n   - Delegue ao @debugger apenas o diagnóstico (Fault Localization DTO + correção proposta, sem editar); a correção vai para @worker/@backend. Leia o arquivo de log/contexto como ponto de partida (erro exato, comando e stack trace já documentados).\n   - Forme hipóteses e teste-as. Se após 3 hipóteses locais falharem, consulte a pesquisa web (`websearch`) para pesquisar a mensagem de erro exata e a versão da dependência.\n   - Se a origem foi task-test.sh, execute novamente: `bash .aiflow/task-test.sh 2>&1 | tee .aiflow/task-test.log`\n   - SE PASSOU nos testes: apague .aiflow/task-test.sh, .aiflow/task-test.log e .aiflow/debug-context.md se existirem. Atualize .aiflow/context.md com o aprendizado da sessão. Recomende /commit ou /validate conforme a classificação no .aiflow/plan.md.\n   - SE FALHOU: atualize o log/contexto, informe o erro e peça novo diagnóstico ao @debugger com nova hipótese.",
-      "description": "Automatic debug from .aiflow/task-test.log, .aiflow/debug-context.md or latest error"
+      "template": "0. Identifique automaticamente a origem da falha sem necessitar de argumentos:\n   - SE .aist/task-test.sh e .aist/task-test.log existirem \u2192 Origem: falha no teste at\u00f4mico da tarefa isolada.\n   - SE .aist/debug-context.md existir \u2192 Origem: falha no port\u00e3o de qualidade /validate.\n   - SEN\u00c3O \u2192 Analise a \u00faltima sa\u00edda do test runner ou logs de erro dispon\u00edveis no contexto do terminal.\n\n1. Diagn\u00f3stico & Corre\u00e7\u00e3o Direta:\n   - Leia o arquivo de log/contexto como ponto de partida (erro exato, comando e stack trace j\u00e1 documentados) e localize a causa raiz diretamente no c\u00f3digo.\n   - Forme hip\u00f3teses, teste-as e aplique a corre\u00e7\u00e3o m\u00ednima. Se ap\u00f3s 3 hip\u00f3teses locais falharem, consulte a pesquisa web (`websearch`) para pesquisar a mensagem de erro exata e a vers\u00e3o da depend\u00eancia.\n   - Se a origem foi task-test.sh, execute novamente: `bash .aist/task-test.sh 2>&1 | tee .aist/task-test.log`\n   - SE PASSOU nos testes: apague .aist/task-test.sh, .aist/task-test.log e .aist/debug-context.md se existirem. Atualize .aist/context.md com o aprendizado da sess\u00e3o. Recomende /commit ou /validate conforme a classifica\u00e7\u00e3o no .aist/plan.md.\n   - SE FALHOU: atualize o log/contexto, registre o erro e formule nova hip\u00f3tese.",
+      "description": "Automatic debug from .aist/task-test.log, .aist/debug-context.md or latest error"
     },
     "adr": {
-      "template": "Primeiro, execute `date +%Y%m%d` para obter a data atual.\nCrie o arquivo docs/decisions/ADR-[DATA]-[ARGUMENTS-COM-HIFENS].md contendo:\n# ADR: $ARGUMENTS\nData: [DATA]\nStatus: Aceito\n\n## Contexto\nQual problema estamos resolvendo?\n## Decisão\nO que decidimos fazer?\n## Alternativas consideradas\nO que foi descartado e por quê?\n## Consequências\nPositivas, negativas e trade-offs que aceitamos.",
-      "description": "Create an Architecture Decision Record for a technical decision",
-      "agent": "architect"
+      "template": "Primeiro, execute `date +%Y%m%d` para obter a data atual.\nCrie o arquivo docs/decisions/ADR-[DATA]-[ARGUMENTS-COM-HIFENS].md contendo:\n# ADR: $ARGUMENTS\nData: [DATA]\nStatus: Aceito\n\n## Contexto\nQual problema estamos resolvendo?\n## Decis\u00e3o\nO que decidimos fazer?\n## Alternativas consideradas\nO que foi descartado e por qu\u00ea?\n## Consequ\u00eancias\nPositivas, negativas e trade-offs que aceitamos.",
+      "description": "Create an Architecture Decision Record for a technical decision"
     },
     "map": {
-      "template": "Execute mapeamento estrutural dos paths: $ARGUMENTS\n\n1. Execute tree ou find em cada path\n2. Liste arquivos por diretório com tamanho e data\n3. Identifique padrões (naming, extensões, organização)\n4. Se um diretório tiver mais de 20 arquivos, agrupe por tipo\n\nNão leia conteúdo de nenhum arquivo.\nSalve o resultado em .aiflow/map.md\nFinalize com: 'Mapa gerado. Execute /analyze <foco> para continuar.'",
-      "description": "Map repository structure without reading file content",
-      "agent": "build"
+      "template": "Execute mapeamento estrutural dos paths: $ARGUMENTS\n\n1. Execute tree ou find em cada path\n2. Liste arquivos por diret\u00f3rio com tamanho e data\n3. Identifique padr\u00f5es (naming, extens\u00f5es, organiza\u00e7\u00e3o)\n4. Se um diret\u00f3rio tiver mais de 20 arquivos, agrupe por tipo\n\nN\u00e3o leia conte\u00fado de nenhum arquivo.\nSalve o resultado em .aist/map.md\nFinalize com: 'Mapa gerado. Execute /analyze <foco> para continuar.'",
+      "description": "Map repository structure without reading file content"
     },
     "analyze": {
-      "template": "Leia .aiflow/map.md para entender o que existe.\n\nFoco da análise: $ARGUMENTS\n\nCom base no foco:\n1. Selecione apenas os arquivos que respondem à pergunta — liste-os com justificativa\n2. Ignore: testes unitários, vendor/, node_modules/, locks, arquivos gerados\n3. Se um diretório tiver mais de 20 relevantes, leia os 5 mais representativos\n4. Leia apenas o selecionado e produza síntese estruturada\n\nSe o escopo for amplo demais, proponha quebrar em análises menores.",
+      "template": "Leia .aist/map.md para entender o que existe.\n\nFoco da an\u00e1lise: $ARGUMENTS\n\nCom base no foco:\n1. Selecione apenas os arquivos que respondem \u00e0 pergunta \u2014 liste-os com justificativa\n2. Ignore: testes unit\u00e1rios, vendor/, node_modules/, locks, arquivos gerados\n3. Se um diret\u00f3rio tiver mais de 20 relevantes, leia os 5 mais representativos\n4. Leia apenas o selecionado e produza s\u00edntese estruturada\n\nSe o escopo for amplo demais, proponha quebrar em an\u00e1lises menores.",
       "description": "Read and synthesize selected files based on map and focus",
       "agent": "plan"
     },
     "quota": {
-      "template": "Apresente o relatório de cota gerado deterministicamente abaixo exatamente como formatado, sem executar ferramentas, comandos adicionais ou introduções:\n\n!`python3 ~/.config/opencode/scripts/quota.py $ARGUMENTS`",
-      "description": "Exibe cotas e limites determinísticos do modelo em uso e provedores ativos"
+      "template": "Apresente o relat\u00f3rio de cota gerado deterministicamente abaixo exatamente como formatado, sem executar ferramentas, comandos adicionais ou introdu\u00e7\u00f5es:\n\n!`python3 ~/.config/opencode/scripts/quota.py $ARGUMENTS`",
+      "description": "Exibe cotas e limites determin\u00edsticos do modelo em uso e provedores ativos"
     },
     "aqei": {
-      "template": "Apresente a avaliação AQEI gerada deterministicamente abaixo sem executar ferramentas adicionais ou introduções:\n\n!`python3 ~/.config/opencode/scripts/aqei-scorer.py $ARGUMENTS`",
-      "description": "Calcula o índice de qualidade e eficiência (AQEI) da sessão ou audita diretório"
+      "template": "Apresente a avalia\u00e7\u00e3o AQEI gerada deterministicamente abaixo sem executar ferramentas adicionais ou introdu\u00e7\u00f5es:\n\n!`python3 ~/.config/opencode/scripts/aqei-scorer.py $ARGUMENTS`",
+      "description": "Calcula o \u00edndice de qualidade e efici\u00eancia (AQEI) da sess\u00e3o ou audita diret\u00f3rio"
     },
     "playwright": {
-      "template": "SE $ARGUMENTS contiver 'ui' ou 'dashboard':\nExecute em background: `npx playwright test --ui &` e confirme ao usuário que o Playwright UI Dashboard foi iniciado.\nSENÃO SE $ARGUMENTS contiver 'report':\nExecute em background: `npx playwright show-report &` e confirme abertura do relatório HTML.\nSENÃO SE $ARGUMENTS contiver 'trace':\nExecute em background: `npx playwright show-trace $ARGUMENTS &`\nSENÃO:\nExecute: `npx playwright test --project=chromium --reporter=list $ARGUMENTS`",
-      "description": "Abre o Playwright UI Mode (Dashboard), relatórios HTML ou executa testes E2E",
-      "agent": "browser"
+      "template": "SE $ARGUMENTS contiver 'ui' ou 'dashboard':\nExecute em background: `npx playwright test --ui &` e confirme ao usu\u00e1rio que o Playwright UI Dashboard foi iniciado.\nSEN\u00c3O SE $ARGUMENTS contiver 'report':\nExecute em background: `npx playwright show-report &` e confirme abertura do relat\u00f3rio HTML.\nSEN\u00c3O SE $ARGUMENTS contiver 'trace':\nExecute em background: `npx playwright show-trace $ARGUMENTS &`\nSEN\u00c3O:\nExecute: `npx playwright test --project=chromium --reporter=list $ARGUMENTS`",
+      "description": "Abre o Playwright UI Mode (Dashboard), relat\u00f3rios HTML ou executa testes E2E"
     },
     "audit": {
-      "template": "SE $ARGUMENTS contiver 'secrets':\nExecute: sec-scan secrets\nSENÃO SE $ARGUMENTS contiver 'sast' ou 'code':\nExecute: sec-scan sast\nSENÃO SE $ARGUMENTS contiver 'deps':\nExecute: sec-scan deps\nSENÃO:\nExecute auditoria completa (segredos, SAST e dependências): `sec-scan all`\nApresente a síntese dos achados e plano de remediação.",
-      "description": "Auditoria de segurança de código (Semgrep SAST), segredos (Gitleaks) ou dependências (OSV-Scanner CVEs)",
-      "agent": "blue-team"
+      "template": "SE $ARGUMENTS contiver 'secrets':\nExecute: sec-scan secrets\nSEN\u00c3O SE $ARGUMENTS contiver 'sast' ou 'code':\nExecute: sec-scan sast\nSEN\u00c3O SE $ARGUMENTS contiver 'deps':\nExecute: sec-scan deps\nSEN\u00c3O:\nExecute auditoria completa (segredos, SAST e depend\u00eancias): `sec-scan all`\nApresente a s\u00edntese dos achados e plano de remedia\u00e7\u00e3o.",
+      "description": "Auditoria de seguran\u00e7a de c\u00f3digo (Semgrep SAST), segredos (Gitleaks) ou depend\u00eancias (OSV-Scanner CVEs)"
     },
     "agentic": {
-      "template": "SE $ARGUMENTS tiver texto:\nExecute a tarefa solicitada no modo agêntico, de forma direta e autônoma:\n$ARGUMENTS\n\nSENÃO:\nConfirme em uma linha que o modo agêntico está ativo nesta sessão.",
-      "description": "Executa um comando ou ativa o modo agêntico nesta sessão",
+      "template": "SE $ARGUMENTS tiver texto:\nExecute a tarefa solicitada no modo ag\u00eantico, de forma direta e aut\u00f4noma:\n$ARGUMENTS\n\nSEN\u00c3O:\nConfirme em uma linha que o modo ag\u00eantico est\u00e1 ativo nesta sess\u00e3o.",
+      "description": "Executa um comando ou ativa o modo ag\u00eantico nesta sess\u00e3o",
       "agent": "agentic"
     },
     "status": {
-      "template": "Apresente o painel unificado de status abaixo sem introduções:\n\n!`python3 ~/.config/opencode/scripts/status.py $ARGUMENTS`",
-      "description": "Apresenta o painel unificado de status do sistema e sessão OpenCode"
+      "template": "Apresente o painel unificado de status abaixo sem introdu\u00e7\u00f5es:\n\n!`python3 ~/.config/opencode/scripts/status.py $ARGUMENTS`",
+      "description": "Apresenta o painel unificado de status do sistema e sess\u00e3o OpenCode"
     },
     "learn": {
-      "template": "Registre os aprendizados técnicos desta sessão em .aiflow/context.md do projeto atual.\n\n1. `mkdir -p .aiflow`; se o arquivo existir, leia-o antes para não duplicar entradas.\n2. Anexe ao final (não reescreva o que já existe), com a data de `date +%Y-%m-%d` como título da entrada: padrões que funcionaram, anti-padrões, decisões técnicas e comportamentos não-óbvios de libs ou ferramentas descobertos nesta sessão. Seja conciso: um item por linha, só o que ajuda numa sessão futura.\n3. Contexto adicional do usuário: $ARGUMENTS\n4. Responda só com o que foi anexado.",
-      "description": "Anexa os aprendizados técnicos da sessão em .aiflow/context.md do projeto"
+      "template": "Registre os aprendizados t\u00e9cnicos desta sess\u00e3o em .aist/context.md do projeto atual. O arquivo \u00e9 lido no in\u00edcio de toda sess\u00e3o; cada linha custa em todas elas. Mantenha-o enxuto.\n\n1. `mkdir -p .aist`; se o arquivo existir, leia-o inteiro.\n2. Integre os itens novos nas se\u00e7\u00f5es por tema (ex.: Arquitetura, Padr\u00f5es, Armadilhas, Libs e ferramentas), n\u00e3o por data: padr\u00f5es que funcionaram, anti-padr\u00f5es, decis\u00f5es t\u00e9cnicas e comportamentos n\u00e3o-\u00f3bvios de libs ou ferramentas. Um item por linha, s\u00f3 o que ajuda numa sess\u00e3o futura e n\u00e3o est\u00e1 evidente no c\u00f3digo.\n3. Consolide: funda duplicatas, reescreva itens superados e remova o que deixou de valer. Teto de 80 linhas; acima disso, mova o menos \u00fatil para .aist/archive/context-old.md (lido s\u00f3 sob demanda).\n4. Estado de tarefa em andamento n\u00e3o entra aqui (vai para /handoff).\n5. Contexto adicional do usu\u00e1rio: $ARGUMENTS\n6. Responda s\u00f3 com o que entrou, mudou ou saiu.",
+      "description": "Consolida os aprendizados da sess\u00e3o em .aist/context.md (por tema, teto de 80 linhas)"
     },
     "sandbox": {
       "template": "Execute a tarefa em sandbox isolado via Git Worktree (Two-Phase Commit):\n\n!`bash ~/.config/opencode/scripts/worktree-runner.sh $ARGUMENTS`",
       "description": "Executa tarefas em sandbox isolado via Git Worktree (Two-Phase Commit)"
     },
-    "checkpoint": {
-      "template": "Apresente o resultado do checkpoint abaixo sem introduções adicionais:\n\n!`python3 ~/.config/opencode/scripts/checkpoint.py $ARGUMENTS`",
-      "description": "Gera um snapshot de checkpoint do estado da sessão e monitora o teto de 40 turnos"
+    "handoff": {
+      "template": "Escreva .aist/handoff.md (sobrescreva o anterior) para que uma sess\u00e3o NOVA, sem este hist\u00f3rico, retome o trabalho lendo s\u00f3 esse arquivo.\n\nEstado do reposit\u00f3rio:\n!`git branch --show-current 2>/dev/null; git status --short 2>/dev/null | head -40; git log --oneline -5 2>/dev/null`\n\nSe\u00e7\u00f5es, s\u00f3 com o que a sess\u00e3o nova n\u00e3o descobre sozinha lendo o c\u00f3digo:\n## Objetivo\n## Feito (com a prova: comando de valida\u00e7\u00e3o e resultado)\n## Pr\u00f3ximo passo (ordenado e acion\u00e1vel)\n## Arquivos tocados (caminho e o que mudou)\n## Decis\u00f5es (e o porqu\u00ea)\n## Becos sem sa\u00edda (o que foi tentado, falhou e por qu\u00ea)\n## N\u00e3o verificado\n\nRegras: at\u00e9 ~60 linhas; sem colar logs, diffs ou c\u00f3digo (aponte arquivo:linha). Aprendizado dur\u00e1vel do projeto vai para .aist/context.md (regras do /learn), n\u00e3o para o handoff. Contexto extra do usu\u00e1rio: $ARGUMENTS\n\nResponda s\u00f3 com o caminho gravado e: \"Abra uma sess\u00e3o nova e rode /resume.\"",
+      "description": "Grava .aist/handoff.md (objetivo, feito, pr\u00f3ximo passo, decis\u00f5es, becos sem sa\u00edda) para retomar em sess\u00e3o nova"
+    },
+    "resume": {
+      "template": "Retome o trabalho deste projeto a partir dos arquivos abaixo, n\u00e3o de sess\u00f5es antigas.\n\n.aist/handoff.md:\n!`cat .aist/handoff.md 2>/dev/null || echo '(n\u00e3o existe; pe\u00e7a ao usu\u00e1rio o objetivo)'`\n\n.aist/context.md:\n!`cat .aist/context.md 2>/dev/null || echo '(n\u00e3o existe)'`\n\nConfirme o estado com o m\u00ednimo de leitura (git status e os arquivos citados em \"Pr\u00f3ximo passo\") e execute o pr\u00f3ximo passo. Instru\u00e7\u00e3o extra do usu\u00e1rio: $ARGUMENTS",
+      "description": "Retoma em sess\u00e3o nova a partir de .aist/handoff.md e .aist/context.md"
     }
   },
   "mcp": {
@@ -716,83 +748,26 @@
       "action": "*",
       "resource": "*",
       "effect": "allow"
-    },
-    {
-      "action": "skill",
-      "resource": "docs",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "docx",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "pdf",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "pptx",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "xlsx",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "google-workspace",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "morning",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "built-in-browser",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "chrome-browser",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "computer-use",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "import-memory",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "deep-research",
-      "effect": "deny"
-    },
-    {
-      "action": "skill",
-      "resource": "skill-creator",
-      "effect": "deny"
     }
   ],
   "compaction": {
     "auto": true,
+    "background": false,
     "keep": {
       "tokens": 30000
     },
     "buffer": 15000
   },
   "tool_output": {
-    "max_lines": 300,
-    "max_bytes": 16384
+    "max_lines": 180,
+    "max_bytes": 10240
+  },
+  "media": {
+    "image": {
+      "auto_resize": true,
+      "max_width": 1568,
+      "max_height": 1568
+    }
   },
   "snapshots": true,
   "share": "manual",
@@ -822,6 +797,71 @@
   },
   "lsp": true,
   "policies": [
+    {
+      "action": "skill.use",
+      "resource": "docs",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "docx",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "pdf",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "pptx",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "xlsx",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "google-workspace",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "morning",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "built-in-browser",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "chrome-browser",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "computer-use",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "import-memory",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "deep-research",
+      "effect": "deny"
+    },
+    {
+      "action": "skill.use",
+      "resource": "skill-creator",
+      "effect": "deny"
+    },
     {
       "action": "tool.use",
       "resource": "shell:git push --force *",
