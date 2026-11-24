@@ -1,42 +1,25 @@
 # Coding Agent Rules
 
-## Response Style
-- Seja terso. Sem frases de preenchimento nem explicações não solicitadas; o código fala.
-- Ambiguidade: declare a premissa e prossiga, em uma só resposta.
-- Não repita código antes de editar, não resuma o que acabou de fazer.
-- Pronto = verificado: confira o resultado real com o harness ou os testes do projeto (dados reais, zero erro de console, screenshot conferido em UI) antes de declarar pronto.
-- Diga explicitamente o que não pôde ser verificado; não repita inspeções redundantes (ex.: `git status` após edit bem-sucedido).
+## Execução Local & Resposta
+- Máquina real via OpenCode: execute tudo de fato com as ferramentas locais (`shell`, `read`, `edit`); nunca assuma sandbox remoto.
+- Resposta tersa, sem preenchimento nem explicações não solicitadas; não repita código antes de editar nem resuma o óbvio.
 
-## Code Quality & YAGNI
-- Código completo: sem stubs, `TODO`, `pass` livre, placeholders; mocks só em testes.
-- Arquivos ≤ 300 linhas, funções ≤ 40 linhas; exceda → decomponha.
-- Menor diff possível; prefira stdlib e dependências existentes a wrappers ou libs novas.
-- Trate erros explicitamente; falhas silenciosas e `catch` vazio são proibidos.
-- Gate de qualidade: AQEI ≥ 80% via `scripts/aqei-scorer.py` (meta ≥ 99%).
-- Context7 (`resolve-library-id` + `query-docs`) é obrigatório antes de integrar bibliotecas externas; nunca presuma assinaturas de memória.
+## Lei do Pronto & Rigor Analítico
+- **Pronto = executado e provado:** proibido declarar concluído sem anexar o output real do comando de validação (testes, linter, `tsc --noEmit` ou parser para JSON/YAML/TOML/config). Em regressão multi-módulo, use unit tests globais + E2E só da área alterada; quando rodar vários E2Es independentes, execute em paralelo num único `shell` sem repetir comandos/renders já aprovados. Sem prova, declare "não verificado".
+- **Sem duplicação nem lixo:** remova referências antigas, chaves duplicadas e restos órfãos ao editar configs ou código.
+- **Investigação real:** proibido chutar por suposição rasa; rastreie código-fonte, dependências e chamadores reais (`arquivo:linha`) antes de concluir ou editar.
 
-## Token Efficiency
-- Leia só o necessário; não explore especulativamente; prefira editar a criar arquivos.
-- Se `.aiflow/context.md` existir, leia antes de agir; ao concluir `/task`, `/tasks` ou `/debug`, registre padrões, anti-padrões e comportamentos não-óbvios de libs.
-- Feedback do usuário que vale além da tarefa (preferência de design/fluxo, correção recorrente): grave no mesmo turno, conciso e sem duplicar, na seção de preferências do AGENTS.md do projeto. Antes de mexer em UI, leia essa seção.
+## Código, Contexto & Ferramentas
+- Código completo: mire em `≤ 300` linhas/arquivo e `≤ 40` linhas/função no design inicial; sem stubs, `TODO`, `pass` livre ou `catch` vazio; erros explícitos. Nunca reescreva um arquivo já pronto e testado só por passar pouco de 300 linhas.
+- Consulte Context7 (`resolve-library-id` + `query-docs`) antes de integrar libs externas.
+- Leia arquivos `< 250` linhas de uma vez (não fatie em vários `read`s); use `grep` + `offset`/`limit` só em arquivos grandes. `.aist/context.md` tem teto de 80 linhas (`/learn`); antes de pausa >1h use `/handoff` e retome com `/resume`. Grave preferências duráveis do usuário no `AGENTS.md` do projeto.
 
 ## Frontend (Anti-AI-Slop)
-- Precedência: (1) preferências do usuário no AGENTS.md do projeto; (2) design system e padrões das telas existentes (tokens, CSS, componentes; inspecione `tailwind.config.*`/`globals.css`); (3) regras genéricas, só para projeto novo sem identidade visual.
-- Feature nova em projeto existente segue as telas existentes, sem perguntar estilo. Só projeto novo sem identidade: pergunte (ferramenta `question`) com 2–3 direções (ex.: Linear-Dark, Editorial Clean, Brutalista Técnico) antes de implementar.
-- Ferramentas e dashboards: densidade de informação, alinhamento e simetria. Macro-espaçamento, hero e cards grandes só em landing/marketing.
-- Proibido: degradê roxo genérico, 3 cards simétricos com ícones redondos, Inter/Roboto sem escala tipográfica, sombras pretas duras, elemento grande cercado de vazio, números soltos em cards grandes.
-- Projeto novo: paleta contida com 1 cor de destaque.
+- Precedência: (1) preferências no `AGENTS.md` do projeto; (2) padrões das telas existentes; (3) anti-AI-slop em projeto novo (pergunte direção via `question`, paleta contida com 1 cor de destaque).
+- Ferramentas/dashboards: densidade, alinhamento e simetria; sem degradê roxo genérico, sombras duras, cards simétricos clichês ou números soltos.
+- Acabamento visual/materiais ópticos: carregue `ui-material-craft` + `visual-qa-critic`, valide em `DSF=2`.
 
-## Segurança
-- Nunca exponha chaves, segredos ou tokens; valide e sanitize entradas externas; evite `eval()` e execução de strings.
-
-## Git
-- Commits pequenos e atômicos, em português, Conventional Commits (`feat:`, `fix:`, ...). Nunca `git push --force` em `main`/`master`.
-
-## LSP
-- Verifique diagnósticos do LSP após editar cada arquivo; não marque tarefa `[x]` com erros pendentes (em COMPLEXA, warnings contam como erros).
-
-## Ferramentas e Fluxo
-- Scripts utilitários (`sec-scan`, `perf-bench`, `live-browser`, `aqei-scorer`, `quota`): ver `docs/TOOLING_CATALOG.md`.
-- Comandos `/spec /plan /task /validate /debug /review /commit /mr` têm prompts próprios; não replique o fluxo aqui. Artefatos em `.aiflow/` (excluído do git).
-- Mais de 20 etapas lógicas: pare e registre o plano em `docs/plan.md` antes de prosseguir.
+## Segurança, Git & LSP
+- Nunca exponha chaves/tokens; valide e sanitize entradas externas; evite `eval()`.
+- Commits pequenos e atômicos em PT-BR (Conventional Commits); nunca `git push --force` em `main`/`master`.
+- Verifique diagnósticos do LSP após editar; não conclua tarefa com erros pendentes.
