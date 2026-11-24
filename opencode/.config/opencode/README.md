@@ -27,7 +27,7 @@ Config versionada em `~/dotfiles/opencode/.config/opencode` e ligada a `~/.confi
 | Plugin | Função |
 | :--- | :--- |
 | `@openchamber/opencode-claude@1.7.0` | Bridge para o CLI `claude` (provider `claude-code`), pela assinatura. Fixado em 1.7.0: o V2 não reinstala `@latest` e o serviço ficou preso na 1.3.4, que exige um sufixo de 1M nos ids opus; a 1.7.0 usa ids plain (1M nativo). Variants: `low`, `medium`, `high`, `xhigh`, `max`. |
-| `claude-context-cap` | Limita o contexto dos modelos 1M a 200k (`maxContext: 200000`). |
+| `claude-context-cap` | Limita o contexto dos modelos 1M por provider (`claude-code: 240000`, `google: 300000`). |
 | `agent-model-sync` | Aplica à sessão o modelo do agente primário. |
 | `session-hygiene` | Regras de shell: bloqueia escrita de arquivo via shell (`sed -i`, redirecionamento, heredoc, `tee`); `/tmp`, `/dev/null` e `*.log` liberados. Leitura via shell é livre. |
 | `opencode-antigravity-auth` | Reserva para quando a cota do Claude acabar. |
@@ -40,8 +40,8 @@ Só o `context7` (remoto). Obrigatório consultá-lo antes de integrar bibliotec
 
 | Item | Valor |
 | :--- | :--- |
-| Modo | `auto` |
-| Gatilho | ~185k (cap de 200k menos buffer de 15k) |
+| Modo | `auto` (`background: false`) |
+| Gatilho | ~225k (`claude-code`: 240k − buffer 15k) / ~285k (`google`: 300k − buffer 15k) |
 | `keep` | 30000 tokens |
 | Resumo | Modelo do próprio chat, via fork em memória da sessão que lê do prompt cache (bridge 1.7.0) |
 
@@ -53,11 +53,11 @@ O autocompact interno do CLI só dispararia em ~967k, então não há compaction
 
 | Grupo | Comandos |
 | :--- | :--- |
-| Fluxo `.aiflow` | `/init /spec /plan /task /tasks /validate /review /commit /mr /debug /adr /map /analyze` |
-| Utilitários | `/quota /aqei /status /learn /sandbox /checkpoint /semsearch` |
+| Fluxo `.aist` | `/init /spec /plan /task /tasks /validate /review /commit /mr /debug /adr /map /analyze` |
+| Utilitários | `/quota /aqei /status /learn /handoff /resume /sandbox /semsearch` |
 | Atalhos para agente | `/agentic /audit /playwright` |
 
-Pipeline: `/spec` → `/plan` → `/task` ou `/tasks` (TDD com `.aiflow/task-test.sh`) → `/validate` → `/review` → `/commit` ou `/mr`. Artefatos em `.aiflow/` (excluído do git). Se uma tarefa falha, `/debug` lê `.aiflow/task-test.log`.
+Pipeline: `/spec` → `/plan` → `/task` ou `/tasks` (TDD com `.aist/task-test.sh`) → `/validate` → `/review` → `/commit` ou `/mr`. Artefatos em `.aist/` (excluído do git). Se uma tarefa falha, `/debug` lê `.aist/task-test.log`.
 
 ## Skills
 
@@ -67,7 +67,7 @@ As 13 skills do Claude desktop vindas de `~/.claude/skills/synced` (`docs`, `doc
 
 ## Scripts
 
-Catálogo completo em [docs/TOOLING_CATALOG.md](docs/TOOLING_CATALOG.md): `aqei-scorer.py`, `quota.py`, `status.py`, `worktree-runner.sh`, `ast-linter-hook.py`, `checkpoint.py`, `perf-bench.py`, `sec-scan.py`, `live-browser.js`, `semantic-code-search.py`, `opencode-maintenance.sh`.
+Catálogo completo em [docs/TOOLING_CATALOG.md](docs/TOOLING_CATALOG.md): `aqei-scorer.py`, `quota.py`, `status.py`, `worktree-runner.sh`, `ast-linter-hook.py`, `perf-bench.py`, `sec-scan.py`, `live-browser.js`, `semantic-code-search.py`, `opencode-maintenance.sh`.
 
 Manutenção automática: o timer systemd `opencode-maintenance.timer` roda `opencode-maintenance.sh` às 04:30, com retentativa a cada 2 h se houver atividade (poda de sessões, VACUUM do banco, limpeza de `/tmp`).
 

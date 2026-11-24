@@ -13,7 +13,7 @@ Todo modelo de nuvem passa pelo provider `claude-code` (plugin `@openchamber/ope
 | Demais agentes e `explore`/`general` | Sonnet 5.5 |
 | `title` | `local-gpu/qwen2.5-coder:7b` |
 
-O runner do V2.2.6 ignora o `model` de agentes primários; o plugin `agent-model-sync` corrige aplicando o modelo do agente à sessão (refs: anomalyco/opencode#49765).
+O runner do V2.2.6 ignora o `model` de agentes primários; o plugin `agent-model-sync` corrige aplicando o modelo do agente à sessão (refs: anomalyco/opencode#49765). Além disso, quando o orchestrator opera em qualquer modelo do Antigravity (ex.: Gemini 3.8 Flash), o `agent-model-sync` intercepta a ferramenta `subagent` e propaga o mesmo modelo aos subagentes; fora do Antigravity, os subagentes mantêm o padrão Sonnet 5.5 (ou Opus).
 
 ## 2. Orchestrator e agentic
 
@@ -35,15 +35,15 @@ O runner do V2.2.6 ignora o `model` de agentes primários; o plugin `agent-model
 
 | Item | Valor |
 | :--- | :--- |
-| `claude-context-cap` | Limita modelos 1M a 200k. |
-| Compaction | `auto`, gatilho ~185k (200k − buffer 15k), `keep` 30000. |
+| `claude-context-cap` | Limita modelos 1M por provider: `claude-code` 240k, `google` 300k. |
+| Compaction | `auto` (`background: false`), gatilho ~225k (`claude-code`) / ~285k (`google`) (cap − buffer 15k), `keep` 30000. |
 | Resumo | Modelo do próprio chat: o bridge 1.7.0 faz um fork em memória da sessão nativa e lê do prompt cache; a sessão nativa é trocada quando o histórico compactado chega. |
 | Autocompact do CLI | Só em ~967k: não duplica a compaction do OpenCode. |
 | `compactAt` do bridge | Não usar: conflita com o `claude-context-cap` (que apaga `limit.input`). |
 
-Sessões longas: `/checkpoint` gera snapshot e monitora o teto de 40 turnos; `.aiflow/context.md` guarda padrões e armadilhas que sobrevivem à compactação. A poda de sessões antigas e o VACUUM do banco ficam com o `opencode-maintenance.timer` ([catálogo](TOOLING_CATALOG.md#13-opencode-maintenancesh-e-opencode-maintenancetimer)).
+Sessões longas: antes de pausa de mais de 1h (o cache do prompt expira e retomar ou compactar o chat relê tudo a preço cheio), `/handoff` grava `.aist/handoff.md` e uma sessão nova retoma com `/resume`; `.aist/context.md` guarda padrões e armadilhas, consolidado pelo `/learn` em até 80 linhas. As 13 skills sincronizadas da conta Claude que não servem para código são removidas por `policies` `skill.use` (valem para todos os agentes, mesmo os com `"*": allow`). A poda de sessões antigas e o VACUUM do banco ficam com o `opencode-maintenance.timer` ([catálogo](TOOLING_CATALOG.md#13-opencode-maintenancesh-e-opencode-maintenancetimer)).
 
-## 5. Fluxo `.aiflow`
+## 5. Fluxo `.aist`
 
 ```mermaid
 flowchart LR
@@ -56,7 +56,7 @@ flowchart LR
     D --> T
 ```
 
-`.aiflow/task-test.sh` é o contrato de teste de cada tarefa; `/debug` lê `.aiflow/task-test.log`. `.aiflow/` fica fora do git.
+`.aist/task-test.sh` é o contrato de teste de cada tarefa; `/debug` lê `.aist/task-test.log`. `.aist/` fica fora do git.
 
 ## 6. Skills
 
