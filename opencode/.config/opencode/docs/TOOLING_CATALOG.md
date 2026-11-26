@@ -14,7 +14,6 @@ graph LR
         Status["status.py\n(Painel Unificado /status)"]
         Worktree["worktree-runner.sh\n(Sandbox 2PC /sandbox)"]
         ASTLint["ast-linter-hook.py\n(Hook Linter AST & Modularidade)"]
-        Checkpoint["checkpoint.py\n(Snapshot & Monitor 40t /checkpoint)"]
         PerfBench["perf-bench.py\n(Hyperfine & Autocannon)"]
         SecScan["sec-scan.py\n(AppSec: Gitleaks/Semgrep/OSV)"]
         LiveBrowser["live-browser.js\n(Controle CDP Helium Dev)"]
@@ -26,7 +25,6 @@ graph LR
     Quota --> Orchestrator["Orchestrator / Status"]
     Status --> Orchestrator
     Worktree --> Isolation["Sandbox Efêmero (Git Worktree)"]
-    Checkpoint --> ContextEconomy["Higiene de Sessão (Teto 40t)"]
     PerfBench --> Bench["Benchmarks (hyperfine / autocannon)"]
     SecScan --> BlueTeam["@blue-team / @reviewer"]
     LiveBrowser --> Browser["@browser / UI QA"]
@@ -154,7 +152,7 @@ python3 ~/.config/opencode/scripts/status.py
 ## 4. `/learn`
 
 - **Propósito:** registrar aprendizados técnicos da sessão (padrões, anti-padrões, decisões, comportamentos não-óbvios de libs).
-- **Mecanismo:** comando puro de prompt, sem script. O agente anexa as entradas, com data, ao `.aiflow/context.md` do projeto, que o `AGENTS.md` manda ler antes de agir.
+- **Mecanismo:** comando puro de prompt, sem script. O agente integra os itens por tema no `.aist/context.md` do projeto, que o `AGENTS.md` manda ler antes de agir. Como o arquivo é lido em toda sessão, o `/learn` consolida (funde duplicatas, remove o superado) e mantém até 80 linhas, movendo o excedente para `.aist/archive/context-old.md`. Estado de tarefa em andamento vai para o `/handoff`.
 
 ---
 
@@ -211,44 +209,13 @@ python3 ~/.config/opencode/scripts/ast-linter-hook.py -v scripts/*.py
 
 ---
 
-## 7. `checkpoint.py`
+## 7. `/handoff` e `/resume`
 
-- **Propósito:** Monitor de higiene de sessão e gerador de snapshots determinísticos em `.aiflow/checkpoint-latest.json`. Protege a janela de raciocínio contra a síndrome de degradação de contexto (*Lost in the Middle*) monitorando o teto crítico de 40 turnos.
-- **Comando Associado:** `/checkpoint`.
-- **Dependências de Runtime:** Python 3 (Stdlib pura: `datetime`, `json`, `os`, `pathlib`, `sqlite3`, `subprocess`, `sys`).
-- **Mecanismo Operacional:**
-  - Conecta-se em modo leitura ao SQLite do OpenCode (`~/.local/share/opencode/opencode.db`).
-  - Extrai `session_id`, título e total de mensagens acumuladas na sessão ativa.
-  - Inspeciona o estado do Git (branch ativa e `git diff --stat`).
-  - Realiza o parsing de `.aiflow/plan.md` separando tarefas pendentes (`[ ]`) e concluídas (`[x]`).
-  - Gera o snapshot serializado em `.aiflow/checkpoint-latest.json`.
-  - **Alerta Crítico de Higiene ($\ge 40$ turnos):** Se a sessão atingir 40 ou mais turnos, emite alerta formal com recomendação de auto-forking (descarregar estado com `/commit` ou `/plan` e iniciar nova sessão limpa via `opencode`).
-- **Exemplos de Uso:**
-```bash
-# Gerar snapshot de checkpoint e verificar higiene da sessão
-python3 ~/.config/opencode/scripts/checkpoint.py
-```
-
-- **Contrato JSON de Snapshot (`.aiflow/checkpoint-latest.json`):**
-```json
-{
-  "timestamp": "2026-09-29T06:06:00.000Z",
-  "session_id": "sess_01J9...",
-  "session_title": "Refatoração Modular Scripts",
-  "turn_count": 24,
-  "branch": "main",
-  "tasks": {
-    "pending": [
-      "Atualizar documentação de ferramentas"
-    ],
-    "completed": [
-      "Modularizar aqei em pacote aqei/",
-      "Modularizar quota em quota_core/"
-    ]
-  },
-  "git_diff_summary": "scripts/status.py | 12 +-\n 1 file changed"
-}
-```
+- **Propósito:** trocar de sessão sem pagar a releitura do histórico. Retomar um chat parado há mais de 1h (cache frio) relê tudo a preço cheio, e compactar esse chat também. O handoff guarda só o que uma sessão nova não descobre lendo o código.
+- **Mecanismo:** comandos puros de prompt, sem script.
+  - `/handoff [nota]`: grava `.aist/handoff.md` (objetivo, feito com prova, próximo passo, arquivos tocados, decisões, becos sem saída, não verificado), com até ~60 linhas e sem logs nem código. O estado do git entra no prompt via `!git status`.
+  - `/resume [instrução]`: injeta `.aist/handoff.md` e `.aist/context.md` no prompt de uma sessão nova e executa o próximo passo.
+- **Quando usar:** antes de parar por mais de 1h (almoço, rate-limit, fim do dia), ou quando a sessão ficou longa e mudou de frente. Não reabra o chat antigo; abra uma sessão nova e rode `/resume`.
 
 ---
 
@@ -352,7 +319,7 @@ node ~/.config/opencode/scripts/live-browser.js eval "document.title"
 - **Comando Associado:** `/semsearch <query>`.
 - **Dependências de Runtime:** Python 3 (Stdlib: `argparse`, `dataclasses`, `json`, `math`, `os`, `sys`, `typing`, `urllib.request`) e serviço do Ollama em execução local com o modelo `nomic-embed-text` carregado na GPU.
 - **Mecanismo Operacional:**
-  - **Indexação (`index`):** Varre recursivamente a árvore de arquivos de código (`.py`, `.ts`, `.js`, `.go`), ignorando diretórios de build e artefatos (`node_modules`, `.git`, `.venv`, `venv`, `dist`, `build`, `__pycache__`, `.aiflow`). Segmenta os arquivos em blocos lógicos (`CodeChunk` de até 30 linhas com cortes contextuais em declarações de classes e funções), gera embeddings densos via Ollama e grava o índice serializado em `.aiflow/code-embeddings.json` (com fallback para `.code-embeddings.json`).
+  - **Indexação (`index`):** Varre recursivamente a árvore de arquivos de código (`.py`, `.ts`, `.js`, `.go`), ignorando diretórios de build e artefatos (`node_modules`, `.git`, `.venv`, `venv`, `dist`, `build`, `__pycache__`, `.aist`). Segmenta os arquivos em blocos lógicos (`CodeChunk` de até 30 linhas com cortes contextuais em declarações de classes e funções), gera embeddings densos via Ollama e grava o índice serializado em `.aist/code-embeddings.json` (com fallback para `.code-embeddings.json`).
   - **Busca Vetorial (`search`):** Gera o vetor denso da consulta, calcula a similaridade por cosseno (`cosine_similarity`) contra todos os blocos do índice pré-computado e exibe no terminal os top-$K$ resultados ranqueados com arquivo, linha inicial/final, score de similaridade e preview do trecho de código.
 - **Tabela de Subcomandos e Parâmetros:**
 
