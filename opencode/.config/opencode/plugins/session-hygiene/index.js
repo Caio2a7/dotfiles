@@ -8,6 +8,7 @@
  * Falha interna nunca derruba a chamada: loga e deixa passar.
  */
 import { blockedCommand, shellVerdict } from "./lib/shell-rules.js"
+import { cleanToolResult } from "./lib/output-clean.js"
 
 const SHELL_TOOLS = new Set(["shell", "bash"])
 
@@ -23,6 +24,12 @@ function guardShell(event) {
   console.error(`[session-hygiene] shell bloqueado para ${event.agent}: ${finding.reason}`)
 }
 
+function cleanShellOutput(event) {
+  if (!event || !SHELL_TOOLS.has(event.tool) || event.status !== "completed" || !event.result) return
+  const cleaned = cleanToolResult(event.result)
+  if (cleaned !== event.result) event.result = cleaned
+}
+
 export default {
   id: "local.session-hygiene",
   async setup(ctx) {
@@ -31,6 +38,13 @@ export default {
         if (SHELL_TOOLS.has(event.tool)) guardShell(event)
       } catch (err) {
         log(`tool ${event.tool}`, err)
+      }
+    })
+    await ctx.tool.hook("execute.after", async (event) => {
+      try {
+        cleanShellOutput(event)
+      } catch (err) {
+        log(`tool ${event?.tool} execute.after`, err)
       }
     })
   },

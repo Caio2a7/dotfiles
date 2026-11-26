@@ -66,7 +66,7 @@ const ALLOWED = [
   ["cat heredoc para /dev/null", "cat <<EOF > /dev/null\nx\nEOF"],
   ["redir /dev/null", "npm test > /dev/null 2>&1"],
   ["redir /tmp/*.log", "npm run build > /tmp/build.log 2>&1"],
-  ["tee .log", "bash run.sh 2>&1 | tee .aiflow/task-test.log"],
+  ["tee .log", "bash run.sh 2>&1 | tee .aist/task-test.log"],
   ["git", "git commit -m 'feat: x' && git status"],
   ["git diff", "git diff HEAD~1 -- src/app.js"],
   ["node script", "node scripts/build.js"],
