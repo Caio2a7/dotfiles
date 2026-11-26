@@ -4,6 +4,8 @@ import {
   sameModel,
   syncMark,
   isAntigravityModel,
+  isWebApiModel,
+  resolveSubagentModel,
   formatModelRef,
   handleSubagentToolCall,
   syncSessionModel,
@@ -88,6 +90,24 @@ test("isAntigravityModel identifica corretamente modelos Antigravity e agy", () 
   assert.equal(isAntigravityModel("claude-code/claude-sonnet-5-5"), false);
   assert.equal(isAntigravityModel(null), false);
   assert.equal(isAntigravityModel(undefined), false);
+});
+
+test("isWebApiModel identifica corretamente modelos WebApi", () => {
+  assert.equal(isWebApiModel({ providerID: "webapi", id: "sonnet-5.5" }), true);
+  assert.equal(isWebApiModel({ providerID: "other", id: "sonnet-5.5" }), true);
+  assert.equal(isWebApiModel({ providerID: "other", id: "sonnet-5.5-high" }), true);
+  assert.equal(isWebApiModel({ providerID: "other", id: "sonnet-5.5-extra" }), true);
+  assert.equal(isWebApiModel({ providerID: "other", id: "s4" }), true);
+  assert.equal(isWebApiModel({ providerID: "webapi", id: "custom" }), true);
+  assert.equal(isWebApiModel("webapi/sonnet-5.5"), true);
+  assert.equal(isWebApiModel("sonnet-5.5"), true);
+  assert.equal(isWebApiModel("sonnet-5.5-high"), true);
+  assert.equal(isWebApiModel("sonnet-5.5-extra"), true);
+  assert.equal(isWebApiModel("s4"), true);
+
+  assert.equal(isWebApiModel(NEW), false);
+  assert.equal(isWebApiModel(null), false);
+  assert.equal(isWebApiModel(undefined), false);
 });
 
 test("formatModelRef formata modelos e remove variant redundante ou default", () => {
@@ -332,4 +352,118 @@ test("switchModel que lança não grava a marca", async () => {
   const ctx = fakeCtx({ agentModel: NEW, sessionModel: OLD, switchError: new Error("boom") });
   await assert.rejects(() => syncSessionModel(ctx, "s1"), /boom/);
   assert.equal(ctx.store.has("synced-agent:s1"), false);
+});
+
+const NEON_HIGH = { providerID: "google", id: "antigravity-gemini-4-neon-high" };
+const NEON_XHIGH = { providerID: "google", id: "antigravity-gemini-4-neon-xhigh" };
+const NEON_LOW = { providerID: "google", id: "antigravity-gemini-4-neon-low" };
+const NEON_BARE_XHIGH = { providerID: "google", id: "antigravity-gemini-4-neon", variant: "xhigh" };
+const AG_OPUS_55_HIGH = { providerID: "google", id: "antigravity-claude-opus-5-5-high" };
+const AG_OPUS_55_LOW = { providerID: "google", id: "antigravity-claude-opus-5-5-low" };
+const HYDROGEN_MED = { providerID: "google", id: "antigravity-gemini-4-hydrogen-medium" };
+const HYDROGEN_HIGH = { providerID: "google", id: "antigravity-gemini-4-hydrogen-high" };
+const HYDROGEN_LOW = { providerID: "google", id: "antigravity-gemini-4-hydrogen-low" };
+const AG_SONNET_55_MED = { providerID: "google", id: "antigravity-claude-sonnet-5-5-medium" };
+const AG_SONNET_55_LOW = { providerID: "google", id: "antigravity-claude-sonnet-5-5-low" };
+const WEBAPI_S55 = { providerID: "webapi", id: "sonnet-5.5" };
+
+test("resolveSubagentModel: Neon High roteia workers para Hydrogen Medium", () => {
+  for (const agent of ["worker", "backend", "tester", "devops", "docs-writer", "agentic"]) {
+    assert.deepEqual(resolveSubagentModel(NEON_HIGH, agent), HYDROGEN_MED);
+  }
+});
+
+test("resolveSubagentModel: Neon High roteia agentes rápidos para Hydrogen Low", () => {
+  for (const agent of ["explore", "general", "browser"]) {
+    assert.deepEqual(resolveSubagentModel(NEON_HIGH, agent), HYDROGEN_LOW);
+  }
+});
+
+test("resolveSubagentModel: Neon High mantém Neon para agentes de raciocínio crítico", () => {
+  for (const agent of ["architect", "debugger", "reviewer", "blue-team"]) {
+    assert.deepEqual(resolveSubagentModel(NEON_HIGH, agent), NEON_HIGH);
+  }
+});
+
+test("resolveSubagentModel: Neon XHigh→Hydrogen High, Neon Low→Hydrogen Low e variant sem sufixo", () => {
+  assert.deepEqual(resolveSubagentModel(NEON_XHIGH, "worker"), HYDROGEN_HIGH);
+  assert.deepEqual(resolveSubagentModel(NEON_BARE_XHIGH, "worker"), HYDROGEN_HIGH);
+  assert.deepEqual(resolveSubagentModel(NEON_LOW, "worker"), HYDROGEN_LOW);
+  assert.deepEqual(resolveSubagentModel({ providerID: "google", id: "antigravity-gemini-4-neon" }, "worker"), HYDROGEN_MED);
+});
+
+test("resolveSubagentModel: Antigravity Claude Opus 5.5 roteia worker→Sonnet 5.5 e mantém architect", () => {
+  assert.deepEqual(resolveSubagentModel(AG_OPUS_55_HIGH, "worker"), AG_SONNET_55_MED);
+  assert.deepEqual(resolveSubagentModel(AG_OPUS_55_LOW, "worker"), AG_SONNET_55_LOW);
+  for (const agent of ["architect", "debugger", "reviewer", "blue-team"]) {
+    assert.deepEqual(resolveSubagentModel(AG_OPUS_55_HIGH, agent), AG_OPUS_55_HIGH);
+  }
+});
+
+test("resolveSubagentModel: outros modelos Antigravity/WebApi e null permanecem intactos", () => {
+  assert.equal(resolveSubagentModel(null, "worker"), null);
+  assert.deepEqual(resolveSubagentModel(AG_GEMINI, "worker"), AG_GEMINI);
+  assert.deepEqual(resolveSubagentModel(HYDROGEN_MED, "worker"), HYDROGEN_MED);
+  assert.deepEqual(resolveSubagentModel(AGY_FLASH, "worker"), AGY_FLASH);
+  assert.deepEqual(resolveSubagentModel(WEBAPI_S55, "worker"), WEBAPI_S55);
+});
+
+test("handleSubagentToolCall: aplica tier routing e respeita override explícito da mesma família", async () => {
+  const ctx = fakeCtx({ sessionModel: NEON_HIGH });
+
+  const workerEv = { tool: "subagent", sessionID: "s1", input: { agent: "worker", prompt: "x" } };
+  assert.equal(await handleSubagentToolCall(ctx, workerEv), true);
+  assert.equal(workerEv.input.model, "google/antigravity-gemini-4-hydrogen-medium");
+
+  const exploreEv = { tool: "subagent", sessionID: "s1", input: { agent: "explore", prompt: "x" } };
+  assert.equal(await handleSubagentToolCall(ctx, exploreEv), true);
+  assert.equal(exploreEv.input.model, "google/antigravity-gemini-4-hydrogen-low");
+
+  const archEv = { tool: "subagent", sessionID: "s1", input: { agent: "architect", prompt: "x" } };
+  assert.equal(await handleSubagentToolCall(ctx, archEv), true);
+  assert.equal(archEv.input.model, "google/antigravity-gemini-4-neon-high");
+
+  const overrideEv = {
+    tool: "subagent", sessionID: "s1",
+    input: { agent: "worker", model: "google/antigravity-gemini-4-neon-high", prompt: "x" },
+  };
+  assert.equal(await handleSubagentToolCall(ctx, overrideEv), false);
+  assert.equal(overrideEv.input.model, "google/antigravity-gemini-4-neon-high");
+});
+
+test("handleSubagentToolCall: override não-Antigravity com pai Antigravity aplica resolveSubagentModel", async () => {
+  const ctx = fakeCtx({ sessionModel: NEON_HIGH });
+  const ev = {
+    tool: "subagent", sessionID: "s1",
+    input: { agent: "worker", model: "claude-code/claude-sonnet-5-5", prompt: "x" },
+  };
+  assert.equal(await handleSubagentToolCall(ctx, ev), true);
+  assert.equal(ev.input.model, "google/antigravity-gemini-4-hydrogen-medium");
+
+  const webCtx = fakeCtx({ sessionModel: WEBAPI_S55 });
+  const webOverride = {
+    tool: "subagent", sessionID: "s1",
+    input: { agent: "worker", model: "webapi/sonnet-5.5-high", prompt: "x" },
+  };
+  assert.equal(await handleSubagentToolCall(webCtx, webOverride), false);
+  assert.equal(webOverride.input.model, "webapi/sonnet-5.5-high");
+});
+
+test("syncSessionModel: respeita override Antigravity no subagente e aplica tier quando veio em Claude", async () => {
+  const overrideCtx = fakeCtx({
+    sessionAgent: "worker", sessionModel: NEON_HIGH, agentModel: SONNET,
+    parentID: "p1", parentModel: NEON_HIGH,
+  });
+  assert.equal(await syncSessionModel(overrideCtx, "s1"), "antigravity-preserved");
+  assert.deepEqual(overrideCtx.switched, []);
+  assert.equal(overrideCtx.store.get("synced-agent:s1"), syncMark("worker", NEON_HIGH));
+  assert.equal(await syncSessionModel(overrideCtx, "s1"), "in-sync");
+
+  const fallbackCtx = fakeCtx({
+    sessionAgent: "worker", sessionModel: SONNET, agentModel: SONNET,
+    parentID: "p1", parentModel: NEON_HIGH,
+  });
+  assert.equal(await syncSessionModel(fallbackCtx, "s1"), "synced-subagent-antigravity");
+  assert.deepEqual(fallbackCtx.switched, [HYDROGEN_MED]);
+  assert.equal(fallbackCtx.store.get("synced-agent:s1"), syncMark("worker", HYDROGEN_MED));
 });

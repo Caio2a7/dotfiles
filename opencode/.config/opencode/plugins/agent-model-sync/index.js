@@ -2,10 +2,12 @@
  * agent-model-sync — sincronização de modelos de agentes e subagentes (V2).
  *
  * 1. Agentes primários: aplica o modelo configurado à sessão (workaround #49765),
- *    preservando modelos Antigravity ativos ou trocas manuais.
- * 2. Subagentes disparados pelo orchestrator: quando o orchestrator estiver rodando
- *    em QUALQUER modelo Antigravity (ex.: Gemini 3.8 Flash), os subagentes herdam
- *    o mesmo modelo Antigravity. Caso contrário, rodam no padrão configurado (Sonnet 5.5).
+ *    preservando modelos Antigravity/WebApi ativos ou trocas manuais.
+ * 2. Subagentes disparados pelo orchestrator: quando o pai estiver em Antigravity
+ *    ou WebApi, aplica roteamento por papel/tier (Gemini 4 Neon → Hydrogen para
+ *    workers/rápidos e Opus 5.5 → Sonnet 5.5, mantendo Neon/Opus em agentes de
+ *    raciocínio crítico; demais modelos herdam direto), respeitando overrides
+ *    explícitos da mesma família. Caso contrário, rodam no padrão do agente.
  */
 import { handleSubagentToolCall, syncSessionModel } from "./lib/sync.js";
 
