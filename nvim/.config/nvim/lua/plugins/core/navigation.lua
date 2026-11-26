@@ -47,10 +47,14 @@ return {
       end, opts_key)
 
       map("n", "o", "o<Esc>", opts_key)
-      map({ "n", "v" }, "<C-Home>", "gg", opts_key)
-      map("i", "<C-Home>", "<C-o>gg", opts_key)
-      map({ "n", "v" }, "<C-]>", "G", opts_key)
-      map("i", "<C-]>", "<C-o>G", opts_key)
+      map({ "n", "v" }, "<C-Home>", "G", opts_key)
+      map("i", "<C-Home>", "<C-o>G", opts_key)
+      map({ "n", "v" }, "<C-]>", "gg", opts_key)
+      map("i", "<C-]>", "<C-o>gg", opts_key)
+      map({ "n", "v" }, "<Esc>[93;5u", "gg", opts_key)
+      map({ "n", "v" }, "<C-[>", "G", opts_key)
+      map("i", "<C-[>", "<C-o>G", opts_key)
+      map({ "n", "v" }, "<Esc>[91;5u", "G", opts_key)
 
       -- Ctrl+. (Ir para o final da linha)
       map({ "n", "v" }, "<C-.>", "$", opts_key)
@@ -71,7 +75,7 @@ return {
       map({ "n", "i" }, "<C-Right>", "<C-o>e<Right>", { desc = "Prox Palavra" })
       map({ "n", "i" }, "<C-Left>", "<C-o>b", { desc = "Palavra Ant" })
 
-      -- Fechar Buffer Inteligente (Ctrl+w)
+      -- Fechar Buffer Inteligente (Ctrl+q)
       local function smart_close_buf()
         local current_buf = vim.api.nvim_get_current_buf()
         local is_term = vim.bo[current_buf].buftype == "terminal" or vim.bo[current_buf].buftype == "nofile"
@@ -79,21 +83,46 @@ return {
           _G.SmartTerm.safe_close_buffer(current_buf)
           return
         end
+        local wins = vim.api.nvim_tabpage_list_wins(0)
+        local real_wins = vim.tbl_filter(function(w)
+          return vim.api.nvim_win_get_config(w).relative == ""
+        end, wins)
+        if #real_wins > 1 then
+          -- Em split: fecha só esta janela, mantém o buffer
+          vim.cmd("close")
+          return
+        end
+        -- Janela única: fecha o buffer
         local file_name = vim.fn.expand("%:t")
         if file_name == "" then file_name = "Sem Titulo" end
         local perform_close = function(buf, force)
           if #vim.fn.getbufinfo({ buflisted = 1 }) > 1 then vim.cmd("bprevious") else vim.cmd("enew") end
           pcall(vim.cmd, (force and "bdelete! " or "bdelete ") .. buf)
         end
-        if vim.bo[current_buf].modified and not is_term then
+        if vim.bo[current_buf].modified then
           local choice = vim.fn.confirm("Salvar alteracoes em '" .. file_name .. "'?", "&Sim\n&Nao\n&Cancelar", 1)
           if choice == 1 then vim.cmd("write"); perform_close(current_buf, false)
           elseif choice == 2 then perform_close(current_buf, true) end
         else
-          perform_close(current_buf, is_term)
+          perform_close(current_buf, false)
         end
       end
-      map({ "n", "i", "v" }, "<C-w>", smart_close_buf, { desc = "Fechar Buffer (Smart)" })
+      -- Ctrl+w / Ctrl+q: fecha a janela atual (split) ou o buffer, estilo VSCode.
+      -- Reaplicado no VeryLazy para vencer o trigger <C-w> do which-key.
+      local function set_close_keys()
+        for _, k in ipairs({ "<C-q>", "<C-w>" }) do
+          map({ "n", "i", "v" }, k, smart_close_buf, { desc = "Fechar Janela/Buffer (Smart)", nowait = true })
+        end
+        -- LazyVim mapeia <C-h/j/k/l> -> <C-w>h/j/k/l com remap=true; sem isso cairiam no fechamento.
+        for _, d in ipairs({ "h", "j", "k", "l" }) do
+          local cur = vim.fn.maparg("<C-" .. d .. ">", "n", false, true)
+          if cur.rhs and cur.rhs:lower() == "<c-w>" .. d then
+            map("n", "<C-" .. d .. ">", "<C-w>" .. d, { desc = cur.desc, noremap = true, silent = true })
+          end
+        end
+      end
+      set_close_keys()
+      vim.api.nvim_create_autocmd("User", { pattern = "VeryLazy", callback = set_close_keys })
 
       map("i", "<C-S-Left>", "<Esc>lvb", opts_key)
       map("i", "<C-S-Right>", "<C-o>ve", opts_key)
@@ -116,6 +145,12 @@ return {
               pcall(vim.keymap.del, mode, key)
             end
           end
+
+          -- Splits com Shift+setas
+          map("n", "<S-Up>",    "<cmd>split<cr>",  { desc = "Split horizontal" })
+          map("n", "<S-Down>",  "<cmd>split<cr>",  { desc = "Split horizontal" })
+          map("n", "<S-Left>",  "<cmd>vsplit<cr>", { desc = "Split vertical" })
+          map("n", "<S-Right>", "<cmd>vsplit<cr>", { desc = "Split vertical" })
         end,
       })
 
@@ -166,7 +201,7 @@ return {
         end
       end
 
-      local term_toggle_keys = { "<C-h>", "<C-H>", "<Esc>[104;5u", "\x1b[104;5u" }
+      local term_toggle_keys = { "<C-t>", "<C-T>", "<Esc>[116;5u", "\x1b[116;5u" }
       for _, k in ipairs(term_toggle_keys) do
         map({ "n", "v", "t" }, k, toggle_terminal, { desc = "Terminal: Esconder / Alternar", noremap = true, silent = true, nowait = true })
         map("i", k, function()
@@ -193,5 +228,30 @@ return {
 
       return opts
     end,
+  },
+  {
+    "folke/trouble.nvim",
+    keys = {
+      { "[q", false },
+      { "]q", false },
+    },
+  },
+  {
+    "folke/todo-comments.nvim",
+    keys = {
+      { "[t", false },
+      { "]t", false },
+    },
+  },
+  {
+    "gbprod/yanky.nvim",
+    keys = {
+      { "[y", false },
+      { "]y", false },
+      { "[p", false },
+      { "]p", false },
+      { "[P", false },
+      { "]P", false },
+    },
   },
 }
