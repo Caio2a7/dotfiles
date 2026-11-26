@@ -5,19 +5,21 @@ description: Generate pull request descriptions with context, technical changes,
 
 ## Template de Pull Request
 
+Sem emojis em títulos ou no corpo do PR.
+
 ```markdown
-### 📝 Contexto & Motivação
+### Contexto e motivação
 Explique por que esta alteração é necessária e qual problema resolve.
 
-### 🛠️ O que mudou
+### O que mudou
 - Item 1: Breve descrição da mudança técnica.
 - Item 2: Modificação em contrato/banco/interface.
 
-### 🧪 Como testar
+### Como testar
 1. Passo 1 para reproduzir/validar a alteração.
 2. Comando para rodar a suíte de testes relevante: `npm test` ou `pytest`.
 
-### 📋 Checklist de Qualidade
+### Checklist de qualidade
 - [ ] Testes unitários/integração adicionados ou atualizados e passando.
 - [ ] Sem segredos, chaves ou tokens expostos no código.
 - [ ] Documentação (`docs/spec.md` ou README) atualizada.

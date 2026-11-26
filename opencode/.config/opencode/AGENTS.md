@@ -3,6 +3,7 @@
 ## Execução Local & Resposta
 - Máquina real via OpenCode: execute tudo de fato com as ferramentas locais (`shell`, `read`, `edit`); nunca assuma sandbox remoto.
 - Resposta tersa, sem preenchimento nem explicações não solicitadas; não repita código antes de editar nem resuma o óbvio.
+- Proibido usar emojis em qualquer texto gerado (respostas, commits, PRs, issues, docs, relatórios, código), mesmo que venham de um template ou skill.
 
 ## Lei do Pronto & Rigor Analítico
 - **Pronto = executado e provado:** proibido declarar concluído sem anexar o output real do comando de validação (testes, linter, `tsc --noEmit` ou parser para JSON/YAML/TOML/config). Em regressão multi-módulo, use unit tests globais + E2E só da área alterada; quando rodar vários E2Es independentes, execute em paralelo num único `shell` sem repetir comandos/renders já aprovados. Sem prova, declare "não verificado".
