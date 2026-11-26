@@ -11,8 +11,8 @@ return {
         ["Find Under"]         = "<C-r>",
         ["Find Subword Under"] = "<C-r>",
         ["Select All"]         = "<C-M-a>",
-        ["Add Cursor Down"]    = "<C-Down>",
-        ["Add Cursor Up"]      = "<C-Up>",
+        ["Add Cursor Down"]    = "<C-M-Down>",
+        ["Add Cursor Up"]      = "<C-M-Up>",
         ["Skip Region"]        = "<C-s>",
         ["Remove Region"]      = "<leader>x",
       }
@@ -29,10 +29,8 @@ return {
         pcall(vim.cmd, "call vm#commands#add_cursor_up(0, 1)")
       end
 
-      map({ "n", "v" }, "<C-Down>", add_down, opts)
-      map({ "n", "v" }, "<C-Up>", add_up, opts)
-      map({ "n", "v" }, "<Esc>[1;5B", add_down, opts)
-      map({ "n", "v" }, "<Esc>[1;5A", add_up, opts)
+      map({ "n", "v" }, "<C-M-Down>", add_down, opts)
+      map({ "n", "v" }, "<C-M-Up>", add_up, opts)
     end,
     config = function()
       local set_yellow_hl = function()

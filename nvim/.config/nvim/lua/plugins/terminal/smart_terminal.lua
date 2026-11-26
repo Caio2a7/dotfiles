@@ -108,12 +108,13 @@ function M.create_interactive_shell()
     { { "n", "t" }, "<C-f>", function() M.toggle_fullscreen() end, "Fullscreen MESMO" },
     { { "n", "t" }, "<C-Tab>", function() M.cycle_window("next") end, "Proxima Aba" },
     { { "n", "t" }, "<C-S-Tab>", function() M.cycle_window("prev") end, "Aba Anterior" },
+    { { "n", "v" }, "<C-q>", function() M.safe_close_buffer(M.term_buf) end, "Fechar Terminal" },
     { { "n", "v" }, "<C-w>", function() M.safe_close_buffer(M.term_buf) end, "Fechar Terminal" },
     { "n", "q", function() M.safe_close_buffer(M.term_buf) end, "Fechar Terminal" },
   }
   vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { buffer = M.term_buf, desc = "Voltar ao modo Normal" })
   for _, k in ipairs(km) do vim.keymap.set(k[1], k[2], k[3], { buffer = M.term_buf, desc = k[4] }) end
-  for _, k in ipairs({ "<C-h>", "<C-H>", "<Esc>[104;5u", "\x1b[104;5u" }) do
+  for _, k in ipairs({ "<C-t>", "<C-T>", "<Esc>[116;5u", "\x1b[116;5u" }) do
     vim.keymap.set({ "n", "t" }, k, function() M.hide_terminal() end, { buffer = M.term_buf, desc = "Esconder" })
   end
 end
@@ -167,11 +168,12 @@ function M.run_cmd(cmd)
       { "n", "<C-f>", function() M.toggle_fullscreen() end, "Fullscreen MESMO" },
       { { "n", "v" }, "<C-Tab>", function() M.cycle_window("next") end, "Proxima Aba" },
       { { "n", "v" }, "<C-S-Tab>", function() M.cycle_window("prev") end, "Aba Anterior" },
+      { { "n", "v" }, "<C-q>", function() M.safe_close_buffer(M.out_buf) end, "Fechar Output" },
       { { "n", "v" }, "<C-w>", function() M.safe_close_buffer(M.out_buf) end, "Fechar Output" },
       { "n", "q", function() M.safe_close_buffer(M.out_buf) end, "Fechar Output" },
     }
     for _, k in ipairs(km) do vim.keymap.set(k[1], k[2], k[3], { buffer = M.out_buf, desc = k[4] }) end
-    for _, k in ipairs({ "<C-h>", "<C-H>", "<Esc>[104;5u", "\x1b[104;5u" }) do
+    for _, k in ipairs({ "<C-t>", "<C-T>", "<Esc>[116;5u", "\x1b[116;5u" }) do
       vim.keymap.set({ "n", "v" }, k, function() M.hide_terminal() end, { buffer = M.out_buf, desc = "Esconder" })
     end
   end
@@ -224,7 +226,7 @@ function M.should_intercept(raw)
   return false
 end
 
-for _, k in ipairs({ "<C-h>", "<C-H>", "<Esc>[104;5u", "\x1b[104;5u" }) do
+for _, k in ipairs({ "<C-t>", "<C-T>", "<Esc>[116;5u", "\x1b[116;5u" }) do
   vim.keymap.set({ "n", "v", "t" }, k, M.hide_terminal, { desc = "Terminal: Esconder / Alternar", noremap = true, silent = true, nowait = true })
   vim.keymap.set("i", k, function()
     vim.cmd("stopinsert")

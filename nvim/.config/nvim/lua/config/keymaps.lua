@@ -2,7 +2,7 @@ vim.opt.selection = "exclusive"
 vim.opt.virtualedit = "onemore"
 vim.opt.keymodel = "startsel,stopsel"
 vim.opt.clipboard = "unnamedplus"
-vim.opt.timeoutlen = 1000
+vim.opt.timeoutlen = 300
 
 local opts = { noremap = true, silent = true }
 
@@ -428,8 +428,511 @@ vim.keymap.set("x", "<Up>", "k$", opts_s)
 vim.keymap.set("x", "<S-Down>", "j$", opts_s)
 vim.keymap.set("x", "<S-Up>", "k$", opts_s)
 
-vim.keymap.set("v", "}", "}l", { noremap = true, silent = true })
-vim.keymap.set("v", "{", "{h", { noremap = true, silent = true })
+-- Navegação inteligente entre blocos ({ e [ para baixo; } e ] para cima)
+-- Detecta fechamento correspondente de (, { e [ quando sobre o caractere
+-- e detecta linhas vazias / fechamentos de bloco em geral
+local function is_empty_line(line)
+  return line:match("^%s*$") ~= nil
+end
+
+local function is_comment_line(line)
+  return line:match("^%s*//") ~= nil
+    or line:match("^%s*%-%-") ~= nil
+    or line:match("^%s*#") ~= nil
+    or line:match("^%s*/%*") ~= nil
+    or line:match("^%s*%*") ~= nil
+end
+
+local function is_block_close(line)
+  if not line or is_comment_line(line) then return false end
+  if line:match("^%s*[%]%}]") then return true end
+  if line:match("[%]%}]%s*[,;)]*%s*$") then return true end
+  if line:match("[%]%}]%s*[,;)]*%s*//") then return true end
+  if line:match("[%]%}]%s*[,;)]*%s*%-%-") then return true end
+  return false
+end
+
+local function is_block_open(line)
+  if not line or is_comment_line(line) then return false end
+  if line:match("^%s*[%[{]") then return true end
+  if line:match("[%[{]%s*$") then return true end
+  if line:match("[%[{]%s*//") then return true end
+  if line:match("[%[{]%s*%-%-") then return true end
+  return false
+end
+
+local open_bytes = { ["("] = 40, ["{"] = 123, ["["] = 91 }
+local close_bytes = { [")"] = 41, ["}"] = 125, ["]"] = 93 }
+
+local pair_closing = {
+  ["("] = ")",
+  ["{"] = "}",
+  ["["] = "]",
+}
+
+local pair_opening = {
+  [")"] = "(",
+  ["}"] = "{",
+  ["]"] = "[",
+}
+
+-- Scanner ultrarrápido em puro Lua (< 1ms) para encontrar fechamento balanceado
+local function fast_match_down(bufnr, start_line, start_col, open_b, close_b)
+  local total_lines = vim.api.nvim_buf_line_count(bufnr)
+  local depth = 1
+  local in_str = nil
+  local in_block_comment = false
+  local chunk_size = 200
+
+  local lnum = start_line
+  while lnum <= total_lines do
+    local chunk_end = math.min(total_lines, lnum + chunk_size - 1)
+    local chunk = vim.api.nvim_buf_get_lines(bufnr, lnum - 1, chunk_end, false)
+
+    for line_idx, line in ipairs(chunk) do
+      local current_lnum = lnum + line_idx - 1
+      local col_start = (current_lnum == start_line) and (start_col + 2) or 1
+      local len = #line
+      local c = col_start
+
+      while c <= len do
+        local b = line:byte(c)
+
+        if in_block_comment then
+          if b == 42 and line:byte(c + 1) == 47 then -- */
+            in_block_comment = false
+            c = c + 1
+          end
+        elseif in_str then
+          if b == 92 then -- backslash escape
+            c = c + 1
+          elseif b == in_str then
+            in_str = nil
+          end
+        else
+          if b == 47 and line:byte(c + 1) == 47 then -- //
+            break
+          elseif b == 45 and line:byte(c + 1) == 45 then -- --
+            break
+          elseif b == 35 then -- #
+            break
+          elseif b == 47 and line:byte(c + 1) == 42 then -- /*
+            in_block_comment = true
+            c = c + 1
+          elseif b == 34 or b == 39 or b == 96 then -- " or ' or `
+            in_str = b
+          elseif b == open_b then
+            depth = depth + 1
+          elseif b == close_b then
+            depth = depth - 1
+            if depth == 0 then
+              return current_lnum, c - 1
+            end
+          end
+        end
+        c = c + 1
+      end
+    end
+    lnum = chunk_end + 1
+  end
+  return nil
+end
+
+-- Scanner ultrarrápido em puro Lua (< 1ms) para encontrar abertura balanceada
+local function fast_match_up(bufnr, start_line, start_col, open_b, close_b)
+  local depth = 1
+  local chunk_size = 200
+
+  local lnum = start_line
+  while lnum >= 1 do
+    local chunk_start = math.max(1, lnum - chunk_size + 1)
+    local chunk = vim.api.nvim_buf_get_lines(bufnr, chunk_start - 1, lnum, false)
+
+    for line_idx = #chunk, 1, -1 do
+      local current_lnum = chunk_start + line_idx - 1
+      local line = chunk[line_idx]
+      local len = #line
+      local col_end = (current_lnum == start_line) and start_col or len
+
+      local mask = {}
+      local in_str = nil
+      local c = 1
+      while c <= col_end do
+        local b = line:byte(c)
+        if in_str then
+          mask[c] = true
+          if b == 92 then
+            mask[c + 1] = true
+            c = c + 1
+          elseif b == in_str then
+            in_str = nil
+          end
+        else
+          if b == 47 and line:byte(c + 1) == 47 then -- //
+            for j = c, col_end do mask[j] = true end
+            break
+          elseif b == 45 and line:byte(c + 1) == 45 then -- --
+            for j = c, col_end do mask[j] = true end
+            break
+          elseif b == 35 then -- #
+            for j = c, col_end do mask[j] = true end
+            break
+          elseif b == 34 or b == 39 or b == 96 then
+            in_str = b
+            mask[c] = true
+          end
+        end
+        c = c + 1
+      end
+
+      for j = col_end, 1, -1 do
+        if not mask[j] then
+          local b = line:byte(j)
+          if b == close_b then
+            depth = depth + 1
+          elseif b == open_b then
+            depth = depth - 1
+            if depth == 0 then
+              return current_lnum, j - 1
+            end
+          end
+        end
+      end
+    end
+    lnum = chunk_start - 1
+  end
+  return nil
+end
+
+-- Salto preciso para o fechamento/abertura real do par (, { ou [
+-- Executado em puro Lua com 0ms de latência
+local function jump_matching_pair(direction)
+  local cur_pos = vim.api.nvim_win_get_cursor(0)
+  local line = vim.api.nvim_buf_get_lines(0, cur_pos[1] - 1, cur_pos[1], false)[1] or ""
+  local ch = line:sub(cur_pos[2] + 1, cur_pos[2] + 1)
+  local cur_mode = vim.fn.mode()
+
+  if direction == "down" then
+    local expected_close = pair_closing[ch]
+    if not expected_close then return false end
+
+    local open_b = open_bytes[ch]
+    local close_b = close_bytes[expected_close]
+    local target_line, target_col = fast_match_down(0, cur_pos[1], cur_pos[2], open_b, close_b)
+
+    -- Fallback via Treesitter se não localizado pelo scanner
+    if not target_line then
+      local ok_ts, node = pcall(vim.treesitter.get_node, { bufnr = 0, pos = { cur_pos[1] - 1, cur_pos[2] } })
+      if ok_ts and node then
+        local target_node = node
+        if node:child_count() == 0 and node:parent() then
+          target_node = node:parent()
+        end
+        local count = target_node:child_count()
+        for i = count - 1, 0, -1 do
+          local child = target_node:child(i)
+          if child and vim.treesitter.get_node_text(child, 0) == expected_close then
+            local r, c = child:range()
+            target_line = r + 1
+            target_col = c
+            break
+          end
+        end
+      end
+    end
+
+    if target_line and target_col then
+      if cur_mode == "v" or cur_mode == "\22" then
+        target_col = target_col + 1
+      end
+      vim.api.nvim_win_set_cursor(0, { target_line, target_col })
+      return true
+    end
+
+  elseif direction == "up" then
+    local expected_open = pair_opening[ch]
+    if not expected_open then return false end
+
+    local close_b = close_bytes[ch]
+    local open_b = open_bytes[expected_open]
+    local target_line, target_col = fast_match_up(0, cur_pos[1], cur_pos[2], open_b, close_b)
+
+    -- Fallback via Treesitter se não localizado pelo scanner
+    if not target_line then
+      local ok_ts, node = pcall(vim.treesitter.get_node, { bufnr = 0, pos = { cur_pos[1] - 1, cur_pos[2] } })
+      if ok_ts and node then
+        local target_node = node
+        if node:child_count() == 0 and node:parent() then
+          target_node = node:parent()
+        end
+        local count = target_node:child_count()
+        for i = 0, count - 1 do
+          local child = target_node:child(i)
+          if child and vim.treesitter.get_node_text(child, 0) == expected_open then
+            local r, c = child:range()
+            target_line = r + 1
+            target_col = c
+            break
+          end
+        end
+      end
+    end
+
+    if target_line and target_col then
+      vim.api.nvim_win_set_cursor(0, { target_line, target_col })
+      return true
+    end
+  end
+
+  return false
+end
+
+local function find_down_target(cur_line, total_lines)
+  if cur_line >= total_lines then return total_lines end
+
+  local start = cur_line + 1
+  local cur_text = vim.api.nvim_buf_get_lines(0, cur_line - 1, cur_line, false)[1] or ""
+  if is_empty_line(cur_text) then
+    while start <= total_lines do
+      local chunk_end = math.min(total_lines, start + 100)
+      local lines = vim.api.nvim_buf_get_lines(0, start - 1, chunk_end, false)
+      local broke = false
+      for idx, l in ipairs(lines) do
+        if not is_empty_line(l) then
+          start = start + idx - 1
+          broke = true
+          break
+        end
+      end
+      if broke then break end
+      start = chunk_end + 1
+    end
+    if start > total_lines then return total_lines end
+  end
+
+  local chunk_size = 200
+  local i = start
+  while i <= total_lines do
+    local chunk_end = math.min(total_lines, i + chunk_size - 1)
+    local lines = vim.api.nvim_buf_get_lines(0, i - 1, chunk_end, false)
+    for idx, l in ipairs(lines) do
+      if is_empty_line(l) or is_block_close(l) then
+        return i + idx - 1
+      end
+    end
+    i = chunk_end + 1
+  end
+
+  return total_lines
+end
+
+local function find_up_target(cur_line, total_lines)
+  if cur_line <= 1 then return 1 end
+
+  local start = cur_line - 1
+  local cur_text = vim.api.nvim_buf_get_lines(0, cur_line - 1, cur_line, false)[1] or ""
+  if is_empty_line(cur_text) then
+    while start >= 1 do
+      local chunk_start = math.max(1, start - 100)
+      local lines = vim.api.nvim_buf_get_lines(0, chunk_start - 1, start, false)
+      local broke = false
+      for idx = #lines, 1, -1 do
+        if not is_empty_line(lines[idx]) then
+          start = chunk_start + idx - 1
+          broke = true
+          break
+        end
+      end
+      if broke then break end
+      start = chunk_start - 1
+    end
+    if start < 1 then return 1 end
+  end
+
+  local chunk_size = 200
+  local i = start
+  while i >= 1 do
+    local chunk_start = math.max(1, i - chunk_size + 1)
+    local lines = vim.api.nvim_buf_get_lines(0, chunk_start - 1, i, false)
+    for idx = #lines, 1, -1 do
+      local l = lines[idx]
+      if is_empty_line(l) or is_block_open(l) or is_block_close(l) then
+        return chunk_start + idx - 1
+      end
+    end
+    i = chunk_start - 1
+  end
+
+  return 1
+end
+
+local function navigate_block_down()
+  local mode = vim.fn.mode()
+  local is_select = (mode == "s" or mode == "S" or mode == "\19")
+  if is_select then
+    vim.cmd("normal! \7")
+  end
+
+  if mode == "n" then
+    vim.cmd("normal! m'")
+  end
+
+  local count = vim.v.count1
+  for _ = 1, count do
+    local pair_jumped = jump_matching_pair("down")
+    if not pair_jumped then
+      local cur_pos = vim.api.nvim_win_get_cursor(0)
+      local cur_line = cur_pos[1]
+      local total_lines = vim.api.nvim_buf_line_count(0)
+      local target_line = find_down_target(cur_line, total_lines)
+
+      local target_text = vim.api.nvim_buf_get_lines(0, target_line - 1, target_line, false)[1] or ""
+      local col = 0
+      local cur_mode = vim.fn.mode()
+
+      if cur_mode == "v" or cur_mode == "\22" then
+        if is_empty_line(target_text) then
+          col = 0
+        else
+          col = #target_text
+        end
+      elseif cur_mode == "V" then
+        col = 0
+      else
+        local first_nb = target_text:find("%S")
+        col = first_nb and (first_nb - 1) or 0
+      end
+
+      vim.api.nvim_win_set_cursor(0, { target_line, col })
+    end
+  end
+
+  pcall(vim.cmd, "normal! zv")
+
+  if is_select then
+    vim.cmd("normal! \7")
+  end
+end
+
+local function navigate_block_up()
+  local mode = vim.fn.mode()
+  local is_select = (mode == "s" or mode == "S" or mode == "\19")
+  if is_select then
+    vim.cmd("normal! \7")
+  end
+
+  if mode == "n" then
+    vim.cmd("normal! m'")
+  end
+
+  local count = vim.v.count1
+  for _ = 1, count do
+    local pair_jumped = jump_matching_pair("up")
+    if not pair_jumped then
+      local cur_pos = vim.api.nvim_win_get_cursor(0)
+      local cur_line = cur_pos[1]
+      local total_lines = vim.api.nvim_buf_line_count(0)
+      local target_line = find_up_target(cur_line, total_lines)
+
+      local target_text = vim.api.nvim_buf_get_lines(0, target_line - 1, target_line, false)[1] or ""
+      local col = 0
+      local cur_mode = vim.fn.mode()
+
+      if cur_mode == "v" or cur_mode == "\22" then
+        col = 0
+      elseif cur_mode == "V" then
+        col = 0
+      else
+        local first_nb = target_text:find("%S")
+        col = first_nb and (first_nb - 1) or 0
+      end
+
+      vim.api.nvim_win_set_cursor(0, { target_line, col })
+    end
+  end
+
+  pcall(vim.cmd, "normal! zv")
+
+  if is_select then
+    vim.cmd("normal! \7")
+  end
+end
+
+-- Desvincular todos os prefixos de [ e ] para garantir disparo imediato a 0ms (sem esperar timeoutlen)
+local function unbind_bracket_prefixes(buf)
+  local modes = { "n", "x", "s", "o", "v" }
+  -- 1. Sempre desvincular mappings globais conflitantes
+  for _, m in ipairs(modes) do
+    for _, map in ipairs(vim.api.nvim_get_keymap(m)) do
+      local lhs = map.lhs
+      if (lhs:sub(1, 1) == "[" or lhs:sub(1, 1) == "]") and #lhs > 1 then
+        pcall(vim.keymap.del, m, lhs)
+      end
+    end
+  end
+  -- 2. Desvincular mappings buffer-local conflitantes em todos os buffers abertos ou no especificado
+  local target_bufs = buf and { buf } or vim.api.nvim_list_bufs()
+  for _, b in ipairs(target_bufs) do
+    if vim.api.nvim_buf_is_valid(b) then
+      for _, m in ipairs(modes) do
+        for _, map in ipairs(vim.api.nvim_buf_get_keymap(b, m)) do
+          local lhs = map.lhs
+          if (lhs:sub(1, 1) == "[" or lhs:sub(1, 1) == "]") and #lhs > 1 then
+            pcall(vim.keymap.del, m, lhs, { buffer = b })
+          end
+        end
+      end
+    end
+  end
+  -- 3. Desativar grupos [ e ] no which-key para evitar interceptação do popup
+  pcall(function()
+    require("which-key").add({
+      { "[", hidden = true },
+      { "]", hidden = true },
+    })
+  end)
+end
+
+local function register_block_navigation(buf)
+  if buf and not vim.api.nvim_buf_is_valid(buf) then return end
+  unbind_bracket_prefixes(buf)
+
+  local map_opts = { noremap = true, silent = true, nowait = true }
+  if buf then
+    map_opts.buffer = buf
+  end
+
+  for _, k in ipairs({ "{", "[" }) do
+    vim.keymap.set({ "n", "x", "s", "o" }, k, navigate_block_down, vim.tbl_extend("force", map_opts, { desc = "Navegar bloco abaixo / fechamento } ou par" }))
+  end
+
+  for _, k in ipairs({ "}", "]" }) do
+    vim.keymap.set({ "n", "x", "s", "o" }, k, navigate_block_up, vim.tbl_extend("force", map_opts, { desc = "Navegar bloco acima / abertura { ou par" }))
+  end
+end
+
+-- Registro global imediato
+register_block_navigation(nil)
+
+-- Registro buffer-local em tempo de execução para ter prioridade absoluta e 0ms de espera
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "BufReadPost", "FileType", "LspAttach" }, {
+  group = vim.api.nvim_create_augroup("BlockNavKeymaps", { clear = true }),
+  pattern = "*",
+  callback = function(ev)
+    register_block_navigation(ev.buf)
+  end,
+})
+
+vim.api.nvim_create_autocmd("User", {
+  pattern = "VeryLazy",
+  callback = function()
+    register_block_navigation(nil)
+    local cur_buf = vim.api.nvim_get_current_buf()
+    if cur_buf and vim.api.nvim_buf_is_valid(cur_buf) then
+      register_block_navigation(cur_buf)
+    end
+  end,
+})
 
 -- Helper robusto para verificar se o Vim Visual Multi possui regiões ativas
 local function is_vm_active()
@@ -451,11 +954,11 @@ end
 
 local opts_force = { noremap = true, silent = true }
 
-for _, key in ipairs({ "<C-Down>", "<Esc>[1;5B", "\x1b[1;5B" }) do
+for _, key in ipairs({ "<C-M-Down>" }) do
   vim.keymap.set({ "n", "x" }, key, vm_feed_down, opts_force)
 end
 
-for _, key in ipairs({ "<C-Up>", "<Esc>[1;5A", "\x1b[1;5A" }) do
+for _, key in ipairs({ "<C-M-Up>" }) do
   vim.keymap.set({ "n", "x" }, key, vm_feed_up, opts_force)
 end
 
@@ -522,7 +1025,7 @@ local function toggle_smart_terminal()
   end
 end
 
-local term_toggle_keys = { "<C-h>", "<C-H>", "<Esc>[104;5u", "\x1b[104;5u" }
+local term_toggle_keys = { "<C-t>", "<C-T>", "<Esc>[116;5u", "\x1b[116;5u" }
 local function register_term_toggle()
   for _, k in ipairs(term_toggle_keys) do
     vim.keymap.set({ "n", "v", "x", "t" }, k, toggle_smart_terminal, { desc = "Terminal: Esconder / Alternar", noremap = true, silent = true, nowait = true })
@@ -539,5 +1042,135 @@ vim.api.nvim_create_autocmd("User", {
   pattern = "VeryLazy",
   callback = register_term_toggle,
 })
+
+-- Navegação Semântica Inteligente por Marcos de Código (Ctrl+Down / Ctrl+Up)
+-- Pula boilerplate (includes, defines) e salta direto em cabeçalhos de função,
+-- finais de bloco sequencial com chamadas () e fechamentos de bloco (}).
+local function smart_milestone_jump(direction)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local total_lines = vim.api.nvim_buf_line_count(bufnr)
+  if total_lines <= 1 then return end
+
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+  local function is_empty(l) return not l or l:match("^%s*$") ~= nil end
+  local function is_preprocessor(l) return l:match("^%s*#") ~= nil end
+  local function is_comment(l)
+    return l:match("^%s*//") ~= nil or l:match("^%s*%-%-") ~= nil or l:match("^%s*/%*") ~= nil or l:match("^%s*%*") ~= nil
+  end
+
+  -- 2. Início de bloco de controle com parênteses () (if, for, while, switch, etc.)
+  local function is_control_header(l)
+    if is_comment(l) or is_preprocessor(l) then return false end
+    if l:match("^%s*if%s*%(")
+       or l:match("^%s*else%s+if%s*%(")
+       or l:match("^%s*while%s*%(")
+       or l:match("^%s*for%s*%(")
+       or l:match("^%s*switch%s*%(")
+       or l:match("^%s*catch%s*%(") then
+      return true
+    end
+    return false
+  end
+
+  -- 1. Cabeçalho de função, struct, classe
+  local function is_block_header(l)
+    if is_preprocessor(l) or is_comment(l) then return false end
+    if (l:match("^%s*[%w_:*&%s]+%s*%(.*%)%s*[{:]?%s*$")
+        or l:match("^%s*def%s+[%w_]+%s*%(")
+        or l:match("^%s*fn%s+[%w_]+%s*%(")
+        or l:match("^%s*func[%s%(]+")
+        or l:match("^%s*function[%s%w_.:]*%("))
+       and not is_control_header(l) then
+      return true
+    end
+    if l:match("^%s*struct%s+[%w_]+%s*[{]")
+       or l:match("^%s*class%s+[%w_]+")
+       or l:match("^%s*enum%s+[%w_]+")
+       or l:match("^%s*interface%s+[%w_]+")
+       or l:match("^%s*type%s+[%w_]+%s+struct") then
+      return true
+    end
+    return false
+  end
+
+  local function is_milestone(idx)
+    local l = lines[idx]
+    if is_empty(l) or is_preprocessor(l) or is_comment(l) then return false end
+    if is_block_header(l) then return true end
+    if is_control_header(l) then return true end
+    local next_l = lines[idx + 1]
+    if next_l and is_empty(next_l) then
+      if l:match("%b()") or l:match(";") or l:match(":=") then
+        return true
+      end
+    end
+    return false
+  end
+
+  local cur_pos = vim.api.nvim_win_get_cursor(0)
+  local cur_line = cur_pos[1]
+  local target_line = nil
+
+  if direction == "down" then
+    for i = cur_line + 1, total_lines do
+      if is_milestone(i) then
+        target_line = i
+        break
+      end
+    end
+    if not target_line and cur_line < total_lines then
+      target_line = total_lines
+    end
+  else
+    for i = cur_line - 1, 1, -1 do
+      if is_milestone(i) then
+        target_line = i
+        break
+      end
+    end
+    if not target_line and cur_line > 1 then
+      target_line = 1
+    end
+  end
+
+  if not target_line or target_line == cur_line then return end
+
+  vim.cmd("normal! m'")
+
+  local target_text = lines[target_line] or ""
+  local col = 0
+  local mode = vim.fn.mode()
+
+  if mode == "v" or mode == "\22" then
+    col = #target_text
+  elseif mode == "V" then
+    col = 0
+  else
+    local first_nb = target_text:find("%S")
+    col = first_nb and (first_nb - 1) or 0
+  end
+
+  vim.api.nvim_win_set_cursor(0, { target_line, col })
+  pcall(vim.cmd, "normal! zz")
+end
+
+local function set_scroll_keys()
+  pcall(vim.keymap.del, "n", "<C-Down>")
+  pcall(vim.keymap.del, "n", "<C-Up>")
+  for _, mode in ipairs({ "n", "x", "v" }) do
+    vim.keymap.set(mode, "<C-Down>",   function() smart_milestone_jump("down") end, { desc = "Próximo marco inteligente", noremap = true, silent = true, nowait = true })
+    vim.keymap.set(mode, "<C-Up>",     function() smart_milestone_jump("up") end,   { desc = "Marco inteligente anterior", noremap = true, silent = true, nowait = true })
+    vim.keymap.set(mode, "<Esc>[1;5B", function() smart_milestone_jump("down") end, { desc = "Próximo marco inteligente (raw)", noremap = true, silent = true, nowait = true })
+    vim.keymap.set(mode, "<Esc>[1;5A", function() smart_milestone_jump("up") end,   { desc = "Marco inteligente anterior (raw)", noremap = true, silent = true, nowait = true })
+  end
+end
+
+set_scroll_keys()
+vim.api.nvim_create_autocmd("User", {
+  pattern = "VeryLazy",
+  callback = set_scroll_keys,
+})
+
 
 

@@ -80,12 +80,10 @@ return {
             i = {
               ["<Esc>"] = actions.close,
               ["<C-c>"] = actions.close,
-              ["<C-q>"] = actions.send_to_qflist,
             },
             n = {
               ["<Esc>"] = actions.close,
               ["<C-c>"] = actions.close,
-              ["<C-q>"] = actions.send_to_qflist,
             },
           },
           attach_mappings = function(prompt_bufnr, _)

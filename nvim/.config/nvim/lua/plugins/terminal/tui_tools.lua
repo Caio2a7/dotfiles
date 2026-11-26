@@ -21,14 +21,6 @@ return {
     "folke/snacks.nvim",
     keys = {
       {
-        "<C-q>",
-        function()
-          open_tui_tool("sqlit", "SQLit")
-        end,
-        desc = "SQLit (TUI Database)",
-        mode = { "n", "v" },
-      },
-      {
         "<C-n>",
         function()
           open_tui_tool("termshark", "TermShark")
