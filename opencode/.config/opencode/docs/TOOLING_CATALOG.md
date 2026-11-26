@@ -4,7 +4,7 @@ Este catálogo detalha a suíte de scripts utilitários mantidos no diretório [
 
 ---
 
-## 🧰 Visão Geral dos Utilitários
+## Visão Geral dos Utilitários
 
 ```mermaid
 graph LR
@@ -375,6 +375,6 @@ systemctl --user list-timers opencode-maintenance.timer
 
 ---
 
-## 🔌 Servidores MCP
+## Servidores MCP
 
 Só o `context7` (remoto, `https://mcp.context7.com/mcp`) está configurado. Os demais MCPs foram removidos do `opencode.json`; para uma integração pontual, adicione o bloco em `mcp.servers` do `opencode.json` do projeto, com `disabled: false`. Substitutos nativos: LSP do OpenCode (`lsp`) para diagnósticos, `grep` para referências, `git`/`docker` via shell.

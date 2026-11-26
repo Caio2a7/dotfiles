@@ -18,9 +18,9 @@ def is_tool_available(name: str) -> bool:
 
 def run_secrets_scan(target_path: str):
     """Audits target for secrets, API keys, and credentials using Gitleaks."""
-    print("### 🔑 Auditoria de Segredos & Credenciais (Gitleaks)\n")
+    print("### Auditoria de Segredos & Credenciais (Gitleaks)\n")
     if not is_tool_available("gitleaks"):
-        print("⚠️ `gitleaks` não encontrado no PATH.")
+        print("`gitleaks` não encontrado no PATH.")
         return
 
     import tempfile
@@ -44,7 +44,7 @@ def run_secrets_scan(target_path: str):
         res = subprocess.run(cmd, capture_output=True, text=True)
 
         if res.returncode == 0:
-            print("✅ **Nenhum segredo ou credencial exposta** foi detectado.")
+            print("**Nenhum segredo ou credencial exposta** foi detectado.")
             return
 
         if os.path.exists(report_file) and os.path.getsize(report_file) > 0:
@@ -52,10 +52,10 @@ def run_secrets_scan(target_path: str):
                 data = json.load(f)
 
             if not data:
-                print("✅ **Nenhum segredo ou credencial exposta** foi detectado.")
+                print("**Nenhum segredo ou credencial exposta** foi detectado.")
                 return
 
-            print(f"🚨 **{len(data)} vazamento(s) de segredo(s) detectado(s):**\n")
+            print(f"**{len(data)} vazamento(s) de segredo(s) detectado(s):**\n")
             print("| Regra | Arquivo | Linha | Chave Ofuscada |")
             print("| :--- | :--- | :---: | :--- |")
             for item in data[:20]:
@@ -66,9 +66,9 @@ def run_secrets_scan(target_path: str):
                 masked = secret[:3] + "..." + secret[-3:] if len(secret) > 6 else "***"
                 print(f"| `{rule}` | `{file_name}` | {line} | `{masked}` |")
         else:
-            print("⚠️ Alerta de segredo detectado pelo Gitleaks.")
+            print("Alerta de segredo detectado pelo Gitleaks.")
     except Exception as e:
-        print(f"⚠️ Erro ao processar relatório do Gitleaks: {e}")
+        print(f"Erro ao processar relatório do Gitleaks: {e}")
     finally:
         if os.path.exists(report_file):
             try:
@@ -79,9 +79,9 @@ def run_secrets_scan(target_path: str):
 
 def run_sast_scan(target_path: str):
     """Performs Static Application Security Testing (SAST) using Semgrep."""
-    print("\n### 🛡️ Análise Estática de Vulnerabilidades (Semgrep SAST)\n")
+    print("\n### Análise Estática de Vulnerabilidades (Semgrep SAST)\n")
     if not is_tool_available("semgrep"):
-        print("⚠️ `semgrep` não encontrado no PATH.")
+        print("`semgrep` não encontrado no PATH.")
         return
 
     cmd = [
@@ -102,11 +102,11 @@ def run_sast_scan(target_path: str):
 
         if not results:
             print(
-                "✅ **Nenhuma vulnerabilidade estática (SAST) de alto risco** detectada pelas regras ativas."
+                "**Nenhuma vulnerabilidade estática (SAST) de alto risco** detectada pelas regras ativas."
             )
             return
 
-        print(f"⚠️ **{len(results)} apontamento(s) de segurança identificados:**\n")
+        print(f"**{len(results)} apontamento(s) de segurança identificados:**\n")
         print("| Severidade | Regra / CWE | Arquivo | Linha | Mensagem |")
         print("| :---: | :--- | :--- | :---: | :--- |")
 
@@ -120,14 +120,14 @@ def run_sast_scan(target_path: str):
             msg = extra.get("message", "").strip().replace("\n", " ")[:80]
             print(f"| {badge} {sev} | `{check_id}` | `{path}` | {start} | {msg} |")
     except Exception as e:
-        print(f"⚠️ Falha ao processar saída do Semgrep: {e}")
+        print(f"Falha ao processar saída do Semgrep: {e}")
 
 
 def run_deps_scan(target_path: str):
     """Scans dependencies for known CVEs using OSV-Scanner."""
-    print("\n### 📦 Auditoria de Dependências & CVEs (OSV-Scanner)\n")
+    print("\n### Auditoria de Dependências & CVEs (OSV-Scanner)\n")
     if not is_tool_available("osv-scanner"):
-        print("⚠️ `osv-scanner` não encontrado no PATH.")
+        print("`osv-scanner` não encontrado no PATH.")
         return
 
     cmd = ["osv-scanner", "scan", "source", "-r", "--format", "json", target_path]
@@ -156,19 +156,19 @@ def run_deps_scan(target_path: str):
 
         if total_vulns == 0:
             print(
-                "✅ **Nenhuma CVE conhecida** encontrada nos manifests e lockfiles inspecionados."
+                "**Nenhuma CVE conhecida** encontrada nos manifests e lockfiles inspecionados."
             )
             return
 
         print(
-            f"🚨 **{total_vulns} vulnerabilidade(s) de dependência(s) detectada(s):**\n"
+            f"**{total_vulns} vulnerabilidade(s) de dependência(s) detectada(s):**\n"
         )
         print("| ID (CVE / GHSA) | Pacote | Versão Atual | Resumo |")
         print("| :--- | :--- | :---: | :--- |")
         for vid, pname, pver, summary in vuln_rows[:25]:
             print(f"| `{vid}` | `{pname}` | `{pver}` | {summary} |")
     except Exception as e:
-        print(f"⚠️ Falha ao processar saída do OSV-Scanner: {e}")
+        print(f"Falha ao processar saída do OSV-Scanner: {e}")
 
 
 def main():

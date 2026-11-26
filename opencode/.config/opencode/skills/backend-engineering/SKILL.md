@@ -14,12 +14,12 @@ Diretrizes práticas de engenharia de software para desenvolvimento backend robu
 ### A. Encapsulamento & Modelo de Domínio Rico
 - **Tell, Don't Ask:** Não use objetos como meras estruturas de dados passivas cheias de getters e setters (`anemic domain model`). Mova o comportamento para dentro da entidade:
   ```java
-  // ❌ Anêmico / Procedural:
+  // Anêmico / Procedural:
   if (order.getStatus().equals("PENDING") && order.getItems().size() > 0) {
       order.setStatus("PAID");
   }
 
-  // ✅ Orientado a Objetos Rico:
+  // Orientado a Objetos Rico:
   order.markAsPaid(paymentReceipt);
   ```
 - **Imutabilidade com Value Objects:** Use `record` (Java) ou estruturas imutáveis para conceitos que não possuem identidade própria (ex: `Money`, `EmailAddress`, `Coordinates`, `DateRange`). Valide invariantes no construtor.

@@ -72,7 +72,7 @@ class AnsiReporter:
             f"{CLR_BOLD}{CLR_CYAN}{thin}{CLR_RESET}",
             f"  {CLR_BOLD}AQEI GLOBAL COMPOSITE:{CLR_RESET} {score_clr}{result.global_score:>6.2f} / 100.0{CLR_RESET}  [{status_clr}{result.status}{CLR_RESET}]",
             f"{CLR_BOLD}{CLR_CYAN}{border}{CLR_RESET}",
-            f"\n{CLR_BOLD}{CLR_WHITE}📌 PLANO DE AÇÃO & RECOMENDAÇÕES PARA 99% SOTA:{CLR_RESET}",
+            f"\n{CLR_BOLD}{CLR_WHITE}PLANO DE AÇÃO & RECOMENDAÇÕES PARA 99% SOTA:{CLR_RESET}",
         ])
         for rec in result.recommendations:
             bullet = f"{CLR_GREEN}✓{CLR_RESET}" if "Nenhuma" in rec else f"{CLR_YELLOW}▶{CLR_RESET}"
@@ -82,7 +82,7 @@ class AnsiReporter:
 
     @staticmethod
     def _render_violations(violations: List[AuditViolation]) -> List[str]:
-        out = [f"\n{CLR_BOLD}{CLR_WHITE}⚠️  DETALHAMENTO DAS VIOLAÇÕES ENCONTRADAS:{CLR_RESET}"]
+        out = [f"\n{CLR_BOLD}{CLR_WHITE}DETALHAMENTO DAS VIOLAÇÕES ENCONTRADAS:{CLR_RESET}"]
         for v in violations[:15]:
             out.append(f"  {CLR_RED}✖{CLR_RESET} [{v.violation_type}] {Path(v.file_path).name}:{v.line_number} -> {v.description}")
         if len(violations) > 15:

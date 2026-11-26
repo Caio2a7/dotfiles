@@ -16,4 +16,4 @@ Checklist de validação pré-commit e pré-merge. Para diretrizes detalhadas de
 6. **Controle de Acesso:** Verificação explícita de permissões e prevenção de IDOR/BOLA (`userId: currentUser.id`).
 7. **Dependências (SCA):** Zero vulnerabilidades críticas/altas no relatório de auditoria (`npm audit`, `pip-audit`).
 
-> ℹ️ **Referência Completa:** Para análise aprofundada, requisitos OWASP e regras estruturais, invoque a skill `security-audit`.
+> **Referência Completa:** Para análise aprofundada, requisitos OWASP e regras estruturais, invoque a skill `security-audit`.

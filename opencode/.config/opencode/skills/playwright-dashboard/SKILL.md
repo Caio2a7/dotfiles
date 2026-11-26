@@ -7,7 +7,7 @@ description: Launch Playwright UI Mode, HTML test reports, and Trace Viewer dash
 
 Esta skill orienta a abertura e execução dos dashboards visuais do Playwright, tanto sob demanda quanto **automaticamente** durante o ciclo de testes.
 
-## 🤖 Gatilhos Automáticos (Durante Testes e TDD):
+## Gatilhos Automáticos (Durante Testes e TDD):
 1. **Gravação de Trace Obrigatória:**
    - Todo teste executado pelo agente inclui `--trace on-first-retry` para garantir a geração da autópsia visual.
 2. **Abertura Automática Pós-Falha:**
@@ -20,7 +20,7 @@ Esta skill orienta a abertura e execução dos dashboards visuais do Playwright,
 
 ---
 
-## 🖥️ Abertura Sob Demanda:
+## Abertura Sob Demanda:
 
 ### 1. Playwright UI Mode (Dashboard Local Interativo)
 Executa com Time-Travel Debugging, Watch Mode e visualização ao vivo:

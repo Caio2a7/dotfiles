@@ -7,13 +7,13 @@ description: Web interaction, UI verification, and browser automation using Play
 
 Esta skill orienta o uso do **Playwright CLI oficial (`playwright-cli`)** para testes E2E, validação visual e automação eficiente de navegadores sem scripts ad-hoc e sem sobrecarga de MCP.
 
-## ⚡ Regra de Ouro: Proibido Criar Scripts JS sob Demanda
+## Regra de Ouro: Proibido Criar Scripts JS sob Demanda
 O agente **NUNCA deve inventar scripts `node -e`** para navegar ou clicar.
 Utilize exclusivamente os comandos atômicos oficiais da CLI do Playwright (`playwright-cli`), que executam de forma determinística e em milissegundos.
 
 ---
 
-## 🛠️ Vocabulário Oficial do `playwright-cli`:
+## Vocabulário Oficial do `playwright-cli`:
 
 ### 1. Navegação
 ```bash
@@ -76,7 +76,7 @@ npx playwright test --trace on-first-retry
 
 ---
 
-## 🔒 Boas Práticas:
+## Boas Práticas:
 - Use seletores acessíveis e semânticos (`text="..."`, `button[type='submit']`, `[name='...']`).
 - Em testes automatizados, utilize o modo headless padrão.
 - Ao finalizar automações, encerre a sessão do CLI: `playwright-cli close`.

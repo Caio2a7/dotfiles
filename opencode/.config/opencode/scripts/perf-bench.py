@@ -18,9 +18,9 @@ def is_tool_available(name: str) -> bool:
 
 def benchmark_cli(commands: list, warmup: int = 2, runs: int = 5):
     """Runs statistical CLI benchmarking using Hyperfine."""
-    print("### ⚡ Benchmark de Execução CLI (Hyperfine)\n")
+    print("### Benchmark de Execução CLI (Hyperfine)\n")
     if not is_tool_available("hyperfine"):
-        print("⚠️ `hyperfine` não encontrado no PATH.")
+        print("`hyperfine` não encontrado no PATH.")
         return
 
     import tempfile
@@ -61,7 +61,7 @@ def benchmark_cli(commands: list, warmup: int = 2, runs: int = 5):
                 std_s = f"{r.get('stddev', 0) * 1000:.2f} ms"
                 print(f"| `{c}` | **{mean_s}** | {min_s} | {max_s} | {std_s} |")
     except Exception as e:
-        print(f"⚠️ Erro ao executar hyperfine: {e}")
+        print(f"Erro ao executar hyperfine: {e}")
     finally:
         if os.path.exists(json_out):
             try:
@@ -74,7 +74,7 @@ def benchmark_http(
     url: str, connections: int = 10, duration: int = 5, pipelining: int = 1
 ):
     """Runs HTTP throughput and latency percentile testing using Autocannon."""
-    print(f"### 🌐 Teste de Carga & Latência HTTP: `{url}`\n")
+    print(f"### Teste de Carga & Latência HTTP: `{url}`\n")
     cmd = [
         "npx",
         "-y",
@@ -92,7 +92,7 @@ def benchmark_http(
 
     res = subprocess.run(cmd, capture_output=True, text=True)
     if res.returncode != 0 and not res.stdout.strip():
-        print(f"⚠️ Falha no teste HTTP:\n{res.stderr}")
+        print(f"Falha no teste HTTP:\n{res.stderr}")
         return
 
     try:
@@ -125,7 +125,7 @@ def benchmark_http(
             f"| **Erros 4xx / 5xx / Timeouts** | `{data.get('non2xx', 0)} / {data.get('timeouts', 0)}` |"
         )
         print("")
-        print("#### ⏱️ Distribuição de Latência (Percentis)")
+        print("#### Distribuição de Latência (Percentis)")
         print("| Percentil | Latência |")
         print("| :--- | :---: |")
         print(
@@ -137,7 +137,7 @@ def benchmark_http(
         print(f"| **p99 (Cauda Longa)** | `{lat.get('p99', 0):.2f} ms` |")
         print(f"| **Máxima** | `{lat.get('max', 0):.2f} ms` |")
     except Exception as e:
-        print(f"⚠️ Erro ao processar relatório do Autocannon: {e}")
+        print(f"Erro ao processar relatório do Autocannon: {e}")
         print(res.stdout[:400])
 
 

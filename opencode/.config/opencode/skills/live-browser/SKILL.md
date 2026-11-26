@@ -7,13 +7,13 @@ description: Live interaction with the user's running Helium browser via CDP. Us
 
 Comandos CLI atômicos e instantâneos (< 200ms) para operar a aba ativa do **Helium Browser** do desenvolvedor via Chrome DevTools Protocol na porta 9222.
 
-## ⚠️ Regra Mandatória de Confirmação Prévia:
+## Regra Mandatória de Confirmação Prévia:
 - Quando o usuário solicitar uma ação em seu navegador aberto, o agente **deve perguntar autorização primeiro** caso ainda não tenha autorização na sessão.
 - Uma vez autorizado, o agente **deve executar comandos CLI diretos via `live-browser`** (NUNCA escreva scripts Node improvisados).
 
 ---
 
-## ⚡ Comandos CLI Atômicos (Executam em < 200ms):
+## Comandos CLI Atômicos (Executam em < 200ms):
 
 ### 1. Pesquisar e Abrir Nova Aba no Navegador
 Abre imediatamente uma nova aba pesquisando no Google e trazendo-a para o primeiro plano:
@@ -52,7 +52,7 @@ live-browser screenshot preview.png
 
 ---
 
-## 🔒 Regras por Modo:
+## Regras por Modo:
 - **`orchestrator` e `agentic`:** Autorizados a navegar, pesquisar, clicar e rolar.
 - **`build`:** Solicita confirmação de comandos de modificação de sistema conforme padrão.
 - **`plan`:** **SOMENTE LEITURA.** Permitido apenas `inspect`, `find` e `screenshot`. Proibido `click` ou navegações que alterem o estado da página.

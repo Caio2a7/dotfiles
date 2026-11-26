@@ -15,7 +15,7 @@ def format_reset_time(iso_str: Optional[str]) -> str:
         dt = datetime.datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
         secs = int((dt - datetime.datetime.now(datetime.timezone.utc)).total_seconds())
         if secs <= 0:
-            return "✅ Resetado / Disponível"
+            return "Resetado / Disponível"
         d, rem = divmod(secs, 86400)
         h, m = divmod(rem, 3600)
         p = ([f"{d}d"] if d else []) + ([f"{h}h"] if (h or d) else []) + [f"{m // 60}m"]
@@ -43,13 +43,17 @@ def _render_claude_section(lines: List[str], is_active: bool) -> None:
         return
     state = "🔴 Limite atingido" if st["limited"] else f"🟢 {st['state']}"
     util = st.get("utilization")
-    util_txt = format_percent(100 - util * 100) if isinstance(util, (int, float)) else "N/D"
+    util_txt = (
+        format_percent(100 - util * 100) if isinstance(util, (int, float)) else "N/D"
+    )
     if not is_active:
-        lines.append(f"- **Plano Claude:** {state} | Reset: {format_reset_time(st['resets_at'])}.")
+        lines.append(
+            f"- **Plano Claude:** {state} | Reset: {format_reset_time(st['resets_at'])}."
+        )
         return
     lines.extend(
         [
-            "#### 🎯 Plano Claude (via opencode-claude)",
+            "#### Plano Claude (via opencode-claude)",
             "| Estado | Janela | Restante | Reset Previsto |",
             "| :--- | :---: | :---: | :--- |",
             f"| {state} | `{st.get('window') or 'N/D'}` | {util_txt} | {format_reset_time(st['resets_at'])} |",
@@ -77,7 +81,7 @@ def _render_openrouter_details(
         lines.append(
             "- **OpenRouter:** Chave não configurada no ambiente (`OPENROUTER_API_KEY`)."
             if not is_active
-            else "⚠️ Nenhuma chave OpenRouter encontrada em `OPENROUTER_FREE_API_KEY` ou `OPENROUTER_API_KEY`."
+            else "Nenhuma chave OpenRouter encontrada em `OPENROUTER_FREE_API_KEY` ou `OPENROUTER_API_KEY`."
         )
         return
     if st != "ok":
@@ -94,12 +98,12 @@ def _render_openrouter_details(
     free = "Sim" if d.get("is_free_tier") else "Não"
     lines.extend(
         [
-            "#### 🎯 Status OpenRouter (Provedor Ativo)",
+            "#### Status OpenRouter (Provedor Ativo)",
             "| Chave | Limite | Uso | Cota Free | Taxa / Limite |",
             "| :--- | :---: | :--- | :---: | :---: |",
             f"| `{lbl}` | {lim} | {usage} | {free} | {reqs} reqs |",
             "",
-            "#### ℹ️ Outros Provedores",
+            "#### Outros Provedores",
         ]
     )
     _render_claude_section(lines, is_active=False)
@@ -120,7 +124,7 @@ def build_report(active: Dict[str, Any], forced_model: Optional[str] = None) -> 
         else ""
     )
     lines = [
-        f"### 📊 Relatório de Cota — Modelo Ativo: `{active['provider_id']}/{active['model_id']}`{v}",
+        f"### Relatório de Cota — Modelo Ativo: `{active['provider_id']}/{active['model_id']}`{v}",
         f"> **Provedor:** `{active['provider_id']}` | **Grupo de Cota:** `{lbl}`",
         "",
     ]

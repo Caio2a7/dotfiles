@@ -24,31 +24,31 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-echo "📦 Criando worktree temporária em $WT_PATH baseada em $CURRENT_BRANCH..."
+echo "Criando worktree temporária em $WT_PATH baseada em $CURRENT_BRANCH..."
 git worktree add --detach "$WT_PATH" HEAD >/dev/null 2>&1
 
-echo "🚀 Executando tarefa isolada: $*"
+echo "Executando tarefa isolada: $*"
 set +e
 (cd "$WT_PATH" && "$@")
 CMD_EXIT=$?
 set -e
 
 if [ $CMD_EXIT -eq 0 ]; then
-  echo "✅ Tarefa concluída com sucesso (código 0)."
+  echo "Tarefa concluída com sucesso (código 0)."
   CHANGES=$(git -C "$WT_PATH" status --porcelain)
   if [ -n "$CHANGES" ]; then
-    echo "📋 Alterações detectadas no sandbox:"
+    echo "Alterações detectadas no sandbox:"
     git -C "$WT_PATH" diff --stat
     echo ""
-    echo "🔄 Aplicando alterações no repositório de trabalho..."
+    echo "Aplicando alterações no repositório de trabalho..."
     git -C "$WT_PATH" diff | git apply --reject --whitespace=fix - || {
-      echo "⚠️ Aviso: Conflito ao aplicar patch direto. Sincronize manualmente se necessário."
+      echo "Aviso: Conflito ao aplicar patch direto. Sincronize manualmente se necessário."
     }
   else
-    echo "ℹ️ Nenhuma alteração de arquivo gerada."
+    echo "Nenhuma alteração de arquivo gerada."
   fi
 else
-  echo "❌ Falha na execução da tarefa (código $CMD_EXIT)."
-  echo "🛡️ Sandbox revertido: O repositório principal permaneceu 100% protegido."
+  echo "Falha na execução da tarefa (código $CMD_EXIT)."
+  echo "Sandbox revertido: O repositório principal permaneceu 100% protegido."
   exit $CMD_EXIT
 fi

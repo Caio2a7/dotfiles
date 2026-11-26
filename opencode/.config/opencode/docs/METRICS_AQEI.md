@@ -6,7 +6,7 @@ O índice é computado pelo auditor determinístico [`scripts/aqei-scorer.py`](.
 
 ---
 
-## 📐 1. Formulação Matemática das 5 Dimensões
+## 1. Formulação Matemática das 5 Dimensões
 
 O AQEI avalia cinco eixos ortogonais e complementares da operação de agentes inteligentes:
 
@@ -70,7 +70,7 @@ Garante a integridade sintática e a saúde estrutural dos arquivos de código:
 
 ---
 
-## 🛑 2. O Operador de Barreira Crítica ($\Gamma_{\text{crit}}$)
+## 2. O Operador de Barreira Crítica ($\Gamma_{\text{crit}}$)
 
 Médias ponderadas aritméticas convencionais sofrem da **Falácia da Compensação**: um código com 100% de raciocínio, zero loops e ótimo cache ainda pontuaria $85\%$ se contivesse erros de sintaxe ou stubs proibidos, enganando os portões de deploy.
 
@@ -90,14 +90,14 @@ $$\Gamma_{\text{crit}} = \begin{cases}
 
 | Score AQEI Final | Status do Sistema | Decisão do Quality Gate |
 | :---: | :--- | :--- |
-| **$\ge 99.00\%$** | **PADRÃO OURO SOTA $\ge 99\%$** | ✅ **Aprovação Automática Total** |
-| **$90.00\% - 98.99\%$** | **PRODUÇÃO EXCELENTE** | ✅ **Aprovado para Staging / Produção** |
-| **$75.00\% - 89.99\%$** | **ACEITÁVEL / SUB-ÓTIMO** | ⚠️ **Requer Refinamento (IRE)** |
-| **$< 75.00\%$** | **CRÍTICO** | ❌ **BLOQUEIO SUMÁRIO (Gating Rejeitado)** |
+| **$\ge 99.00\%$** | **PADRÃO OURO SOTA $\ge 99\%$** | **Aprovação Automática Total** |
+| **$90.00\% - 98.99\%$** | **PRODUÇÃO EXCELENTE** | **Aprovado para Staging / Produção** |
+| **$75.00\% - 89.99\%$** | **ACEITÁVEL / SUB-ÓTIMO** | **Requer Refinamento (IRE)** |
+| **$< 75.00\%$** | **CRÍTICO** | **BLOQUEIO SUMÁRIO (Gating Rejeitado)** |
 
 ---
 
-## 🔄 3. Iterative Refinement Engine (IRE)
+## 3. Iterative Refinement Engine (IRE)
 
 O **Iterative Refinement Engine (IRE)** é a esteira formal de convergência algorítmica utilizada para resgatar sessões ou bases de código sub-ótimas e elevá-las até o Padrão Ouro SOTA ($\ge 99\%$):
 
@@ -126,7 +126,7 @@ flowchart TD
 
 ---
 
-## 💻 4. Guia Operacional do `scripts/aqei-scorer.py`
+## 4. Guia Operacional do `scripts/aqei-scorer.py`
 
 O script auditor está localizado em [`/home/caio/.config/opencode/scripts/aqei-scorer.py`](../scripts/aqei-scorer.py) e pode ser executado em três modos determinísticos:
 

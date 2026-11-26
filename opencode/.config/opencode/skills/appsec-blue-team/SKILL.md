@@ -31,10 +31,10 @@ Diretrizes práticas para hardening ativo, remediação de código e defesa em p
 ## 2. Controle de Acesso & Autorização (Prevenção de IDOR/BOLA)
 - Toda consulta a recursos do banco de dados DEVE incluir a cláusula de posse do usuário autenticado:
   ```typescript
-  // ❌ Inseguro (IDOR):
+  // Inseguro (IDOR):
   const order = await db.order.findUnique({ where: { id: req.params.orderId } });
 
-  // ✅ Seguro (Proteção contra IDOR):
+  // Seguro (Proteção contra IDOR):
   const order = await db.order.findFirst({
     where: { id: req.params.orderId, userId: req.user.id }
   });
