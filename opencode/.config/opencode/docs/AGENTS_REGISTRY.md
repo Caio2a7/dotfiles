@@ -37,7 +37,7 @@ Seis agentes de domínio saíram (dados, banco, performance, red team, refatora�
 
 ## Seleção do modelo
 
-O plugin `agent-model-sync` aplica o modelo do agente primário à sessão ao iniciar ou ao trocar de agente (o runner do V2.2.6 ignora o `model` de agentes primários). Uma troca manual de modelo é preservada até a próxima troca de agente. Subagentes usam o `model` do próprio frontmatter.
+O plugin `agent-model-sync` aplica o modelo do agente primário à sessão ao iniciar ou ao trocar de agente (o runner do V2.2.6 ignora o `model` de agentes primários). Uma troca manual de modelo é preservada até a próxima troca de agente. Quando o orchestrator rodar em qualquer modelo do Antigravity, os subagentes disparados herdam automaticamente o mesmo modelo do orchestrator; caso contrário, usam o `model` do próprio frontmatter (Sonnet 5.5 por padrão, Opus para architect e debugger).
 
 ## Comandos que roteiam para agentes
 
