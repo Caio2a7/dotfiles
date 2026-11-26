@@ -559,13 +559,15 @@ scale slider:active,
 /* ------------------------------------------------------------------ */
 /* MODERN APPLE LIQUID GLASS DOCK / WORK LAUNCHER                      */
 /* ------------------------------------------------------------------ */
+window.WorkPill,
 .WorkPill {
   background: transparent;
+  background-color: transparent;
 }
 
 .dock-wrapper {
   background: transparent;
-  padding: 24px 0 24px 28px;
+  padding: 6px 0 6px 6px;
   margin: 0;
 }
 
@@ -590,26 +592,16 @@ scale slider:active,
 
 .liquid-dock-container {
   background: rgba(18, 24, 38, 0.74);
-  backdrop-filter: blur(36px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  /* border-top: 1px solid rgba(255, 255, 255, 0.32); */
-  border-left: 1px solid rgba(255, 255, 255, 0.32);
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
+  border-left: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 22px;
-  /* padding: 5px 12px; */
-  /* padding: 12px 5px; */
-  /* padding: 10px 2px; */
-  /* padding: 10px 1px; */
-  /* padding: 10px 0; */
   padding: 10px 3px; /* barra volta a 48px; cápsulas ficam 30px centradas */
-  /* margin-bottom: 12px; */
-  /* margin-top: 12px; */
-  /* margin-right: 12px; */
   margin-right: 6px;
   box-shadow:
-    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 0 rgba(255, 255, 255, 0.06),
-    -6px 0 18px rgba(0, 0, 0, 0.45),
-    0 2px 8px rgba(0, 0, 0, 0.30);
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
+    inset 1px 0 0 0 rgba(255, 255, 255, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.18);
   transition: all 200ms ease;
 }
 

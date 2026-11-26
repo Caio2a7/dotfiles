@@ -571,15 +571,18 @@ export function Work(monitor = 0) {
   win.overflow = Gtk.Overflow.VISIBLE
 
   // Mantém exclusive zone fixo no tamanho real do dock (48px) para não empurrar janelas do desktop além do necessário
-  const applyExclusiveZone = () => {
+  const applyLayerShellConfig = () => {
     Gtk4LayerShell.set_exclusive_zone(win, 48)
+    Gtk4LayerShell.set_margin(win, Gtk4LayerShell.Edge.TOP, 30)
+    Gtk4LayerShell.set_margin(win, Gtk4LayerShell.Edge.BOTTOM, 30)
   }
-  applyExclusiveZone()
-  win.connect("realize", applyExclusiveZone)
-  win.connect("map", applyExclusiveZone)
+  applyLayerShellConfig()
+  win.connect("realize", applyLayerShellConfig)
+  win.connect("map", applyLayerShellConfig)
 
-  // Permite clicar através da margem transparente à esquerda quando o mouse estiver fora do dock
-  const DOCK_PADDING_LEFT = 30
+  // Permite clicar através da margem transparente ao redor do dock quando o mouse estiver fora
+  const DOCK_PADDING_LEFT = 6
+  const DOCK_PADDING_Y = 6
   const updateInput = (expanded: boolean) => {
     const surface = getSurface(win)
     if (!surface) return
@@ -592,9 +595,9 @@ export function Work(monitor = 0) {
       const width = surface.get_width()
       region.unionRectangle({
         x: DOCK_PADDING_LEFT,
-        y: 0,
+        y: DOCK_PADDING_Y,
         width: Math.max(0, width - DOCK_PADDING_LEFT),
-        height: height,
+        height: Math.max(0, height - (DOCK_PADDING_Y * 2)),
       })
       surface.set_input_region(region)
     }
