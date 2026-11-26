@@ -13,6 +13,8 @@ local colors = {
   rosa_suave = "#D986C8",
   rosa_magenta_vibrante = "#E03B8B",
   azul_tipo = "#59A6E6",
+  azul_escuro_op = "#2E7EC2",
+  macro_const = "#C8A0E0",
   azul_claro_var = "#9EE5FF",
   amarelo_func = "#D9D9A6",
   verde_struct = "#47D1B2",
@@ -62,6 +64,7 @@ local function apply_keywords(hl, c)
   hl("@keyword.type", { fg = c.azul_tipo, bold = true })
   hl("@keyword.storage", { fg = c.azul_tipo, bold = true })
   hl("@keyword.coroutine", { fg = c.azul_tipo, bold = true })
+  hl("@keyword.operator", { fg = c.azul_escuro_op, bold = true })
 end
 
 local function apply_types_and_vars(hl, c)
@@ -87,6 +90,8 @@ local function apply_literals_and_comments(hl, c)
   hl("@number", { fg = c.limao_num })
   hl("@boolean", { fg = c.limao_num })
   hl("@constant.builtin", { fg = c.limao_num })
+  hl("@constant.macro", { fg = c.macro_const, bold = true })
+  hl("@constant", { fg = c.macro_const })
   hl("@punctuation", { fg = c.branco_pont })
   hl("@operator", { fg = c.branco_pont })
   hl("@comment", { fg = c.verde_coment, italic = true })

@@ -4,9 +4,14 @@ vim.diagnostic.config({
   virtual_text = {
     prefix = "●",
     spacing = 4,
+    severity = { min = vim.diagnostic.severity.ERROR },
   },
-  signs = true,
-  underline = true,
+  signs = {
+    severity = { min = vim.diagnostic.severity.ERROR },
+  },
+  underline = {
+    severity = { min = vim.diagnostic.severity.ERROR },
+  },
   update_in_insert = false,
   severity_sort = true,
 })
@@ -18,9 +23,14 @@ local function toggle_diagnostics()
       virtual_text = {
         prefix = "●",
         spacing = 4,
+        severity = { min = vim.diagnostic.severity.ERROR },
       },
-      signs = true,
-      underline = true,
+      signs = {
+        severity = { min = vim.diagnostic.severity.ERROR },
+      },
+      underline = {
+        severity = { min = vim.diagnostic.severity.ERROR },
+      },
       update_in_insert = false,
       severity_sort = true,
     })
