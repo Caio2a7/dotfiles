@@ -73,7 +73,7 @@ def collect_files(target_dir: str) -> List[str]:
         "__pycache__",
         ".venv",
         "venv",
-        ".aiflow",
+        ".aist",
     }
     code_files: List[str] = []
     for root, dirs, files in os.walk(target_dir):
@@ -85,9 +85,9 @@ def collect_files(target_dir: str) -> List[str]:
 
 
 def get_index_path(base_dir: str) -> str:
-    aiflow = os.path.join(base_dir, ".aiflow")
-    if os.path.isdir(aiflow):
-        return os.path.join(aiflow, "code-embeddings.json")
+    aist = os.path.join(base_dir, ".aist")
+    if os.path.isdir(aist):
+        return os.path.join(aist, "code-embeddings.json")
     return os.path.join(base_dir, ".code-embeddings.json")
 
 
@@ -123,9 +123,9 @@ def load_index(index_path: str) -> List[CodeChunk]:
     if not os.path.exists(index_path):
         alt = (
             os.path.join(os.path.dirname(index_path), ".code-embeddings.json")
-            if ".aiflow" in index_path
+            if ".aist" in index_path
             else os.path.join(
-                os.path.dirname(index_path), ".aiflow", "code-embeddings.json"
+                os.path.dirname(index_path), ".aist", "code-embeddings.json"
             )
         )
         if os.path.exists(alt):

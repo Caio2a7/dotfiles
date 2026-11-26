@@ -39,7 +39,7 @@ IGNORED_DIRS = {
     ".next",
     ".turbo",
     ".cache",
-    ".aiflow",
+    ".aist",
 }
 
 SOURCE_EXTENSIONS = {

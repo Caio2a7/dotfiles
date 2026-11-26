@@ -11,7 +11,7 @@ Esta skill gerencia a produção de documentação técnica viva que se adapta d
 
 ## 1. Ciclo de Adaptação de Estilo (Living Style Guide)
 
-O arquivo `.aiflow/docs-style.md` (ou `~/.config/opencode/docs-style.md`) define as regras ativas de redação do projeto:
+O arquivo `.aist/docs-style.md` (ou `~/.config/opencode/docs-style.md`) define as regras ativas de redação do projeto:
 
 ```markdown
 # Documentation Style Preferences
@@ -24,7 +24,7 @@ O arquivo `.aiflow/docs-style.md` (ou `~/.config/opencode/docs-style.md`) define
 
 ### Como Atualizar o Estilo sob Demanda:
 Se o usuário der instruções de calibração (ex: *"quero sem emojis"*, *"mais enxuta"*, *"formatação vertical"*):
-1. Atualize imediatamente as regras em `.aiflow/docs-style.md`.
+1. Atualize imediatamente as regras em `.aist/docs-style.md`.
 2. Aplique as novas diretrizes ao documento gerado.
 3. Todas as gerações futuras consultarão esse arquivo automaticamente.
 

@@ -1,6 +1,6 @@
 ---
 name: git-workflow
-description: Fluxo diário do Git: nomenclatura de branches, Conventional Commits em português e isolamento .aiflow.
+description: Fluxo diário do Git: nomenclatura de branches, Conventional Commits em português e isolamento .aist.
 ---
 
 # Fluxo Diário do Git & Versionamento
@@ -32,10 +32,10 @@ Todos os commits devem ser atômicos, no modo imperativo e redigidos em portugu�
 
 ---
 
-## 3. Isolamento da Pasta `.aiflow`
+## 3. Isolamento da Pasta `.aist`
 Para evitar poluição do repositório remoto com contextos transitórios de IA:
-- A pasta `.aiflow/` **DEVE** estar isolada no `.git/info/exclude` local:
+- A pasta `.aist/` **DEVE** estar isolada no `.git/info/exclude` local:
   ```bash
-  grep -qxF '.aiflow/' .git/info/exclude || echo '.aiflow/' >> .git/info/exclude
+  grep -qxF '.aist/' .git/info/exclude || echo '.aist/' >> .git/info/exclude
   ```
-- **Nunca** inclua arquivos de `.aiflow/` no `git add` ou em commits do repositório upstream, a menos que explicitamente exigido pela governança do time.
+- **Nunca** inclua arquivos de `.aist/` no `git add` ou em commits do repositório upstream, a menos que explicitamente exigido pela governança do time.
